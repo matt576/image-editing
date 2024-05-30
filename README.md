@@ -10,7 +10,7 @@ Currently, the following functions are supported:
 - Super-resolution
 
 ## 1. Set-up the environment:
-In the first place clone the current project by using:
+In the first place clone the current project.
 
 ```bash
 git clone https://github.com/matt576/image-editing.git
@@ -33,13 +33,11 @@ pip install diffusers["torch"] transformers
 In case the torch version is not supporting CUDA, manually install the version.
 
 ```bash
-pip install torch torchvision torchaudio --index-url  https://download.pytorch.org/whl/cu118
-
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
 ## 2. Functions demonstration:
-1. Inputation (Mask: SAM -> Diffusion (ControlNet) )
+### 1. Inpainting (Mask: SAM -> Diffusion (ControlNet) )
 #### Checkpoints:
 ###### SAM:
 Model:  facebook/sam-vit-base <br />
@@ -50,3 +48,34 @@ Pipeline: runwayml/stable-diffusion-v1-5 <br />
 
 Error: ControlNet generates black images for dtype.float16: <br />
 Error: Output produced contains NSFW content -> set safety_checker=None, requires_safety_checker=False for loading pipe
+
+### 2. Object Removal (Mask: Manual -> Diffusion (ControlNet) )
+#### Checkpoints:
+###### Latent Diffusion:
+Model: https://heibox.uni-heidelberg.de/f/4d9ac7ea40c64582b7c9/?dl=1 <br />
+###### ControlNet:
+Model: lllyasviel/control_v11p_sd15_inpaint <br />
+Pipeline: runwayml/stable-diffusion-v1-5 <br />
+
+Additional imports:
+```bash
+pip install omegaconf==2.1.1
+pip install pytorch-lightning==1.6.1  # possibly newer version
+pip install einops==0.3.0
+pip install -e git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers
+```
+In the file: **image-editing\src\taming-transformers\taming\data\utils.py**
+
+Change line 11:
+```bash
+from torch._six import string_classes
+```
+to
+```bash
+string_classes = str
+```
+Due to a no longer existing module _six since Pytorch 1.10. <br />
+Error: ControlNet generates black images for dtype.float16: <br />
+Error: Output produced contains NSFW content -> set safety_checker=None, requires_safety_checker=False for loading pipe
+
+Example: ***python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5***

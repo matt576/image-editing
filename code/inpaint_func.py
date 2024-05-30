@@ -13,8 +13,8 @@ import numpy as np
 import torch
 
 output_dir = "outputs/controlnet"
-filename = "output-5.png"
-text_prompt = "superhero dog, animated, disney"
+filename = "output-6.png"
+text_prompt = "cookie monster"
 
 
 init_image = Image.open("inputs/batman.jpg")
@@ -54,12 +54,11 @@ pipe.enable_model_cpu_offload()
 
 def inputation(input_image, mask_image, text_prompt, pipe):
     control_image = make_inpaint_condition(init_image, mask_image)      # image with extracted mask from input
-    # control_image.save(f"{output_dir}/control_img")
-    test = torchvision.transforms.v2.functional.to_pil_image(control_image[0])
-    test.save(f"{output_dir}/test.png")
+    # test = torchvision.transforms.v2.functional.to_pil_image(control_image[0])
+    # test.save(f"{output_dir}/test.png")
 
     output = pipe(
-        prompt=text_prompt,
+        # prompt=text_prompt,
         num_inference_steps=5,
         eta=1.0,
         image=input_image,

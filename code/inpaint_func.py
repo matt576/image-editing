@@ -14,7 +14,7 @@ import torch
 
 output_dir = "outputs/controlnet"
 filename = "output-6.png"
-text_prompt = "cookie monster"
+text_prompt = "luchador mask"
 
 
 init_image = Image.open("inputs/batman.jpg")
@@ -27,8 +27,8 @@ mask_image = mask_image.resize((512, 512))
 
 
 def make_inpaint_condition(image, image_mask):
-    image = np.array(image.convert("RGB")).astype(np.float32) / 255.0
-    image_mask = np.array(image_mask.convert("L")).astype(np.float32) / 255.0
+    image = np.array(image.convert("RGB")).astype(np.float16) / 255.0
+    image_mask = np.array(image_mask.convert("L")).astype(np.float16) / 255.0
 
     assert image.shape[0:1] == image_mask.shape[0:1]
     image[image_mask > 0.5] = -1.0  # set as masked pixel
@@ -38,12 +38,12 @@ def make_inpaint_condition(image, image_mask):
 
 
 controlnet = ControlNetModel.from_pretrained("lllyasviel/control_v11p_sd15_inpaint",
-                                             torch_dtype=torch.float32,
+                                             torch_dtype=torch.float16,
                                              use_safetensors=True)
 
 pipe = StableDiffusionControlNetInpaintPipeline.from_pretrained("runwayml/stable-diffusion-v1-5",
                                                                 controlnet=controlnet,
-                                                                torch_dtype=torch.float32,
+                                                                torch_dtype=torch.float16,
                                                                 use_safetensors=True,
                                                                 safety_checker=None,
                                                                 requires_safety_checker=False)
@@ -58,7 +58,7 @@ def inputation(input_image, mask_image, text_prompt, pipe):
     # test.save(f"{output_dir}/test.png")
 
     output = pipe(
-        # prompt=text_prompt,
+        prompt=text_prompt,
         num_inference_steps=5,
         eta=1.0,
         image=input_image,

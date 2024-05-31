@@ -1,3 +1,9 @@
 [submodule "diffusers"]
 	path = diffusers
 	url = https://github.com/huggingface/diffusers
+[submodule "transformers"]
+	path = transformers
+	url = https://github.com/huggingface/transformers
+[submodule "latent-diffusion"]
+	path = latent-diffusion
+	url = https://github.com/CompVis/latent-diffusion.git

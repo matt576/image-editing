@@ -13,7 +13,9 @@ Currently, the following functions are supported:
 In the first place clone the current project.
 
 ```bash
-git clone https://github.com/matt576/image-editing.git
+git clone --recursive https://github.com/matt576/image-editing.git
+cd image-editing
+git submodule update --init --recursive
 ```
 
 To set-up the working environment use conda. 

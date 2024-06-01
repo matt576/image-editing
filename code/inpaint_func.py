@@ -13,8 +13,8 @@ import numpy as np
 import torch
 
 output_dir = "outputs/controlnet"
-filename = "output-6.png"
-text_prompt = "cookie monster"
+filename = "output-7.png"
+text_prompt = "pig"
 
 
 init_image = Image.open("inputs/batman.jpg")
@@ -58,7 +58,7 @@ def inputation(input_image, mask_image, text_prompt, pipe):
     # test.save(f"{output_dir}/test.png")
 
     output = pipe(
-        # prompt=text_prompt,
+        prompt=text_prompt,
         num_inference_steps=5,
         eta=1.0,
         image=input_image,
@@ -66,7 +66,6 @@ def inputation(input_image, mask_image, text_prompt, pipe):
         control_image=control_image,
     ).images[0]
     return output
-
 
 output = inputation(init_image, mask_image, text_prompt, pipe)
 output.save(f"{output_dir}/{filename}")

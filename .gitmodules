@@ -7,3 +7,6 @@
 [submodule "latent-diffusion"]
 	path = latent-diffusion
 	url = https://github.com/CompVis/latent-diffusion.git
+[submodule "Grounded-Segment-Anything"]
+	path = Grounded-Segment-Anything
+	url = https://github.com/IDEA-Research/Grounded-Segment-Anything.git

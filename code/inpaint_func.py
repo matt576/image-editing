@@ -14,13 +14,13 @@ import torch
 
 output_dir = "outputs/controlnet"
 filename = "output-6.png"
-text_prompt = "luchador mask"
+text_prompt = "cat, detailed, high quality"
 
 
-init_image = Image.open("inputs/batman.jpg")
+init_image = Image.open("inputs/dog.jpg")
 init_image = init_image.resize((512, 512))
 
-mask_image = Image.open("inputs/batman_mask.jpg")
+mask_image = Image.open("inputs/dog_mask.jpg")
 mask_image = mask_image.resize((512, 512))
 
 # make_image_grid([init_image, mask_image], rows=1, cols=2)

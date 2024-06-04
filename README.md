@@ -79,3 +79,31 @@ Error: ControlNet generates black images for dtype.float16: <br />
 Error: Output produced contains NSFW content -> set safety_checker=None, requires_safety_checker=False for loading pipe
 
 Example: ***python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5***
+
+### 3. GroundedSAM-based mask generation
+#### Checkpoints:
+##### GroundingDINO:
+code/models/groundingdino_swint_ogc.pth
+
+Also, copy the GroundingDINO folder into the code folder as well as a temporary solution, since for some reason in the code folder without it, GroundingDino is not recognized as an import module inside the script.
+##### SAM:
+code/models/sam_vit_h_4b8939.pth
+
+###### Input Command Exmple:
+Specify via Text Prompt the object you want to detect and get the mask of.
+Until cudatoolkit and CUDA_PATH issues get resolved, the program runs on cpu only mode, so specify it in the respective flag. If device = "cuda", follwing error happnes:
+"NameError: name '_C' is not defined"
+
+```bash
+python groundedsam_func.py   --config GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py   --grounded_checkpoint models/groundingdino_swint_ogc.pth   --sam_checkpoint models/sam_vit_h_4b8939.pth   --input_image inputs/dog.jpg   --output_dir "outputs/grounded_sam/"   --box_threshold 0.3   --text_threshold 0.25   --text_prompt "dog"   --device "cpu"
+```
+### 3. GroundedSAM-based inpainting
+#### Checkpoints:
+same as above
+###### Input Command Exmple:
+Specify via Text Prompt the object you want to detect and the object you want to replace it with.
+Until cudatoolkit and CUDA_PATH issues get resolved, the program runs on cpu only mode, so specify it in the respective flag. If device = "cuda", follwing error happnes:
+"NameError: name '_C' is not defined"
+```bash
+ python groundedsam_inpaint.py   --config GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py   --grounded_checkpoint models/groundingdino_swint_ogc.pth   --sam_checkpoint models/sam_vit_h_4b8939.pth   --input_image inputs/dog.jpg   --output_dir "outputs/grounded_sam"   --box_threshold 0.3   --text_threshold 0.25   --det_prompt "dog"   --inpaint_prompt "bear cub, high quality, detailed"   --device "cpu"
+ ```

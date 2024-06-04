@@ -81,6 +81,12 @@ Error: Output produced contains NSFW content -> set safety_checker=None, require
 Example: ***python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5***
 
 ### 3. GroundedSAM-based mask generation
+```bash
+git submodule add https://github.com/IDEA-Research/Grounded-Segment-Anything.git
+git submodule update --init --recursive
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+wget https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
+```
 #### Checkpoints:
 ##### GroundingDINO:
 code/models/groundingdino_swint_ogc.pth

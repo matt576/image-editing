@@ -84,6 +84,7 @@ Example: ***python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/in
 ```bash
 git submodule add https://github.com/IDEA-Research/Grounded-Segment-Anything.git
 git submodule update --init --recursive
+```
 You should set the environment variable manually as follows if you want to build a local GPU environment for Grounded-SAM:
 ```bash
 export AM_I_DOCKER=False

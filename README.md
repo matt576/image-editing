@@ -103,7 +103,7 @@ Until cudatoolkit and CUDA_PATH issues get resolved, the program runs on cpu onl
 ```bash
 python groundedsam_func.py   --config GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py   --grounded_checkpoint models/groundingdino_swint_ogc.pth   --sam_checkpoint models/sam_vit_h_4b8939.pth   --input_image inputs/dog.jpg   --output_dir "outputs/grounded_sam/"   --box_threshold 0.3   --text_threshold 0.25   --text_prompt "dog"   --device "cpu"
 ```
-### 3. GroundedSAM-based inpainting
+### 4. GroundedSAM-based inpainting
 #### Checkpoints:
 same as above
 ###### Input Command Exmple:
@@ -113,3 +113,26 @@ Until cudatoolkit and CUDA_PATH issues get resolved, the program runs on cpu onl
 ```bash
  python groundedsam_inpaint.py   --config GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py   --grounded_checkpoint models/groundingdino_swint_ogc.pth   --sam_checkpoint models/sam_vit_h_4b8939.pth   --input_image inputs/dog.jpg   --output_dir "outputs/grounded_sam"   --box_threshold 0.3   --text_threshold 0.25   --det_prompt "dog"   --inpaint_prompt "bear cub, high quality, detailed"   --device "cpu"
  ```
+
+### 5. Using the gradio app for groundedSAM
+
+```bash
+cd Grounded-Segment-Anything
+python gradio_app.py
+```
+
+For it to run properly, the following modifications were performed:
+
+Lines 196/197: change "image" to "composite" and "mask" to "layers"
+Line 372: input_image = gr.ImageEditor(sources='upload', type="pil", value="assets/demo2.jpg")
+Line 376: run_button = gr.Button()
+Lines 391-394: with gr.Column():
+                gallery = gr.Gallery(
+                label="Generated images", 
+                show_label=False, 
+                elem_id="gallery", 
+                preview=True, 
+                object_fit="scale-down"
+                )
+Line 399: just comment out or remove
+Line 400 (optional): change share=True if you need a public link

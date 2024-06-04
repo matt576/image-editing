@@ -84,6 +84,24 @@ Example: ***python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/in
 ```bash
 git submodule add https://github.com/IDEA-Research/Grounded-Segment-Anything.git
 git submodule update --init --recursive
+You should set the environment variable manually as follows if you want to build a local GPU environment for Grounded-SAM:
+```bash
+export AM_I_DOCKER=False
+export BUILD_WITH_CUDA=True
+export CUDA_HOME=/path/to/cuda-11.3/ # This is what is not working yet, since I can't find the CUDA_PATH
+```
+
+Install Segment Anything:
+
+```bash
+python -m pip install -e segment_anything
+```
+
+Install Grounding DINO:
+
+```bash
+pip install --no-build-isolation -e GroundingDINO
+```
 wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
 wget https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
 ```

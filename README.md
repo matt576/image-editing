@@ -96,7 +96,7 @@ Also, copy the GroundingDINO folder into the code folder as well as a temporary 
 code/models/sam_vit_h_4b8939.pth
 
 ###### Input Command Exmple:
-Specify via Text Prompt the object you want to detect and get the mask of.
+Specify via Text Prompt the object you want to detect and get the mask of. <br />
 Until cudatoolkit and CUDA_PATH issues get resolved, the program runs on cpu only mode, so specify it in the respective flag. If device = "cuda", follwing error happnes:
 "NameError: name '_C' is not defined"
 
@@ -107,7 +107,7 @@ python groundedsam_func.py   --config GroundingDINO/groundingdino/config/Groundi
 #### Checkpoints:
 same as above
 ###### Input Command Exmple:
-Specify via Text Prompt the object you want to detect and the object you want to replace it with.
+Specify via Text Prompt the object you want to detect and the object you want to replace it with. <br />
 Until cudatoolkit and CUDA_PATH issues get resolved, the program runs on cpu only mode, so specify it in the respective flag. If device = "cuda", follwing error happnes:
 "NameError: name '_C' is not defined"
 ```bash
@@ -123,9 +123,9 @@ python gradio_app.py
 
 For it to run properly, the following modifications were performed:
 
-Lines 196/197: change "image" to "composite" and "mask" to "layers"
-Line 372: input_image = gr.ImageEditor(sources='upload', type="pil", value="assets/demo2.jpg")
-Line 376: run_button = gr.Button()
+Lines 196/197: change "image" to "composite" and "mask" to "layers" <br />
+Line 372: input_image = gr.ImageEditor(sources='upload', type="pil", value="assets/demo2.jpg") <br />
+Line 376: run_button = gr.Button() <br />
 Lines 391-394: with gr.Column():
                 gallery = gr.Gallery(
                 label="Generated images", 
@@ -133,6 +133,6 @@ Lines 391-394: with gr.Column():
                 elem_id="gallery", 
                 preview=True, 
                 object_fit="scale-down"
-                )
-Line 399: just comment out or remove
-Line 400 (optional): change share=True if you need a public link
+                ) <br />
+Line 399: just comment out or remove <br />
+Line 400 (optional): change share=True if you need a public link <br />

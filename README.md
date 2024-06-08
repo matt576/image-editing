@@ -50,15 +50,21 @@ Pipeline: runwayml/stable-diffusion-v1-5 <br />
 Error: ControlNet generates black images for dtype.float16: <br />
 Error: Output produced contains NSFW content -> set safety_checker=None, requires_safety_checker=False for loading pipe
 
-Example: **python mask_func.py**
 
+Example:
+```bash
+python mask_func.py**
+```
 ### 2. Conditional Inpainting (Mask: Manual -> Diffusion: ControlNet Inpainting)
 #### Checkpoints:
 ###### ControlNet:
 Model: lllyasviel/control_v11p_sd15_inpaint <br />
 Pipeline: runwayml/stable-diffusion-v1-5 <br />
 
-Example: **python inpaint_func.py**
+Example:
+```bash
+python inpaint_func.py
+```
 
 ### 3. Magic Eraser (Mask: SAM -> Diffusion: Latent Diffusion)
 #### Checkpoints:
@@ -67,6 +73,9 @@ Model:  facebook/sam-vit-base <br />
 Pipeline: facebook/sam-vit-base <br />
 ###### Latent Diffusion:
 Model: https://heibox.uni-heidelberg.de/f/4d9ac7ea40c64582b7c9/?dl=1
+```bash
+wget -O models/ldm_inpainting/last.ckpt https://heibox.uni-heidelberg.de/f/4d9ac7ea40c64582b7c9/?dl=1
+```
 
 Additional imports:
 ```bash
@@ -89,7 +98,10 @@ Due to a no longer existing module _six since Pytorch 1.10. <br />
 Error: ControlNet generates black images for dtype.float16: <br />
 Error: Output produced contains NSFW content -> set safety_checker=None, requires_safety_checker=False for loading pipe
 
-Example: **python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5**
+Example:
+```bash
+python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5
+```
 
 ### 3. Background Extraction (Mask: Depth Anything -> Diffusion: Latent Diffusion)
 Additional imports:
@@ -106,7 +118,11 @@ In order to extract the foreground and background of the image to apply backgrou
 #### Checkpoints:
 ###### Depth Anything:
 Model: LiheYoung/depth-anything-small-hf
-Example: ***python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5***
+
+Example:
+```bash
+python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5
+```
 
 ### 4. GroundedSAM-based mask generation
 ```bash

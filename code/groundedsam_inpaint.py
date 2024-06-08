@@ -1,10 +1,13 @@
 import argparse
-import os
+import os, sys
 import copy
 
 import numpy as np
 import torch
 from PIL import Image, ImageDraw, ImageFont
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(parent_dir, 'Grounded-Segment-Anything'))
 
 # Grounding DINO
 import GroundingDINO.groundingdino.datasets.transforms as T

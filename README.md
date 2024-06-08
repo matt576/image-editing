@@ -103,7 +103,7 @@ Example:
 python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5
 ```
 
-### 3. Background Extraction (Mask: Depth Anything -> Diffusion: Latent Diffusion)
+### 4. Background Extraction (Mask: Depth Anything -> Diffusion: Latent Diffusion)
 Additional imports:
 ```bash
 pip install scikit-learn
@@ -124,11 +124,7 @@ Example:
 python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5
 ```
 
-### 4. GroundedSAM-based mask generation
-```bash
-git submodule add https://github.com/IDEA-Research/Grounded-Segment-Anything.git
-git submodule update --init --recursive
-```
+### 5. GroundedSAM-based mask generation
 You should set the environment variable manually as follows if you want to build a local GPU environment for Grounded-SAM:
 
 First, to check which cuda versions are available and the required path:
@@ -137,7 +133,7 @@ module avail
 ```
 Then:
 ```bash
-source /etc/profile.d/lmod.sh
+source /etc/profile.d/lmod.sh  
 module load cuda/12.1.0 # Should match cuda version from pytorch
 echo $CUDA_HOME #check if variable was automatically set to /storage/software/cuda/cuda-12.1.0, otherwise set manually with EXPORT...
 ```
@@ -150,18 +146,18 @@ export CUDA_HOME=/storage/software/cuda/cuda-12.1.0 # Path on atcremers60@in.tum
 Install Segment Anything:
 
 ```bash
-python -m pip install -e segment_anything
+python -m pip install -e ../Grounded-Segment-Anything/segment_anything
 ```
 
 Install Grounding DINO:
 
 ```bash
-pip install --no-build-isolation -e GroundingDINO # Follow previous CUDA_HOME steps carefully
+pip install --no-build-isolation -e ../Grounded-Segment-Anything/GroundingDINO # Follow previous CUDA_HOME steps carefully
 ```
 #### Checkpoints:
 ```bash
-wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
-wget https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
+wget -O models/sam_vit_h_4b8939.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+wget -O models/groundingdino_swint_ogc.pth https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
 ```
 ##### GroundingDINO:
 code/models/groundingdino_swint_ogc.pth
@@ -176,19 +172,19 @@ Until cudatoolkit and CUDA_PATH issues get resolved, the program runs on cpu onl
 "NameError: name '_C' is not defined"
 
 ```bash
-python groundedsam_func.py   --config GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py   --grounded_checkpoint models/groundingdino_swint_ogc.pth   --sam_checkpoint models/sam_vit_h_4b8939.pth   --input_image inputs/dog.jpg   --output_dir "outputs/grounded_sam/"   --box_threshold 0.3   --text_threshold 0.25   --text_prompt "dog"   --device "cuda"
+python groundedsam_func.py   --config ../Grounded-Segment-Anything/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py   --grounded_checkpoint models/groundingdino_swint_ogc.pth   --sam_checkpoint models/sam_vit_h_4b8939.pth   --input_image inputs/example_dog/dog.png   --output_dir "outputs/grounded_sam/"   --box_threshold 0.3   --text_threshold 0.25   --text_prompt "dog"   --device "cuda"
 ```
-### 5. GroundedSAM-based inpainting
+### 6. GroundedSAM-based inpainting
 #### Checkpoints:
 same as above
 ###### Input Command Exmple:
 Specify via Text Prompt the object you want to detect and the object you want to replace it with. <br />
 
 ```bash
- python groundedsam_inpaint.py   --config GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py   --grounded_checkpoint models/groundingdino_swint_ogc.pth   --sam_checkpoint models/sam_vit_h_4b8939.pth   --input_image inputs/dog.jpg   --output_dir "outputs/grounded_sam"   --box_threshold 0.3   --text_threshold 0.25   --det_prompt "dog"   --inpaint_prompt "bear cub, high quality, detailed"   --device "cuda"
+python groundedsam_inpaint.py   --config ../Grounded-Segment-Anything/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py   --grounded_checkpoint models/groundingdino_swint_ogc.pth   --sam_checkpoint models/sam_vit_h_4b8939.pth   --input_image inputs/example_dog/dog.png   --output_dir "outputs/grounded_sam"   --box_threshold 0.3   --text_threshold 0.25   --det_prompt "dog"   --inpaint_prompt "bear cub, high quality, detailed"   --device "cuda"
  ```
 
-### 6. Using the gradio app for groundedSAM
+### 7. Using the gradio app for groundedSAM
 
 ```bash
 cd Grounded-Segment-Anything

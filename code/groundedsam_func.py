@@ -7,10 +7,8 @@ import json
 import torch
 from PIL import Image
 
-# parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../Grounded-Segment-Anything'))
-sys.path.append(os.path.join(os.getcwd(), "GroundingDINO")) # copy GroundingDINO folder to code folder
-# sys.path.append(os.path.join(os.getcwd(), "segment_anything"))
-sys.path.append("../Grounded-Segment-Anything/segment_anything")
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(parent_dir, 'Grounded-Segment-Anything'))
 
 # Grounding DINO
 import GroundingDINO.groundingdino.datasets.transforms as T

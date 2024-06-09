@@ -13,10 +13,10 @@ pipe = pipe.to(device)
 # url = "https://raw.githubusercontent.com/CompVis/stable-diffusion/main/assets/stable-samples/img2img/sketch-mountains-input.jpg"
 # response = requests.get(url)
 # init_image = Image.open(BytesIO(response.content)).convert("RGB")
-init_image = Image.open("inputs/batman.jpg")
+init_image = Image.open("inputs/city.png")
 init_image = init_image.resize((768, 512))
 
-prompt = "spider man"
+prompt = "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."
 
 images = pipe(prompt=prompt, image=init_image, strength=0.75, guidance_scale=7.5).images
 images[0].save("restyling_output.png")

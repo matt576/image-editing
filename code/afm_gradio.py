@@ -1,18 +1,17 @@
 import gradio as gr
 import torch
-from PIL import Image
-import requests
-from transformers import SamModel, SamProcessor
-import numpy as np
 import os, sys
+import requests
+import numpy as np
+from PIL import Image
 import torchvision.transforms.v2.functional
-
+from transformers import SamModel, SamProcessor
 from diffusers.utils import load_image, make_image_grid
 from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, UniPCMultistepScheduler
 
 # imports from code scripts
 from mask_func import get_mask
-from inpaint_func import inputation, make_inpaint_condition, controlnet, pipe
+from inpaint_func import inputation #, make_inpaint_condition, controlnet, pipe
 
 
 def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input):
@@ -33,7 +32,25 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input)
         return pil_image
 
     if task_selector == "ControlNet Inpainting": ### inpaint_func.py
-        pass
+        input_image = input_image.resize((512, 512))
+        mask_image = mask_image.resize((512, 512))
+        
+        controlnet = ControlNetModel.from_pretrained("lllyasviel/control_v11p_sd15_inpaint",
+                                             torch_dtype=torch.float16,
+                                             use_safetensors=True)
+
+        pipe = StableDiffusionControlNetInpaintPipeline.from_pretrained("runwayml/stable-diffusion-v1-5",
+                                                                        controlnet=controlnet,
+                                                                        torch_dtype=torch.float16,
+                                                                        use_safetensors=True,
+                                                                        safety_checker=None,
+                                                                        requires_safety_checker=False)
+
+        pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
+        pipe.enable_model_cpu_offload()
+
+        output = inputation(input_image, mask_image, text_input, pipe)
+        return output
 
 
 if __name__ == "__main__":

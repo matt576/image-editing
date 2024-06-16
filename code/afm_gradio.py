@@ -9,7 +9,7 @@ from omegaconf import OmegaConf
 import torchvision.transforms.v2.functional
 from transformers import SamModel, SamProcessor
 from diffusers.utils import load_image, make_image_grid
-from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, UniPCMultistepScheduler
+from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, UniPCMultistepScheduler, StableDiffusionImg2ImgPipeline
 
 # imports from code scripts
 from mask_func import get_mask
@@ -105,7 +105,18 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input,
                 inpainted = inpainted.cpu().numpy().transpose(0,2,3,1)[0]*255
                 inpainted = Image.fromarray(inpainted.astype(np.uint8))
                 return inpainted
+    
+    if task_selector == "Restyling":
+        device = "cuda"
+        model_id_or_path = "runwayml/stable-diffusion-v1-5"
+        pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
+        pipe = pipe.to(device)
 
+        init_image = input_image
+        prompt = text_input
+
+        images = pipe(prompt=prompt, image=init_image, strength=0.75, guidance_scale=7.5).images
+        return images[0]
 
 
 
@@ -117,11 +128,15 @@ if __name__ == "__main__":
         with gr.Row():
             with gr.Column():
 
-                task_selector = gr.Dropdown(["SAM Mask Generation", "ControlNet Inpainting", "Object Removal"], value="SAM Mask Generation")
+                task_selector = gr.Dropdown(["SAM Mask Generation", 
+                                            "ControlNet Inpainting", 
+                                            "Object Removal",
+                                            "Restyling"], 
+                                            value="SAM Mask Generation")
                 input_image = gr.Image(label="Raw Input Image", sources='upload', type="pil", value="inputs/dog.png")
                 coord_input = gr.Textbox(label="Pixel Coordinates (x,y)", value="350,500") # for SAM
                 mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value="inputs/dog_mask.png")
-                text_input = gr.Textbox(label="Text Prompt", value="") # for inpainting
+                text_input = gr.Textbox(label="Text Prompt", value="") # for inpainting or restyling
                 ddim_steps = gr.Textbox(label="Number of DDIM sampling steps for object removal", value="50") # for inpaint_ldm
                 
             with gr.Column():

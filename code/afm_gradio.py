@@ -4,6 +4,8 @@ import os, sys
 import requests
 import numpy as np
 from PIL import Image
+from tqdm import tqdm
+from omegaconf import OmegaConf
 import torchvision.transforms.v2.functional
 from transformers import SamModel, SamProcessor
 from diffusers.utils import load_image, make_image_grid
@@ -12,9 +14,9 @@ from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel,
 # imports from code scripts
 from mask_func import get_mask
 from inpaint_func import inputation #, make_inpaint_condition, controlnet, pipe
+from inpaint_ldm import make_batch
 
-
-def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input):
+def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input, ddim_steps):
     
     if task_selector == "SAM Mask Generation": ### mask_func.py
         input_points = None
@@ -52,6 +54,60 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input)
         output = inputation(input_image, mask_image, text_input, pipe)
         return output
 
+    if task_selector == "Object Removal":
+        image = input_image
+        image = image.resize((512, 512))
+        mask = mask_image
+        mask = mask.resize((512, 512))
+        steps = int(ddim_steps)
+
+        parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        sys.path.append(os.path.join(parent_dir, 'latent-diffusion'))
+        from main import instantiate_from_config
+        from ldm.models.diffusion.ddim import DDIMSampler
+        
+        config = OmegaConf.load("models/ldm_inpainting/config.yaml")
+        model = instantiate_from_config(config.model)
+        model.load_state_dict(torch.load("models/ldm_inpainting/last.ckpt")["state_dict"],
+                            strict=False)
+
+        device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+        model = model.to(device)
+        sampler = DDIMSampler(model)
+
+        with torch.no_grad():
+            with model.ema_scope():
+        
+                batch = make_batch(image, mask, device=device)
+
+                # encode masked image and concat downsampled mask
+                c = model.cond_stage_model.encode(batch["masked_image"])
+                cc = torch.nn.functional.interpolate(batch["mask"],
+                                                    size=c.shape[-2:])
+                c = torch.cat((c, cc), dim=1)
+
+                shape = (c.shape[1]-1,)+c.shape[2:]
+                samples_ddim, _ = sampler.sample(S=steps, ## change
+                                                conditioning=c,
+                                                batch_size=c.shape[0],
+                                                shape=shape,
+                                                verbose=False)
+                x_samples_ddim = model.decode_first_stage(samples_ddim)
+
+                image = torch.clamp((batch["image"]+1.0)/2.0,
+                                    min=0.0, max=1.0)
+                mask = torch.clamp((batch["mask"]+1.0)/2.0,
+                                min=0.0, max=1.0)
+                predicted_image = torch.clamp((x_samples_ddim+1.0)/2.0,
+                                            min=0.0, max=1.0)
+
+                inpainted = (1-mask)*image+mask*predicted_image
+                inpainted = inpainted.cpu().numpy().transpose(0,2,3,1)[0]*255
+                inpainted = Image.fromarray(inpainted.astype(np.uint8))
+                return inpainted
+
+
+
 
 if __name__ == "__main__":
 
@@ -61,11 +117,12 @@ if __name__ == "__main__":
         with gr.Row():
             with gr.Column():
 
-                task_selector = gr.Dropdown(["SAM Mask Generation", "ControlNet Inpainting"], value="SAM Mask Generation")
-                input_image = gr.Image(label="Raw Input Image", sources='upload', type="pil", value="inputs/batman.jpg")
+                task_selector = gr.Dropdown(["SAM Mask Generation", "ControlNet Inpainting", "Object Removal"], value="SAM Mask Generation")
+                input_image = gr.Image(label="Raw Input Image", sources='upload', type="pil", value="inputs/dog.png")
                 coord_input = gr.Textbox(label="Pixel Coordinates (x,y)", value="350,500") # for SAM
-                mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value="inputs/batman_mask.jpg")
+                mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value="inputs/dog_mask.png")
                 text_input = gr.Textbox(label="Text Prompt", value="") # for inpainting
+                ddim_steps = gr.Textbox(label="Number of DDIM sampling steps for object removal", value="50") # for inpaint_ldm
                 
             with gr.Column():
                 # gallery = gr.Gallery(
@@ -80,7 +137,7 @@ if __name__ == "__main__":
 
         generate_button.click(
                 fn = run_afm_app,
-                inputs=[task_selector, input_image, mask_image, text_input, coord_input],
+                inputs=[task_selector, input_image, mask_image, text_input, coord_input, ddim_steps],
                 outputs = output_image
         )  
 

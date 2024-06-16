@@ -5,11 +5,11 @@ from transformers import SamModel, SamProcessor
 import numpy as np
 
 output_dir = "outputs/sam"
-filename = "car-mask-1.png"
+filename = "dog-mask-1.png"
 
 # 2D location of a window in the image: [x,y] coordinates with (0,0) in the top left corner -> pixels
-input_points = [[[450, 600]]]
-raw_image = Image.open("inputs/car.png").convert("RGB")
+input_points = [[[350, 500]]]
+raw_image = Image.open("inputs/dog.png").convert("RGB")
 image = np.array(raw_image)
 
 
@@ -46,3 +46,18 @@ output = get_mask(raw_image, input_points)
 image_array = np.where(output, 255, 0).astype(np.uint8)  # Create a new NumPy array for the current channel
 pil_image = Image.fromarray(image_array)  # Convert NumPy array to PIL image
 pil_image.save(f"{output_dir}/{filename}")  # Save the image
+
+def sam_gradio(input_image, coord_input):
+    input_points = None
+    if coord_input is not None:
+        try:
+            x, y = map(int, coord_input.split(','))
+            input_points = [[[x, y]]]
+        except ValueError:
+            print("Invalid input format for coordinates (expected: x,y)")
+    # image = image["composite"]
+    input_image = input_image.convert("RGB")
+    output = get_mask(input_image, input_points)
+    image_array = np.where(output, 255, 0).astype(np.uint8)
+    pil_image = Image.fromarray(image_array)
+    return pil_image

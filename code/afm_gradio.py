@@ -9,29 +9,32 @@ from omegaconf import OmegaConf
 import torchvision.transforms.v2.functional
 from transformers import SamModel, SamProcessor
 from diffusers.utils import load_image, make_image_grid
-from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, UniPCMultistepScheduler, StableDiffusionImg2ImgPipeline
+from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, UniPCMultistepScheduler, StableDiffusionImg2ImgPipeline, LDMSuperResolutionPipeline
 
 # imports from code scripts
-from mask_func import get_mask
+from mask_func import sam_gradio
 from inpaint_func import inputation #, make_inpaint_condition, controlnet, pipe
 from inpaint_ldm import make_batch
+from superres_func import superres_gradio
+from restyling_func import restyling_gradio
 
 def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input, ddim_steps):
     
     if task_selector == "SAM Mask Generation": ### mask_func.py
-        input_points = None
-        if coord_input is not None:
-            try:
-                x, y = map(int, coord_input.split(','))
-                input_points = [[[x, y]]]
-            except ValueError:
-                print("Invalid input format for coordinates (expected: x,y)")
-        # image = image["composite"]
-        input_image = input_image.convert("RGB")
-        output = get_mask(input_image, input_points)
-        image_array = np.where(output, 255, 0).astype(np.uint8)
-        pil_image = Image.fromarray(image_array)
-        return pil_image
+        return sam_gradio(input_image, coord_input)
+        # input_points = None
+        # if coord_input is not None:
+        #     try:
+        #         x, y = map(int, coord_input.split(','))
+        #         input_points = [[[x, y]]]
+        #     except ValueError:
+        #         print("Invalid input format for coordinates (expected: x,y)")
+        # # image = image["composite"]
+        # input_image = input_image.convert("RGB")
+        # output = get_mask(input_image, input_points)
+        # image_array = np.where(output, 255, 0).astype(np.uint8)
+        # pil_image = Image.fromarray(image_array)
+        # return pil_image
 
     if task_selector == "ControlNet Inpainting": ### inpaint_func.py
         input_image = input_image.resize((512, 512))
@@ -107,17 +110,10 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input,
                 return inpainted
     
     if task_selector == "Restyling":
-        device = "cuda"
-        model_id_or_path = "runwayml/stable-diffusion-v1-5"
-        pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
-        pipe = pipe.to(device)
+        return restyling_gradio(input_image, text_input)
 
-        init_image = input_image
-        prompt = text_input
-
-        images = pipe(prompt=prompt, image=init_image, strength=0.75, guidance_scale=7.5).images
-        return images[0]
-
+    if task_selector == "Hyperresolution":
+        return superres_gradio(input_image)
 
 
 if __name__ == "__main__":
@@ -131,7 +127,8 @@ if __name__ == "__main__":
                 task_selector = gr.Dropdown(["SAM Mask Generation", 
                                             "ControlNet Inpainting", 
                                             "Object Removal",
-                                            "Restyling"], 
+                                            "Restyling",
+                                            "Hyperresolution"], 
                                             value="SAM Mask Generation")
                 input_image = gr.Image(label="Raw Input Image", sources='upload', type="pil", value="inputs/dog.png")
                 coord_input = gr.Textbox(label="Pixel Coordinates (x,y)", value="350,500") # for SAM

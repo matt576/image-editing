@@ -20,3 +20,11 @@ prompt = "Photorealistic Gotham City night skyline, rain pouring down, dark clou
 
 images = pipe(prompt=prompt, image=init_image, strength=0.75, guidance_scale=7.5).images
 images[0].save("restyling_output.png")
+
+def restyling_gradio(input_image, text_prompt):
+    device = "cuda"
+    model_id_or_path = "runwayml/stable-diffusion-v1-5"
+    pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
+    pipe = pipe.to(device)
+    images = pipe(prompt=text_prompt, image=input_image, strength=0.75, guidance_scale=7.5).images
+    return images[0]

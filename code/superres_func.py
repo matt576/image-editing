@@ -17,8 +17,8 @@ pipeline = pipeline.to(device)
 # low_res_img = Image.open(BytesIO(response.content)).convert("RGB")
 low_res_img = Image.open("inputs/batman.jpg")
 original_width, original_height = low_res_img.size
-desired_width_scale = original_width / 128
-desired_height_scale = original_height / 128
+desired_width_scale = original_width / 128 ##new
+desired_height_scale = original_height / 128 ##new
 low_res_img = low_res_img.resize((128, 128))
 low_res_img.save("ldm_low_res.png")
 
@@ -30,3 +30,22 @@ upscaled_image = upscaled_image.resize((final_width, final_height))
 # save image
 
 upscaled_image.save("ldm_generated_image.png")
+
+def superres_gradio(input_image):
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model_id = "CompVis/ldm-super-resolution-4x-openimages"
+
+    pipeline = LDMSuperResolutionPipeline.from_pretrained(model_id)
+    pipeline = pipeline.to(device)
+
+    low_res_img = input_image
+    original_width, original_height = low_res_img.size
+    desired_width_scale = original_width / 128 ##new
+    desired_height_scale = original_height / 128 ##new
+    low_res_img = low_res_img.resize((128, 128))
+
+    upscaled_image = pipeline(low_res_img, num_inference_steps=100, eta=1).images[0]
+    final_width = int(upscaled_image.width * desired_width_scale)
+    final_height = int(upscaled_image.height * desired_height_scale)
+    upscaled_image = upscaled_image.resize((final_width, final_height))
+    return upscaled_image

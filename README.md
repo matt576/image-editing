@@ -53,7 +53,7 @@ Error: Output produced contains NSFW content -> set safety_checker=None, require
 
 Example:
 ```bash
-python mask_func.py**
+python mask_func.py
 ```
 ### 2. Conditional Inpainting (Mask: Manual -> Diffusion: ControlNet Inpainting)
 #### Checkpoints:
@@ -206,3 +206,25 @@ Lines 391-394: with gr.Column():
                 ) <br />
 Line 399: just comment out or remove <br />
 Line 400 (optional): change share=True if you need a public link <br />
+
+## 8. Background Blurring (Depth Aynthing)
+Additional imports:
+```bash
+pip install opencv-python
+```
+The method applies the Depth-Anything model to perform depth estimation.
+In order to extract the foreground and background of the image to apply background blurring/restyling we can use the following techniques:
+1. Splitting the output to several sections depending on the distance measurement
+2. Thresholding and applying varable blurring filter
+3. Merging the individual images to a single output
+
+#### Checkpoints:
+###### Depth Anything:
+Model: LiheYoung/depth_anything_vitl14
+
+Example:
+```bash
+python blurring.py
+```
+Errors: The path for directory needs to be modified. File Depth-Anything/depth_anything/dpt.py
+in lines [147, 149] should have path leading to the model.

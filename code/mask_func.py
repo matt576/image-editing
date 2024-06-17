@@ -14,8 +14,10 @@ image = np.array(raw_image)
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = SamModel.from_pretrained("facebook/sam-vit-base").to(device)
-processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
+# model = SamModel.from_pretrained("facebook/sam-vit-base").to(device)
+# processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
+model = SamModel.from_pretrained("facebook/sam-vit-huge").to(device)
+processor = SamProcessor.from_pretrained("facebook/sam-vit-huge")
 
 # img_url = "https://huggingface.co/ybelkada/segment-anything/resolve/main/assets/car.png"
 # raw_image = Image.open(requests.get(img_url, stream=True).raw).convert("RGB")

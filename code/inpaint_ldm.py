@@ -14,12 +14,18 @@ from ldm.models.diffusion.ddim import DDIMSampler
 
 
 def make_batch(image, mask, device):
-    image = np.array(Image.open(image).convert("RGB"))
+    image = Image.open(image)
+    image = image.resize((512, 512))
+    image = np.array(image.convert("RGB"))
+    # image = np.array(Image.open(image).convert("RGB"))
     image = image.astype(np.float32)/255.0
     image = image[None].transpose(0,3,1,2)
     image = torch.from_numpy(image)
 
-    mask = np.array(Image.open(mask).convert("L"))
+    mask = Image.open(mask)
+    mask = mask.resize((512, 512))
+    mask = np.array(mask.convert("L"))
+    # mask = np.array(Image.open(mask).convert("L"))
     mask = mask.astype(np.float32)/255.0
     mask = mask[None,None]
     mask[mask < 0.5] = 0

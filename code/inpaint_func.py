@@ -12,19 +12,6 @@ from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel,
 import numpy as np
 import torch
 
-output_dir = "outputs/controlnet"
-filename = "output-9.png"
-text_prompt = "black panther, photorealistic, detailed, high quality"
-
-init_image = Image.open("inputs/dog.png")
-init_image = init_image.resize((512, 512))
-
-mask_image = Image.open("inputs/dog_mask.png")
-mask_image = mask_image.resize((512, 512))
-
-# make_image_grid([init_image, mask_image], rows=1, cols=2)
-
-
 def make_inpaint_condition(image, image_mask):
     image = np.array(image.convert("RGB")).astype(np.float16) / 255.0
     image_mask = np.array(image_mask.convert("L")).astype(np.float16) / 255.0
@@ -34,22 +21,6 @@ def make_inpaint_condition(image, image_mask):
     image = np.expand_dims(image, 0).transpose(0, 3, 1, 2)
     image = torch.from_numpy(image)
     return image
-
-
-controlnet = ControlNetModel.from_pretrained("lllyasviel/control_v11p_sd15_inpaint",
-                                             torch_dtype=torch.float16,
-                                             use_safetensors=True)
-
-pipe = StableDiffusionControlNetInpaintPipeline.from_pretrained("runwayml/stable-diffusion-v1-5",
-                                                                controlnet=controlnet,
-                                                                torch_dtype=torch.float16,
-                                                                use_safetensors=True,
-                                                                safety_checker=None,
-                                                                requires_safety_checker=False)
-
-pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
-pipe.enable_model_cpu_offload()
-
 
 def inputation(input_image, mask_image, text_prompt, pipe):
     control_image = make_inpaint_condition(input_image, mask_image)      # image with extracted mask from input
@@ -65,9 +36,6 @@ def inputation(input_image, mask_image, text_prompt, pipe):
         control_image=control_image,
     ).images[0]
     return output
-
-output = inputation(init_image, mask_image, text_prompt, pipe)
-output.save(f"{output_dir}/{filename}")
 
 def controlnet_inpaint_gradio(input_image, mask_image, text_input):
     input_image = input_image.resize((512, 512))
@@ -89,3 +57,33 @@ def controlnet_inpaint_gradio(input_image, mask_image, text_input):
 
     output = inputation(input_image, mask_image, text_input, pipe)
     return output
+
+if __name__ == "__main__":
+    output_dir = "outputs/controlnet"
+    filename = "output-9.png"
+    text_prompt = "jaguar, photorealistic, detailed, high quality"
+
+    init_image = Image.open("inputs/example_batman/dog.png")
+    init_image = init_image.resize((512, 512))
+
+    mask_image = Image.open("inputs/example_batman/dog_mask.png")
+    mask_image = mask_image.resize((512, 512))
+
+    # make_image_grid([init_image, mask_image], rows=1, cols=2)
+
+    controlnet = ControlNetModel.from_pretrained("lllyasviel/control_v11p_sd15_inpaint",
+                                             torch_dtype=torch.float16,
+                                             use_safetensors=True)
+
+    pipe = StableDiffusionControlNetInpaintPipeline.from_pretrained("runwayml/stable-diffusion-v1-5",
+                                                                    controlnet=controlnet,
+                                                                    torch_dtype=torch.float16,
+                                                                    use_safetensors=True,
+                                                                    safety_checker=None,
+                                                                    requires_safety_checker=False)
+
+    pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
+    pipe.enable_model_cpu_offload()
+
+    output = inputation(init_image, mask_image, text_prompt, pipe)
+    output.save(f"{output_dir}/{filename}") 

@@ -217,3 +217,86 @@ if __name__ == "__main__":
     image.save(os.path.join(output_dir, "grounded_sam_inpainting_output.jpg"))
 
 
+def load_image_gradio(input_image):
+    # load image
+    image_pil = input_image.convert("RGB")  # load image
+
+    transform = T.Compose(
+        [
+            T.RandomResize([800], max_size=1333),
+            T.ToTensor(),
+            T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        ]
+    )
+    image, _ = transform(image_pil, None)  # 3, h, w
+    return image_pil, image
+
+def groundedsam_inpaint_gradio(input_image, text_input, inpaint_input):
+    config_file = "GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"  # change the path of the model config file
+    grounded_checkpoint = "models/groundingdino_swint_ogc.pth" # change the path of the model
+    sam_checkpoint = "models/sam_vit_h_4b8939.pth"
+    output_dir = "outputs/grounded_sam/gradio/"
+    box_threshold = 0.3
+    text_threshold = 0.25
+    inpaint_mode = "first"
+    device = "cuda"
+    cache_dir = None
+
+    image_pil, image = load_image_gradio(input_image)
+
+    model = load_model(config_file, grounded_checkpoint, device=device)
+
+    boxes_filt, pred_phrases = get_grounding_output(
+        model, image, text_input, box_threshold, text_threshold, device=device
+    ) ###
+
+    predictor = SamPredictor(build_sam(checkpoint=sam_checkpoint).to(device))
+
+    image_path_temp = "outputs/temp_image.jpg"
+    input_image.save(image_path_temp)
+    image = cv2.imread(image_path_temp)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)    
+    predictor.set_image(image) ##
+
+    size = input_image.size ##
+
+    H, W = size[1], size[0]
+    for i in range(boxes_filt.size(0)):
+        boxes_filt[i] = boxes_filt[i] * torch.Tensor([W, H, W, H])
+        boxes_filt[i][:2] -= boxes_filt[i][2:] / 2
+        boxes_filt[i][2:] += boxes_filt[i][:2]
+
+    boxes_filt = boxes_filt.cpu()
+    transformed_boxes = predictor.transform.apply_boxes_torch(boxes_filt, image.shape[:2]).to(device)
+
+    masks, _, _ = predictor.predict_torch(
+        point_coords = None,
+        point_labels = None,
+        boxes = transformed_boxes.to(device),
+        multimask_output = False,
+    )
+
+    # inpainting pipeline
+    if inpaint_mode == 'merge':
+        masks = torch.sum(masks, dim=0).unsqueeze(0)
+        masks = torch.where(masks > 0, True, False)
+    mask = masks[0][0].cpu().numpy() # simply choose the first mask, which will be refine in the future release
+    
+    mask_pil = Image.fromarray(mask)
+    image_pil = Image.fromarray(image)
+    
+    pipe = StableDiffusionInpaintPipeline.from_pretrained(
+    "runwayml/stable-diffusion-inpainting", torch_dtype=torch.float16,cache_dir=cache_dir
+    )
+    pipe = pipe.to("cuda")
+
+    image_pil = image_pil.resize((512, 512))
+    mask_pil = mask_pil.resize((512, 512))
+    input_image_resized = input_image.resize((512, 512))
+
+    inpainted_image = pipe(prompt=inpaint_input, image=input_image_resized, mask_image=mask_pil).images[0]
+
+    inpainted_image = inpainted_image.resize(size)
+
+    return inpainted_image
+

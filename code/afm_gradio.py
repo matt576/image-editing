@@ -8,8 +8,9 @@ from inpaint_ldm import ldm_removal_gradio
 from superres_func import superres_gradio
 from restyling_func import restyling_gradio
 from groundedsam_func import groundedsam_mask_gradio
+from groundedsam_inpaint import groundedsam_inpaint_gradio
 
-def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input, ddim_steps):
+def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input, ddim_steps, inpaint_input):
     
     if task_selector == "SAM Mask Generation": # mask_func.py
         return sam_gradio(input_image, coord_input)
@@ -28,6 +29,9 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input,
 
     if task_selector == "GroundedSAM Mask Generation":
         return groundedsam_mask_gradio(input_image, text_input)
+
+    if task_selector == "GroundedSAM Inpainting":
+        return groundedsam_inpaint_gradio(input_image, text_input, inpaint_input)
 
 def input_handler(evt: gr.SelectData):
     # print(evt.__dict__)
@@ -49,14 +53,16 @@ if __name__ == "__main__":
                                             "Object Removal",
                                             "Restyling",
                                             "Hyperresolution",
-                                            "GroundedSAM Mask Generation"], 
+                                            "GroundedSAM Mask Generation",
+                                            "GroundedSAM Inpainting"], 
                                             value="SAM Mask Generation")
                 input_image = gr.Image(label="Raw Input Image", sources='upload', type="pil", value="inputs/batman.jpg", interactive=True)
                 input_image.select(input_handler)
                 coord_input = gr.Textbox(label="Pixel Coordinates (x,y)", value="350,500") # for SAM
                 mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value="inputs/batman_mask.jpg")
-                text_input = gr.Textbox(label="Text Prompt", value="") # for inpainting or restyling
+                text_input = gr.Textbox(label="Text Prompt: ControlNet inpaint or GroundedSAM object mask", value="") # for inpainting or restyling
                 ddim_steps = gr.Textbox(label="Number of DDIM sampling steps for object removal", value="50") # for inpaint_ldm
+                inpaint_input = gr.Textbox(label="GroundedSAM Inpainting Prompt", value="") # for groundedSAM inpainting
                 
             with gr.Column():
                 # gallery = gr.Gallery(
@@ -72,7 +78,7 @@ if __name__ == "__main__":
         input_image.select(input_handler, inputs=[], outputs=coord_input) # clicking input for sam image coordinates
         generate_button.click(
                 fn = run_afm_app,
-                inputs=[task_selector, input_image, mask_image, text_input, coord_input, ddim_steps],
+                inputs=[task_selector, input_image, mask_image, text_input, coord_input, ddim_steps, inpaint_input],
                 outputs = output_image
         )  
 

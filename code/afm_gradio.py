@@ -1,15 +1,5 @@
 import gradio as gr
-import torch
-import os, sys
-import requests
-import numpy as np
 from PIL import Image
-from tqdm import tqdm
-# from omegaconf import OmegaConf
-# import torchvision.transforms.v2.functional
-# from transformers import SamModel, SamProcessor
-# from diffusers.utils import load_image, make_image_grid
-# from diffusers import StableDiffusionControlNetInpaintPipeline, ControlNetModel, UniPCMultistepScheduler, StableDiffusionImg2ImgPipeline, LDMSuperResolutionPipeline
 
 # imports from code scripts
 from mask_func import sam_gradio
@@ -35,22 +25,31 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input,
     if task_selector == "Hyperresolution":
         return superres_gradio(input_image)
 
-if __name__ == "__main__":
+def input_handler(evt: gr.SelectData):
+    # print(evt.__dict__)
+    coords = evt.index  # Get the coordinates from the event data
+    x, y = coords[0], coords[1]
+    coord_string = f"{x},{y}"
+    return coord_string
 
+if __name__ == "__main__":
+    
     block = gr.Blocks()
+
     with block:
         with gr.Row():
             with gr.Column():
-                
+
                 task_selector = gr.Dropdown(["SAM Mask Generation", 
                                             "ControlNet Inpainting", 
                                             "Object Removal",
                                             "Restyling",
                                             "Hyperresolution"], 
                                             value="SAM Mask Generation")
-                input_image = gr.Image(label="Raw Input Image", sources='upload', type="pil", value="inputs/dog.png")
+                input_image = gr.Image(label="Raw Input Image", sources='upload', type="pil", value="inputs/batman.jpg", interactive=True)
+                input_image.select(input_handler)
                 coord_input = gr.Textbox(label="Pixel Coordinates (x,y)", value="350,500") # for SAM
-                mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value="inputs/dog_mask.png")
+                mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value="inputs/batman_mask.jpg")
                 text_input = gr.Textbox(label="Text Prompt", value="") # for inpainting or restyling
                 ddim_steps = gr.Textbox(label="Number of DDIM sampling steps for object removal", value="50") # for inpaint_ldm
                 
@@ -65,6 +64,7 @@ if __name__ == "__main__":
                 output_image = gr.Image(label="Generated Image", type="pil")
                 generate_button = gr.Button("Generate")
 
+        input_image.select(input_handler, inputs=[], outputs=coord_input) # clicking input for sam image coordinates
         generate_button.click(
                 fn = run_afm_app,
                 inputs=[task_selector, input_image, mask_image, text_input, coord_input, ddim_steps],

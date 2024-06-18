@@ -207,7 +207,7 @@ Lines 391-394: with gr.Column():
 Line 399: just comment out or remove <br />
 Line 400 (optional): change share=True if you need a public link <br />
 
-## 8. Background Blurring (Depth Aynthing)
+### 8. Background Blurring (Depth Aynthing)
 Additional imports:
 ```bash
 pip install opencv-python
@@ -221,6 +221,27 @@ In order to extract the foreground and background of the image to apply backgrou
 #### Checkpoints:
 ###### Depth Anything:
 Model: LiheYoung/depth_anything_vitl14
+
+Example:
+```bash
+python blurring.py
+```
+Errors: The path for directory needs to be modified. File Depth-Anything/depth_anything/dpt.py
+in lines [147, 149] should have path leading to the model.
+
+### 9. Background Replacement (RMBG-1.4)
+Additional imports:
+```bash
+pip install -qr https://huggingface.co/briaai/RMBG-1.4/resolve/main/requirements.txt
+pip install controlnet_aux
+```
+The method extracts the foreground subject from the original image.
+In the following, 
+
+
+#### Checkpoints:
+###### Depth Anything:
+Model: 
 
 Example:
 ```bash

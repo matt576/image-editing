@@ -184,6 +184,7 @@ if __name__ == "__main__":
     os.makedirs(output_dir, exist_ok=True)
     # load image
     image_pil, image = load_image(image_path)
+    print("type image: ", type(image))
     # load model
     model = load_model(config_file, grounded_checkpoint, device=device)
 
@@ -236,3 +237,94 @@ if __name__ == "__main__":
     )
 
     save_mask_data(output_dir, masks, boxes_filt, pred_phrases)
+
+def load_image_gradio(input_image):
+    # load image
+    image_pil = input_image.convert("RGB")  # load image
+
+    transform = T.Compose(
+        [
+            T.RandomResize([800], max_size=1333),
+            T.ToTensor(),
+            T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        ]
+    )
+    image, _ = transform(image_pil, None)  # 3, h, w
+    return image_pil, image
+
+def groundedsam_mask_gradio(input_image, text_input):
+    config_file = "GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"  # change the path of the model config file
+    grounded_checkpoint = "models/groundingdino_swint_ogc.pth" # change the path of the model
+    sam_version = "vit_h"
+    sam_checkpoint = "models/sam_vit_h_4b8939.pth"
+    # sam_hq_checkpoint = args.sam_hq_checkpoint
+    use_sam_hq = False
+    # image_path = "inputs/batman.jpg " # use already opened image from gradio input
+    # image_opened = input_image
+    # text_prompt = text_input
+    output_dir = "outputs/grounded_sam/gradio/"
+    box_threshold = 0.3
+    text_threshold = 0.25
+    device = "cuda"
+
+    image_pil, image = load_image_gradio(input_image)
+
+    # load model
+    model = load_model(config_file, grounded_checkpoint, device=device)
+    # run grounding dino model
+    boxes_filt, pred_phrases = get_grounding_output(
+        model, image, text_input, box_threshold, text_threshold, device=device
+    ) # changed here to text_input and input_image
+
+    # initialize SAM
+    if use_sam_hq:
+        predictor = SamPredictor(sam_hq_model_registry[sam_version](checkpoint=sam_hq_checkpoint).to(device))
+    else:
+        predictor = SamPredictor(sam_model_registry[sam_version](checkpoint=sam_checkpoint).to(device))
+    image_path_temp = "outputs/temp_image.jpg"
+    input_image.save(image_path_temp)
+    image = cv2.imread(image_path_temp)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)    
+    predictor.set_image(image) ##
+    size = input_image.size ##
+    H, W = size[1], size[0]
+    for i in range(boxes_filt.size(0)):
+        boxes_filt[i] = boxes_filt[i] * torch.Tensor([W, H, W, H])
+        boxes_filt[i][:2] -= boxes_filt[i][2:] / 2
+        boxes_filt[i][2:] += boxes_filt[i][:2]
+
+    boxes_filt = boxes_filt.cpu()
+    transformed_boxes = predictor.transform.apply_boxes_torch(boxes_filt, image.shape[:2]).to(device)
+
+    masks, _, _ = predictor.predict_torch(
+        point_coords = None,
+        point_labels = None,
+        boxes = transformed_boxes.to(device),
+        multimask_output = False,
+    )
+
+    # # draw output image
+    # plt.figure(figsize=(10, 10))
+    # plt.imshow(image)
+    # for mask in masks:
+    #     show_mask(mask.cpu().numpy(), plt.gca(), random_color=True)
+    # for box, label in zip(boxes_filt, pred_phrases):
+    #     show_box(box.numpy(), plt.gca(), label)
+
+    # plt.axis('off')
+    # plt.savefig(
+    #     os.path.join(output_dir, "grounded_sam_output.jpg"),
+    #     bbox_inches="tight", dpi=300, pad_inches=0.0
+    # )
+
+    # save_mask_data(output_dir, masks, boxes_filt, pred_phrases)
+
+
+    # Save only the segmentation mask
+    mask = masks[0].cpu().numpy()
+    mask = mask.squeeze(0)
+
+    # Return the segmentation mask as a PIL image
+    pil_mask = Image.fromarray((mask * 255).astype('uint8'), mode='L')
+    
+    return pil_mask

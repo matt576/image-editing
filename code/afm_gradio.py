@@ -7,6 +7,7 @@ from inpaint_func import controlnet_inpaint_gradio
 from inpaint_ldm import ldm_removal_gradio
 from superres_func import superres_gradio
 from restyling_func import restyling_gradio
+from groundedsam_func import groundedsam_mask_gradio
 
 def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input, ddim_steps):
     
@@ -24,6 +25,9 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input,
 
     if task_selector == "Hyperresolution":
         return superres_gradio(input_image)
+
+    if task_selector == "GroundedSAM Mask Generation":
+        return groundedsam_mask_gradio(input_image, text_input)
 
 def input_handler(evt: gr.SelectData):
     # print(evt.__dict__)
@@ -44,7 +48,8 @@ if __name__ == "__main__":
                                             "ControlNet Inpainting", 
                                             "Object Removal",
                                             "Restyling",
-                                            "Hyperresolution"], 
+                                            "Hyperresolution",
+                                            "GroundedSAM Mask Generation"], 
                                             value="SAM Mask Generation")
                 input_image = gr.Image(label="Raw Input Image", sources='upload', type="pil", value="inputs/batman.jpg", interactive=True)
                 input_image.select(input_handler)

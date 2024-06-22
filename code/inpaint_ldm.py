@@ -6,7 +6,6 @@ import numpy as np
 import torch
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-# print(os.path.join(parent_dir, 'latent-diffusion'))
 sys.path.append(os.path.join(parent_dir, 'latent-diffusion'))
 
 from main import instantiate_from_config

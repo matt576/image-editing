@@ -56,6 +56,9 @@ def controlnet_inpaint_gradio(input_image, mask_image, text_input):
     pipe.enable_model_cpu_offload()
 
     output = inputation(input_image, mask_image, text_input, pipe)
+    output_dir = "outputs/gradio"
+    filename = "controlnet_inpaint_output.png"
+    output.save(f"{output_dir}/{filename}")
     return output
 
 if __name__ == "__main__":

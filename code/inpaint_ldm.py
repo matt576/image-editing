@@ -179,4 +179,7 @@ def ldm_removal_gradio(input_image, mask_image, ddim_steps):
             inpainted = (1-mask)*image+mask*predicted_image
             inpainted = inpainted.cpu().numpy().transpose(0,2,3,1)[0]*255
             inpainted = Image.fromarray(inpainted.astype(np.uint8))
+            output_dir = "outputs/gradio"
+            filename = "ldm_removal.png"
+            inpainted.save(f"{output_dir}/{filename}")
             return inpainted

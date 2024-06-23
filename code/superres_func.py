@@ -48,4 +48,9 @@ def superres_gradio(input_image):
     final_width = int(upscaled_image.width * desired_width_scale)
     final_height = int(upscaled_image.height * desired_height_scale)
     upscaled_image = upscaled_image.resize((final_width, final_height))
+
+    output_dir = "outputs/gradio"
+    filename = "superres_output.png"
+    upscaled_image.save(f"{output_dir}/{filename}")
+
     return upscaled_image

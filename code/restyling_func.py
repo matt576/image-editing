@@ -26,5 +26,7 @@ def restyling_gradio(input_image, text_prompt):
     model_id_or_path = "runwayml/stable-diffusion-v1-5"
     pipe = StableDiffusionImg2ImgPipeline.from_pretrained(model_id_or_path, torch_dtype=torch.float16)
     pipe = pipe.to(device)
+    input_image = input_image.resize((768, 512))
+
     images = pipe(prompt=text_prompt, image=input_image, strength=0.75, guidance_scale=7.5).images
     return images[0]

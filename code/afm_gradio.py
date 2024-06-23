@@ -56,16 +56,17 @@ def reset_selected_points(input_image):
     print("Selected points have been reset.")
     return None
 
+title = "# AFM Image-Editing App"
 if __name__ == "__main__":
     
-    block = gr.Blocks(theme='shivi/calm_seafoam', title='AFM Image-Editing App')
+    block = gr.Blocks(theme='shivi/calm_seafoam')
 
     with block:
-
+        gr.Markdown(title)
         gr.Markdown(
         """
-        # Welcome to the AFM Image-Editing App!
-        First selesct the desired task on the Dropdown menu below.
+        Welcome to the AFM Image-Editing App!
+        First select the desired task on the Dropdown menu below.
         Then, input the necessary prompts.
         Finally, click on 'Generate' and enjoy the App!
         """)

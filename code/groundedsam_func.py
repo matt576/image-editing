@@ -269,19 +269,16 @@ def groundedsam_mask_gradio(input_image, text_input):
 
     image_pil, image = load_image_gradio(input_image)
 
-    # load model
     model = load_model(config_file, grounded_checkpoint, device=device)
-    # run grounding dino model
     boxes_filt, pred_phrases = get_grounding_output(
         model, image, text_input, box_threshold, text_threshold, device=device
     ) # changed here to text_input and input_image
 
-    # initialize SAM
     if use_sam_hq:
         predictor = SamPredictor(sam_hq_model_registry[sam_version](checkpoint=sam_hq_checkpoint).to(device))
     else:
         predictor = SamPredictor(sam_model_registry[sam_version](checkpoint=sam_checkpoint).to(device))
-    image_path_temp = "outputs/temp_image.jpg"
+    image_path_temp = "outputs/grounded_sam/gradio/temp_image.png"
     input_image.save(image_path_temp)
     image = cv2.imread(image_path_temp)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)    
@@ -319,12 +316,12 @@ def groundedsam_mask_gradio(input_image, text_input):
 
     # save_mask_data(output_dir, masks, boxes_filt, pred_phrases)
 
-
-    # Save only the segmentation mask
     mask = masks[0].cpu().numpy()
     mask = mask.squeeze(0)
 
-    # Return the segmentation mask as a PIL image
-    pil_mask = Image.fromarray((mask * 255).astype('uint8'), mode='L')
+    pil_mask = Image.fromarray((mask * 255).astype('uint8'), mode='L')     # Return the segmentation mask as a PIL image
     
+    output_dir = "outputs/grounded_sam/gradio"
+    filename = "groundedsam_mask.png"
+    pil_mask.save(f"{output_dir}/{filename}")
     return pil_mask

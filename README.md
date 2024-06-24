@@ -103,26 +103,15 @@ Example:
 python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5
 ```
 
-### 4. Background Extraction (Mask: Depth Anything -> Diffusion: Latent Diffusion)
-Additional imports:
-```bash
-pip install scikit-learn
-```
-The method applies the Depth-Anything model to perform depth estimation.
-In order to extract the foreground and background of the image to apply background blurring/restyling we can use the following techniques:
-1. Thresholding
-2. K-Means
-3. Fine-tune the model on foreground and background annotated using SAM
-- Stanford Background Dataset: https://www.kaggle.com/datasets/balraj98/stanford-background-dataset (715 320x240 colored images)
-- Fine-tuning necessary (!)
-#### Checkpoints:
-###### Depth Anything:
-Model: LiheYoung/depth-anything-small-hf
+### 4. Background Replacement (Portrait)
 
-Example:
-```bash
-python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5
-```
+CUDA out of memory errors:
+Models: 
+- diffusers/controlnet-depth-sdxl-1.0
+- OzzyGT/RealVisXL_V4.0_inpainting
+
+
+
 
 ### 5. GroundedSAM-based mask generation
 You should set the environment variable manually as follows if you want to build a local GPU environment for Grounded-SAM:
@@ -243,9 +232,14 @@ In the following,
 ###### Depth Anything:
 Model: 
 
-Example:
-```bash
-python blurring.py
-```
 Errors: The path for directory needs to be modified. File Depth-Anything/depth_anything/dpt.py
 in lines [147, 149] should have path leading to the model.
+
+# Alternative models to compare results
+1. Mask generation: RMBG-1.4 | GroundedSAM | SAM
+2. Inpainting: ControlNet | InpaintAnything (Fill) | GroundedSAM
+3. Outpainting: InpaintAnything (Replace)
+4. Eraser: Latent Diffusion
+5. Blurring: Depth Anything
+6. Background Replacement (Portrait): ----
+7. Superresolution

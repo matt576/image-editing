@@ -52,7 +52,7 @@ def apply_blur(input_dir: str, output_dir: str):
 
         # blur image given depth map
         sharpen = 0
-        boxBlur = 5
+        boxBlur = 15
 
         oimg = Image.fromarray(resized_image)
         mimg = Image.fromarray(formatted)
@@ -63,9 +63,9 @@ def apply_blur(input_dir: str, output_dir: str):
             bimg = bimg.filter(ImageFilter.SHARPEN)
 
         rimg = Image.composite(oimg, bimg, mimg)
-        rimg.save(f"{output_dir}/{name}-blur.png")
+        rimg.save(f"{output_dir}/{name}-blur-b{boxBlur}.png")
 
 p_d = "/usr/prakt/s0075/image-editing/code/"
-input_dir = p_d + "inputs/portrait-examples"
+input_dir = p_d + "inputs/train"
 output_dir = p_d + "outputs/portrait-examples"
 apply_blur(input_dir, output_dir)

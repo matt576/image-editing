@@ -5,11 +5,11 @@ from transformers import SamModel, SamProcessor
 import numpy as np
 
 output_dir = "outputs/sam"
-filename = "car-mask-1.png"
+filename = "car-mask-2.png"
 
 # 2D location of a window in the image: [x,y] coordinates with (0,0) in the top left corner -> pixels
-input_points = [[[450, 600]]]
-raw_image = Image.open("inputs/car.png").convert("RGB")
+input_points = [[[450, 600], [900, 600]]]
+raw_image = Image.open("inputs/examples_depth/car.png").convert("RGB")
 image = np.array(raw_image)
 
 

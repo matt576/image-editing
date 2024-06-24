@@ -29,10 +29,7 @@ def postprocess_image(result: torch.Tensor, im_size: list)-> np.ndarray:
     im_array = np.squeeze(im_array)
     return im_array
 
-input_dir = "/usr/prakt/s0075/image-editing/code/inputs/foreground/safety_car.jpg"
-output_dir = "/usr/prakt/s0075/image-editing/code/outputs/foreground/safety_car-foreground.png"
-
-def extract_foreground(input_path: str, output_path: str):
+def extract_foreground(input_path: str):
 
     # prepare input
     orig_im = Image.open(input_path).convert("RGB")
@@ -54,17 +51,17 @@ def extract_foreground(input_path: str, output_path: str):
     no_bg_image = Image.new("RGBA", pil_im.size, (0,0,0,0))
     orig_image = Image.open(input_path).convert("RGB")
     no_bg_image.paste(orig_image, mask=pil_im)
-    no_bg_image.save(output_path)
+    # no_bg_image.save(output_path)
     return no_bg_image
 
 def scale_and_paste(original_image):
     aspect_ratio = original_image.width / original_image.height
 
     if original_image.width > original_image.height:
-        new_width = 1024
+        new_width = 512
         new_height = round(new_width / aspect_ratio)
     else:
-        new_height = 1024
+        new_height = 512
         new_width = round(new_height * aspect_ratio)
 
     # make the subject a little smaller
@@ -72,9 +69,9 @@ def scale_and_paste(original_image):
     new_height = new_height - 20
 
     resized_original = original_image.resize((new_width, new_height), Image.LANCZOS)
-    white_background = Image.new("RGBA", (1024, 1024), "white")
-    x = (1024 - new_width) // 2
-    y = (1024 - new_height) // 2
+    white_background = Image.new("RGBA", (512, 512), "white")
+    x = (512 - new_width) // 2
+    y = (512 - new_height) // 2
     white_background.paste(resized_original, (x, y), resized_original)
     return resized_original, white_background
 
@@ -96,14 +93,25 @@ def generate_image(prompt, negative_prompt, inpaint_image, zoe_image, seed: int 
     ).images[0]
     return image
 
+
+
+input_dir = "/usr/prakt/s0075/image-editing/code/inputs/foreground/safety_car.jpg"
+output_dir = "/usr/prakt/s0075/image-editing/code/outputs/foreground/safety_car-foreground.png"
+
 controlnet = ControlNetModel.from_pretrained(
     "destitech/controlnet-inpaint-dreamer-sdxl", torch_dtype=torch.float16, variant="fp16"
 )
+
 model = AutoModelForImageSegmentation.from_pretrained("briaai/RMBG-1.4",trust_remote_code=True)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-foreground = extract_foreground(input_dir, output_dir)
-rescaled_img, white_bg_image = scale_and_paste(foreground)
-white_bg_image.save("/usr/prakt/s0075/image-editing/code/outputs/foreground/safety_car1.png")
-rescaled_img.save("/usr/prakt/s0075/image-editing/code/outputs/foreground/safety_car0.png")
+def get_foreground(input_dir):
+    foreground = extract_foreground(input_dir)
+    rescaled_img, white_bg_image = scale_and_paste(foreground)
+    return rescaled_img, white_bg_image
+
+
+# rescaled_img, white_bg_image = get_foreground(input_dir)
+# white_bg_image.save("/usr/prakt/s0075/image-editing/code/outputs/foreground/safety_car1.png")
+# rescaled_img.save("/usr/prakt/s0075/image-editing/code/outputs/foreground/safety_car0.png")

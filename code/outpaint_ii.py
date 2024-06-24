@@ -54,6 +54,7 @@ controlnets = [
     ),
 ]
 vae = AutoencoderKL.from_pretrained("madebyollin/sdxl-vae-fp16-fix", torch_dtype=torch.float16).to("cuda")
+
 pipeline = StableDiffusionXLControlNetPipeline.from_pretrained(
     "SG161222/RealVisXL_V4.0", torch_dtype=torch.float16, variant="fp16", controlnet=controlnets, vae=vae
 ).to("cuda")

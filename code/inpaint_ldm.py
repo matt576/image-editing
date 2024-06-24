@@ -13,12 +13,18 @@ from ldm.models.diffusion.ddim import DDIMSampler
 
 
 def make_batch(image, mask, device):
-    image = np.array(Image.open(image).convert("RGB"))
+    image = Image.open(image)
+    image = image.resize((512, 512))
+    image = np.array(image.convert("RGB"))
+    # image = np.array(Image.open(image).convert("RGB"))
     image = image.astype(np.float32)/255.0
     image = image[None].transpose(0,3,1,2)
     image = torch.from_numpy(image)
 
-    mask = np.array(Image.open(mask).convert("L"))
+    mask = Image.open(mask)
+    mask = mask.resize((512, 512))
+    mask = np.array(mask.convert("L"))
+    # mask = np.array(Image.open(mask).convert("L"))
     mask = mask.astype(np.float32)/255.0
     mask = mask[None,None]
     mask[mask < 0.5] = 0
@@ -100,3 +106,79 @@ if __name__ == "__main__":
                 inpainted = (1-mask)*image+mask*predicted_image
                 inpainted = inpainted.cpu().numpy().transpose(0,2,3,1)[0]*255
                 Image.fromarray(inpainted.astype(np.uint8)).save(outpath)
+
+def make_batch_gradio(image, mask, device):
+    image = np.array(image.convert("RGB"))
+    image = image.astype(np.float32)/255.0
+    image = image[None].transpose(0,3,1,2)
+    image = torch.from_numpy(image)
+
+    mask = np.array(mask.convert("L"))
+    mask = mask.astype(np.float32)/255.0
+    mask = mask[None,None]
+    mask[mask < 0.5] = 0
+    mask[mask >= 0.5] = 1
+    mask = torch.from_numpy(mask)
+
+    masked_image = (1-mask)*image
+
+    batch = {"image": image, "mask": mask, "masked_image": masked_image}
+    for k in batch:
+        batch[k] = batch[k].to(device=device)
+        batch[k] = batch[k]*2.0-1.0
+    return batch
+
+def ldm_removal_gradio(input_image, mask_image, ddim_steps):
+    image = input_image
+    image = image.resize((512, 512))
+    mask = mask_image
+    mask = mask.resize((512, 512))
+    steps = int(ddim_steps)
+
+    parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    sys.path.append(os.path.join(parent_dir, 'latent-diffusion'))
+    from main import instantiate_from_config
+    from ldm.models.diffusion.ddim import DDIMSampler
+    
+    config = OmegaConf.load("models/ldm_inpainting/config.yaml")
+    model = instantiate_from_config(config.model)
+    model.load_state_dict(torch.load("models/ldm_inpainting/last.ckpt")["state_dict"],
+                        strict=False)
+
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    model = model.to(device)
+    sampler = DDIMSampler(model)
+
+    with torch.no_grad():
+        with model.ema_scope():
+    
+            batch = make_batch_gradio(image, mask, device=device)
+
+            # encode masked image and concat downsampled mask
+            c = model.cond_stage_model.encode(batch["masked_image"])
+            cc = torch.nn.functional.interpolate(batch["mask"],
+                                                size=c.shape[-2:])
+            c = torch.cat((c, cc), dim=1)
+
+            shape = (c.shape[1]-1,)+c.shape[2:]
+            samples_ddim, _ = sampler.sample(S=steps, ## changed
+                                            conditioning=c,
+                                            batch_size=c.shape[0],
+                                            shape=shape,
+                                            verbose=False)
+            x_samples_ddim = model.decode_first_stage(samples_ddim)
+
+            image = torch.clamp((batch["image"]+1.0)/2.0,
+                                min=0.0, max=1.0)
+            mask = torch.clamp((batch["mask"]+1.0)/2.0,
+                            min=0.0, max=1.0)
+            predicted_image = torch.clamp((x_samples_ddim+1.0)/2.0,
+                                        min=0.0, max=1.0)
+
+            inpainted = (1-mask)*image+mask*predicted_image
+            inpainted = inpainted.cpu().numpy().transpose(0,2,3,1)[0]*255
+            inpainted = Image.fromarray(inpainted.astype(np.uint8))
+            output_dir = "outputs/gradio"
+            filename = "ldm_removal.png"
+            inpainted.save(f"{output_dir}/{filename}")
+            return inpainted

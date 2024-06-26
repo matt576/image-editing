@@ -237,9 +237,9 @@ in lines [147, 149] should have path leading to the model.
 
 # Alternative models to compare results
 1. Mask generation: RMBG-1.4 | GroundedSAM | SAM
-2. Inpainting: ControlNet | InpaintAnything (Fill) | GroundedSAM
+2. Inpainting: ControlNet | ! Stable Diffusion ! | GroundedSAM
 3. Outpainting: InpaintAnything (Replace)
-4. Eraser: Latent Diffusion
+4. Eraser: Latent Diffusion | ! LaMa !
 5. Blurring: Depth Anything
-6. Background Replacement (Portrait): ----
+6. Background Replacement (Portrait): ! Stable Diffusion ! |
 7. Superresolution

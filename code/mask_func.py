@@ -4,21 +4,17 @@ import requests
 from transformers import SamModel, SamProcessor
 import numpy as np
 
-output_dir = "outputs/sam"
-filename = "car-mask-2.png"
+
 
 # 2D location of a window in the image: [x,y] coordinates with (0,0) in the top left corner -> pixels
-input_points = [[[450, 600], [900, 600]]]
-raw_image = Image.open("inputs/examples_depth/car.png").convert("RGB")
+input_points = [[[600, 800]]]
+raw_image = Image.open("inputs/eval/eval_1.jpg").convert("RGB")
 image = np.array(raw_image)
 
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = SamModel.from_pretrained("facebook/sam-vit-base").to(device)
 processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
-
-# img_url = "https://huggingface.co/ybelkada/segment-anything/resolve/main/assets/car.png"
-# raw_image = Image.open(requests.get(img_url, stream=True).raw).convert("RGB")
 
 
 def get_mask(input_image, input_points):
@@ -45,4 +41,4 @@ def get_mask(input_image, input_points):
 output = get_mask(raw_image, input_points)
 image_array = np.where(output, 255, 0).astype(np.uint8)  # Create a new NumPy array for the current channel
 pil_image = Image.fromarray(image_array)  # Convert NumPy array to PIL image
-pil_image.save(f"{output_dir}/{filename}")  # Save the image
+pil_image.save(f"outputs/sam/dog-mask.png")  # Save the image

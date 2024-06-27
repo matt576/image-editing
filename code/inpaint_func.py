@@ -80,17 +80,17 @@ def controlnet_inpaint_gradio(input_image, mask_image, text_input):
 if __name__ == "__main__":
     output_dir = "outputs/controlnet"
     filename = "jessi_inpainted_controlnet.png"
-    text_prompt = "wolf, photorealistic, detailed, high quality"
+    text_prompt = "black bear cub, photorealistic, detailed, high quality"
 
     init_image = Image.open("test_dataset/jessi.png")
     init_image = init_image.convert("RGB")
     original_width, original_height = init_image.size
-    if original_width > original_height:
-        init_image = init_image.resize((768, 512))
-    elif original_width < original_height:
-        init_image = init_image.resize((512, 768))
-    else:
-        init_image = init_image.resize((512, 512))
+    # if original_width > original_height:
+    #     init_image = init_image.resize((768, 512))
+    # elif original_width < original_height:
+    #     init_image = init_image.resize((512, 768))
+    # else:
+    init_image = init_image.resize((512, 512))
 
     mask_image = Image.open("outputs/grounded_sam/gradio/groundedsam_mask_resized.png")
     mask_image = mask_image.convert("L")

@@ -115,7 +115,7 @@ def save_mask_data(output_dir, mask_list, box_list, label_list):
     plt.figure(figsize=(10, 10))
     plt.imshow(mask_img.numpy())
     plt.axis('off')
-    plt.savefig(os.path.join(output_dir, 'mask.jpg'), bbox_inches="tight", dpi=300, pad_inches=0.0)
+    plt.savefig(os.path.join(output_dir, 'mask.png'), bbox_inches="tight", dpi=300, pad_inches=0.0)
 
     json_data = [{
         'value': value,
@@ -184,12 +184,15 @@ if __name__ == "__main__":
     os.makedirs(output_dir, exist_ok=True)
     # load image
     image_pil, image = load_image(image_path)
-    print("type image: ", type(image))
+
+    original_width, original_height = image_pil.size
+
+    # print("type image: ", type(image))
     # load model
     model = load_model(config_file, grounded_checkpoint, device=device)
 
     # visualize raw image
-    image_pil.save(os.path.join(output_dir, "raw_image.jpg"))
+    # image_pil.save(os.path.join(output_dir, "raw_image.jpg"))
 
     # run grounding dino model
     boxes_filt, pred_phrases = get_grounding_output(
@@ -238,6 +241,15 @@ if __name__ == "__main__":
 
     save_mask_data(output_dir, masks, boxes_filt, pred_phrases)
 
+    mask_output = masks[0].cpu().numpy()
+    mask_output = mask_output.squeeze(0)
+
+    pil_mask = Image.fromarray((mask_output * 255).astype('uint8'), mode='L')     # Return the segmentation mask as a PIL image
+    pil_mask_resized = pil_mask.resize((original_width, original_height))
+    output_dir = "outputs/grounded_sam/"
+    filename = "groundedsam_mask_resized.png"
+    pil_mask_resized.save(f"{output_dir}/{filename}")
+
 def load_image_gradio(input_image):
     # load image
     image_pil = input_image.convert("RGB")  # load image
@@ -268,6 +280,8 @@ def groundedsam_mask_gradio(input_image, text_input):
     device = "cuda"
 
     image_pil, image = load_image_gradio(input_image)
+
+    original_width, original_height = image_pil.size
 
     model = load_model(config_file, grounded_checkpoint, device=device)
     boxes_filt, pred_phrases = get_grounding_output(
@@ -300,28 +314,14 @@ def groundedsam_mask_gradio(input_image, text_input):
         multimask_output = False,
     )
 
-    # # draw output image
-    # plt.figure(figsize=(10, 10))
-    # plt.imshow(image)
-    # for mask in masks:
-    #     show_mask(mask.cpu().numpy(), plt.gca(), random_color=True)
-    # for box, label in zip(boxes_filt, pred_phrases):
-    #     show_box(box.numpy(), plt.gca(), label)
-
-    # plt.axis('off')
-    # plt.savefig(
-    #     os.path.join(output_dir, "grounded_sam_output.jpg"),
-    #     bbox_inches="tight", dpi=300, pad_inches=0.0
-    # )
-
-    # save_mask_data(output_dir, masks, boxes_filt, pred_phrases)
-
     mask = masks[0].cpu().numpy()
     mask = mask.squeeze(0)
 
     pil_mask = Image.fromarray((mask * 255).astype('uint8'), mode='L')     # Return the segmentation mask as a PIL image
+
+    pil_mask_resized = pil_mask.resize((original_width, original_height))
     
     output_dir = "outputs/grounded_sam/gradio"
-    filename = "groundedsam_mask.png"
-    pil_mask.save(f"{output_dir}/{filename}")
+    filename = "groundedsam_mask_resized.png"
+    pil_mask_resized.save(f"{output_dir}/{filename}")
     return pil_mask

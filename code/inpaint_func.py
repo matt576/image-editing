@@ -20,6 +20,7 @@ def make_inpaint_condition(image, image_mask):
     image[image_mask > 0.5] = -1.0  # set as masked pixel
     image = np.expand_dims(image, 0).transpose(0, 3, 1, 2)
     image = torch.from_numpy(image)
+    print(f"Control image shape: {image.shape}")
     return image
 
 def inputation(input_image, mask_image, text_prompt, pipe):
@@ -38,9 +39,23 @@ def inputation(input_image, mask_image, text_prompt, pipe):
     return output
 
 def controlnet_inpaint_gradio(input_image, mask_image, text_input):
-    input_image = input_image.resize((512, 512))
-    mask_image = mask_image.resize((512, 512))
     
+    original_width, original_height = input_image.size
+    if original_width > original_height:
+        input_image = input_image.resize((768, 512))
+    elif original_width < original_height:
+        input_image = input_image.resize((512, 768))
+    else:
+        input_image = input_image.resize((512, 512))
+    
+    mask_original_width, mask_original_height = mask_image.size
+    if mask_original_width > mask_original_height:
+        mask_image = mask_image.resize((768, 512))
+    elif mask_original_width < mask_original_height:
+        mask_image = mask_image.resize((512, 768))
+    else:
+        mask_image = mask_image.resize((512, 512))
+
     controlnet = ControlNetModel.from_pretrained("lllyasviel/control_v11p_sd15_inpaint",
                                             torch_dtype=torch.float16,
                                             use_safetensors=True)
@@ -56,23 +71,39 @@ def controlnet_inpaint_gradio(input_image, mask_image, text_input):
     pipe.enable_model_cpu_offload()
 
     output = inputation(input_image, mask_image, text_input, pipe)
+    output = output.resize((original_width, original_height))
     output_dir = "outputs/gradio"
-    filename = "controlnet_inpaint_output.png"
+    filename = "sdv15controlnet_inpaint_output.png"
     output.save(f"{output_dir}/{filename}")
     return output
 
 if __name__ == "__main__":
     output_dir = "outputs/controlnet"
-    filename = "output-9.png"
-    text_prompt = "jaguar, photorealistic, detailed, high quality"
+    filename = "jessi_inpainted_controlnet.png"
+    text_prompt = "wolf, photorealistic, detailed, high quality"
 
-    init_image = Image.open("inputs/example_batman/dog.png")
-    init_image = init_image.resize((512, 512))
+    init_image = Image.open("test_dataset/jessi.png")
+    init_image = init_image.convert("RGB")
+    original_width, original_height = init_image.size
+    if original_width > original_height:
+        init_image = init_image.resize((768, 512))
+    elif original_width < original_height:
+        init_image = init_image.resize((512, 768))
+    else:
+        init_image = init_image.resize((512, 512))
 
-    mask_image = Image.open("inputs/example_batman/dog_mask.png")
-    mask_image = mask_image.resize((512, 512))
+    mask_image = Image.open("outputs/grounded_sam/gradio/groundedsam_mask_resized.png")
+    mask_image = mask_image.convert("L")
+    mask_original_width, mask_original_height = mask_image.size
+    # if mask_original_width > mask_original_height:
+    #     mask_image = mask_image.resize((768, 512))
+    # elif mask_original_width < mask_original_height:
+    #     mask_image = mask_image.resize((512, 768))
+    # else:
+    #     mask_image = mask_image.resize((512, 512))
 
-    # make_image_grid([init_image, mask_image], rows=1, cols=2)
+    mask_image = mask_image.resize(init_image.size)
+    print(init_image.size, mask_image.size)
 
     controlnet = ControlNetModel.from_pretrained("lllyasviel/control_v11p_sd15_inpaint",
                                              torch_dtype=torch.float16,
@@ -89,4 +120,5 @@ if __name__ == "__main__":
     pipe.enable_model_cpu_offload()
 
     output = inputation(init_image, mask_image, text_prompt, pipe)
+    output = output.resize((original_width, original_height))
     output.save(f"{output_dir}/{filename}") 

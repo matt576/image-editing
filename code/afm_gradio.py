@@ -126,7 +126,7 @@ if __name__ == "__main__":
         with gr.Row():
                 with gr.Column():
                     with gr.Accordion("Mask Input", open=False):
-                        mask_image = gr.Image(label="Input Mask", sources='upload', type="pil", value="outputs/sam/mask_gradio.png")
+                        mask_image = gr.Image(label="Input Mask", sources='upload', type="pil", value="inputs/ldm_inputs/jessi_mask.png")
 
                 with gr.Column():
                     output_image = gr.Image(label="Generated Image", type="pil")

@@ -14,7 +14,16 @@ from ldm.models.diffusion.ddim import DDIMSampler
 
 def make_batch(image, mask, device):
     image = Image.open(image)
-    image = image.resize((512, 512))
+
+    original_width, original_height = image.size
+
+    if original_width > original_height:
+        image = image.resize((768, 512))
+    elif original_width < original_height:
+        image = image.resize((512, 768))
+    else:
+        image = image.resize((512, 512))
+
     image = np.array(image.convert("RGB"))
     # image = np.array(Image.open(image).convert("RGB"))
     image = image.astype(np.float32)/255.0
@@ -22,7 +31,16 @@ def make_batch(image, mask, device):
     image = torch.from_numpy(image)
 
     mask = Image.open(mask)
-    mask = mask.resize((512, 512))
+
+    mask_original_width, mask_original_height = mask.size
+
+    if mask_original_width > mask_original_height:
+        mask = mask.resize((768, 512))
+    elif mask_original_width < mask_original_height:
+        mask = mask.resize((512, 768))
+    else:
+        mask = mask.resize((512, 512))
+
     mask = np.array(mask.convert("L"))
     # mask = np.array(Image.open(mask).convert("L"))
     mask = mask.astype(np.float32)/255.0
@@ -80,6 +98,8 @@ if __name__ == "__main__":
         with model.ema_scope():
             for image, mask in tqdm(zip(images, masks)):
                 outpath = os.path.join(opt.outdir, os.path.split(image)[1])
+                image_open = Image.open(image)
+                original_width, original_height = image_open.size
                 batch = make_batch(image, mask, device=device)
 
                 # encode masked image and concat downsampled mask
@@ -105,7 +125,10 @@ if __name__ == "__main__":
 
                 inpainted = (1-mask)*image+mask*predicted_image
                 inpainted = inpainted.cpu().numpy().transpose(0,2,3,1)[0]*255
-                Image.fromarray(inpainted.astype(np.uint8)).save(outpath)
+                inpainted_image = Image.fromarray(inpainted.astype(np.uint8))
+                inpainted_image = inpainted_image.resize((original_width, original_height))
+                inpainted_image.save(outpath)
+
 
 def make_batch_gradio(image, mask, device):
     image = np.array(image.convert("RGB"))
@@ -130,9 +153,27 @@ def make_batch_gradio(image, mask, device):
 
 def ldm_removal_gradio(input_image, mask_image, ddim_steps):
     image = input_image
-    image = image.resize((512, 512))
+
+    original_width, original_height = image.size
+
+    if original_width > original_height:
+        image = image.resize((768, 512))
+    elif original_width < original_height:
+        image = image.resize((512, 768))
+    else:
+        image = image.resize((512, 512))
+
     mask = mask_image
-    mask = mask.resize((512, 512))
+
+    mask_original_width, mask_original_height = mask.size
+
+    if mask_original_width > mask_original_height:
+        mask = mask.resize((768, 512))
+    elif mask_original_width < mask_original_height:
+        mask = mask.resize((512, 768))
+    else:
+        mask = mask.resize((512, 512))
+
     steps = int(ddim_steps)
 
     parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -154,7 +195,6 @@ def ldm_removal_gradio(input_image, mask_image, ddim_steps):
     
             batch = make_batch_gradio(image, mask, device=device)
 
-            # encode masked image and concat downsampled mask
             c = model.cond_stage_model.encode(batch["masked_image"])
             cc = torch.nn.functional.interpolate(batch["mask"],
                                                 size=c.shape[-2:])
@@ -178,6 +218,7 @@ def ldm_removal_gradio(input_image, mask_image, ddim_steps):
             inpainted = (1-mask)*image+mask*predicted_image
             inpainted = inpainted.cpu().numpy().transpose(0,2,3,1)[0]*255
             inpainted = Image.fromarray(inpainted.astype(np.uint8))
+            inpainted = inpainted.resize((original_width, original_height))
             output_dir = "outputs/gradio"
             filename = "ldm_removal.png"
             inpainted.save(f"{output_dir}/{filename}")

@@ -43,3 +43,12 @@ image_output = expand_white_areas(image_path, iterations=dil_iterations)
 output_path = f'inputs/eval/eval_2_mask_d{dil_iterations}.png'
 image_output.save(output_path)
 """
+
+if __name__ == "__main__":
+    
+    dil_iterations = 10
+    image_path = 'outputs/sam/mask_gradio.png'
+    image_input = Image.open(image_path)
+    image_output = expand_white_areas(image_path, iterations=dil_iterations)
+    output_path = f'inputs/eval/eval_2_mask_d{dil_iterations}.png'
+    image_output.save(output_path)

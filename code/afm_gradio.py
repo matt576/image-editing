@@ -1,5 +1,5 @@
 import gradio as gr
-from PIL import Image
+from PIL import Image, ImageDraw
 
 # imports from code scripts
 from mask_func import sam_gradio
@@ -34,7 +34,8 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, coord_input,
         return groundedsam_inpaint_gradio(input_image, text_input, inpaint_input)
 
 selected_points = []
-def input_handler(evt: gr.SelectData):
+#testtets
+def input_handler(evt: gr.SelectData, input_image):
     # # print(evt.__dict__)
     # coords = evt.index
     # x, y = coords[0], coords[1]
@@ -48,13 +49,20 @@ def input_handler(evt: gr.SelectData):
     coord_string = '; '.join([f"{pt[0]},{pt[1]}" for pt in selected_points]) # Format points as a semicolon-separated string
     # print(f"Selected points: {selected_points}")
     # print("coord_string: ", coord_string)
-    return coord_string
+
+    # Draw points on the image
+    image_with_points = input_image.copy()
+    draw = ImageDraw.Draw(image_with_points)
+    for point in selected_points:
+        draw.ellipse((point[0] - 5, point[1] - 5, point[0] + 5, point[1] + 5), fill="red", outline="red")
+
+    return coord_string, image_with_points
 
 def reset_selected_points(input_image):
     global selected_points
     selected_points = []
     print("Selected points have been reset.")
-    return None
+    return "", input_image
 
 title = "# AFM Image-Editing App"
 if __name__ == "__main__":
@@ -72,7 +80,7 @@ if __name__ == "__main__":
         """)
         with gr.Row():
             with gr.Column():
-                input_image = gr.Image(label="Raw Input Image", sources='upload', type="pil", value="inputs/examples_depth/car.png", interactive=True)
+                input_image = gr.Image(label="Raw Input Image", sources='upload', type="pil", value="test_dataset/jessi.png", interactive=True)
             with gr.Column():
 
                 task_selector = gr.Dropdown(["SAM Mask Generation", 
@@ -118,7 +126,7 @@ if __name__ == "__main__":
         with gr.Row():
                 with gr.Column():
                     with gr.Accordion("Mask Input", open=False):
-                        mask_image = gr.Image(label="Input Mask", sources='upload', type="pil", value="outputs/sam/car-mask-1.png")
+                        mask_image = gr.Image(label="Input Mask", sources='upload', type="pil", value="outputs/sam/mask_gradio.png")
 
                 with gr.Column():
                     output_image = gr.Image(label="Generated Image", type="pil")
@@ -127,8 +135,8 @@ if __name__ == "__main__":
         # output_image = gr.Image(label="Generated Image", type="pil")
 
         
-        input_image.select(input_handler, inputs=[], outputs=coord_input) # clicking input for sam image coordinates
-        input_image.change(reset_selected_points, inputs=[input_image], outputs=[])
+        input_image.select(input_handler, inputs=[input_image], outputs=[coord_input, input_image]) # clicking input for sam image coordinates
+        # input_image.change(reset_selected_points, inputs=[input_image], outputs=[coord_input])
 
         generate_button.click(
                 fn = run_afm_app,
@@ -139,7 +147,7 @@ if __name__ == "__main__":
         reset_button.click(
                 fn = reset_selected_points,
                 inputs = [input_image],
-                outputs = None
+                outputs = [coord_input, input_image]
         )  
 
     block.launch(share=True)

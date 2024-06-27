@@ -151,7 +151,7 @@ if __name__ == "__main__":
     
     model = load_model(config_file, grounded_checkpoint, device=device)
 
-    image_pil.save(os.path.join(output_dir, "raw_image.jpg"))
+    # image_pil.save(os.path.join(output_dir, "raw_image.jpg"))
 
     boxes_filt, pred_phrases = get_grounding_output(
         model, image, det_prompt, box_threshold, text_threshold, device=device
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     mask_pil = mask_pil.resize((512, 512))
     image = pipe(prompt=inpaint_prompt, image=image_pil, mask_image=mask_pil).images[0]
     image = image.resize(size)
-    image.save(os.path.join(output_dir, "grounded_sam_inpainting_output.jpg"))
+    image.save(os.path.join(output_dir, "grounded_sam_inpainting_output.png"))
 
 
 def load_image_gradio(input_image):

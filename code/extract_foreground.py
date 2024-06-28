@@ -2,11 +2,13 @@ from transformers import pipeline
 from transformers import AutoModelForImageSegmentation
 from torchvision.transforms.functional import normalize
 import torch
+import os
 import numpy as np
 import torch.nn.functional as F
 from PIL import Image
 import random
 from diffusers import ControlNetModel
+from scipy.ndimage import label, find_objects
 
 
 def preprocess_image(im: np.ndarray, model_input_size: list) -> torch.Tensor:
@@ -27,16 +29,25 @@ def postprocess_image(result: torch.Tensor, im_size: list)-> np.ndarray:
     im_array = np.squeeze(im_array)
     return im_array
 
-def extract_foreground(input_image: Image):
+def extract_foreground(input_image: Image) -> Image:
+
+    # set the values for model size and images of how much percent of whole image should be dismissed
+    model_size = (1024, 1024)
+    img_percent = 0.05
+
+    if img_percent < 0.0 or img_percent > 1.0:
+        print('The img_percent variable should be in the range (0.0, 1.0)')
+        return None
+
+    dismissed_pixels = img_percent * model_size[0] * model_size[1]
 
     # prepare input
-    orig_im = input_image
-    orig_im = np.array(orig_im)
+    input_image_size = np.array(input_image).shape[:2]
+    input_image = input_image.resize(model_size)
 
+    orig_im = np.array(input_image)
     orig_im_size = orig_im.shape[0:2]
-    model_input_size = orig_im_size     # decrease the model size in case of lack of memory
-    print("model_input_size", model_input_size)
-    model_input_size = (1024, 1024)
+    model_input_size = model_size
     image = preprocess_image(orig_im, model_input_size).to(device)
 
     # inference 
@@ -48,9 +59,22 @@ def extract_foreground(input_image: Image):
     # save result
     pil_im = Image.fromarray(result_image)
     no_bg_image = Image.new("RGBA", pil_im.size, (0,0,0,0))
-    orig_image = input_image
-    no_bg_image.paste(orig_image, mask=pil_im)
-    # no_bg_image.save(output_path)
+    
+    # remove small groups of foreground map
+    np_im = np.array(pil_im)
+    np_im[np_im > 0] = 1
+    labeled_array, num_features = label(np_im)
+    objects = find_objects(labeled_array)
+    for i, obj_slice in enumerate(objects):
+        if np.sum(labeled_array[obj_slice] == (i + 1)) < dismissed_pixels:      # The whole image has 1024x1024 ~ 10^6 pixels
+            np_im[labeled_array == (i + 1)] = 0
+    masked_im = np_im * np.array(pil_im)
+    cleaned_pil_im = Image.fromarray(masked_im)
+    
+    # apply the mask
+    no_bg_image.paste(input_image, mask=cleaned_pil_im)
+    no_bg_image = no_bg_image.resize((input_image_size[1], input_image_size[0]))
+
     return no_bg_image
 
 def scale_and_paste(original_image, background_image=None):
@@ -98,8 +122,6 @@ def generate_image(prompt, negative_prompt, inpaint_image, zoe_image, seed: int 
     return image
 
 
-
-
 controlnet = ControlNetModel.from_pretrained(
     "destitech/controlnet-inpaint-dreamer-sdxl", torch_dtype=torch.float16, variant="fp16"
 )
@@ -111,13 +133,16 @@ model.to(device)
 
 def get_fgbg(input_image):
     foreground = extract_foreground(input_image)
-
-    bg = Image.open("/usr/prakt/s0075/image-editing/code/inputs/foreground/giraffe.jpg")
-    rescaled_img, white_bg_image = scale_and_paste(foreground, bg)
+    rescaled_img, white_bg_image = scale_and_paste(foreground)
     return rescaled_img, white_bg_image
 
 
-#input_image = Image.open("/usr/prakt/s0075/image-editing/code/inputs/foreground/eval_1.jpeg").convert("RGB")
-#extracted_img, bgfg_image = get_fgbg(input_image)
-#bgfg_image.save("/usr/prakt/s0075/image-editing/code/outputs/foreground/eval_1_wbg.png")
-#extracted_img.save("/usr/prakt/s0075/image-editing/code/outputs/foreground/eval_1_fg.png")
+if __name__ == "__main__":
+    import os
+    directory_path = "/usr/prakt/s0075/image-editing/code/inputs/portrait-examples/"
+
+    for filename in os.listdir(directory_path):
+        print(filename)
+        input_image = Image.open(f"{directory_path}/{filename}").convert("RGB")
+        extracted_img, _ = get_fgbg(input_image)
+        extracted_img.save(f"/usr/prakt/s0075/image-editing/code/outputs/foreground/{filename}.png")

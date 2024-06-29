@@ -1,6 +1,5 @@
 import torch
 from PIL import Image
-import requests
 from transformers import SamModel, SamProcessor
 import numpy as np
 

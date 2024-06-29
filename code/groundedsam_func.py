@@ -7,8 +7,11 @@ import json
 import torch
 from PIL import Image
 
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(os.path.join(parent_dir, 'Grounded-Segment-Anything'))
+
+# adapth the repository path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(current_dir, '..', 'Grounded-Segment-Anything')
+sys.path.append(config_path)
 
 # Grounding DINO
 import GroundingDINO.groundingdino.datasets.transforms as T

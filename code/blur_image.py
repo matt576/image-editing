@@ -6,15 +6,19 @@ import os, sys
 import cv2
 from extract_foreground import extract_foreground, scale_and_paste
 
-
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(os.path.join(parent_dir, 'Depth-Anything'))
+# adapth the repository path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(current_dir, '..', 'Depth-Anything')
+sys.path.append(config_path)
 
 from depth_anything.dpt import DepthAnything
 from depth_anything.util.transform import Resize, NormalizeImage, PrepareForNet
 from torchvision.transforms import Compose
 
+# change the current path to Depth-Anything to correctly maintain the model
+os.chdir(config_path)
 model = DepthAnything.from_pretrained("LiheYoung/depth_anything_vitl14")
+os.chdir(current_dir)
 
 transform = Compose([
         Resize(
@@ -50,21 +54,6 @@ def apply_blur(input_img: Image, foreground_img: Image, boxBlur: int, sharpen: i
     # visualize the prediction
     output = output.squeeze().cpu().numpy()
     prediction = (output * 255 / np.max(output)).astype("uint8")
-
-    """
-    # put the foreground mask on top of the depth map
-    foreground_img = np.array(foreground_img)
-    resized_foreground_img = cv2.resize(foreground_img, (np_image.shape[1], np_image.shape[0]))
-
-    prediction_foreground = np.zeros((resized_foreground_img.shape[0], resized_foreground_img.shape[1]), dtype=np.uint8)
-    prediction_foreground[np.any(resized_foreground_img != [0, 0, 0, 0], axis=-1)] = 255
-    print("prediction_foreground:", prediction_foreground)
-    Image.fromarray(prediction_foreground).save(f"/usr/prakt/s0075/image-editing/code/outputs/foreground/blurtest-prediction-fg.png")
-
-    prediction[prediction_foreground == 255] = 255
-    print("prediction:", prediction)
-    Image.fromarray(prediction).save(f"/usr/prakt/s0075/image-editing/code/outputs/foreground/blurtest-prediction2.png")
-    """
 
     # blur image given depth map
     oimg = Image.fromarray(resized_image)

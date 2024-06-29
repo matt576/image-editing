@@ -3,9 +3,11 @@ import os
 import sys
 import traceback
 
-
+# adapt the repository paths
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(parent_dir, 'lama'))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(current_dir, '..', 'lama', 'configs', 'prediction')
 
 
 from saicinpainting.evaluation.utils import move_to_device
@@ -31,11 +33,6 @@ from saicinpainting.utils import register_debug_signal_handlers
 
 LOGGER = logging.getLogger(__name__)
 
-# adapt the paths
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-config_path = os.path.join(current_dir, '..', 'lama', 'configs', 'prediction')
-print('config path:', config_path)
 
 @hydra.main(config_path=config_path, config_name='default.yaml')
 def main(predict_config: OmegaConf):

@@ -6,6 +6,30 @@ from diffusers import AutoPipelineForInpainting
 from PIL import Image
 
 
+def inpaint_kandinsky_gradio(input_image, mask_image, text_input):
+    output_dir = "outputs/gradio/inpainting"
+    filename = "inpainted_kandinsky_gradio.png"
+    prompt = text_input
+    input_image = input_image.convert("RGB")
+    original_width, original_height = input_image.size
+    input_image = input_image.resize((512, 512))
+
+    mask_image = mask_image.convert("L")
+    mask_image = mask_image.resize(input_image.size)
+
+    pipeline = AutoPipelineForInpainting.from_pretrained(
+        "kandinsky-community/kandinsky-2-2-decoder-inpaint", torch_dtype=torch.float16
+    )
+    pipeline.enable_model_cpu_offload()
+
+    generator = torch.Generator("cuda").manual_seed(92)
+    print(prompt)
+    image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, generator=generator).images[0]
+    
+    image_resized = image.resize((original_width, original_height))
+    image_resized.save(f"{output_dir}/{filename}")
+    return image_resized
+
 if __name__ == "__main__":
 
     output_dir = "outputs/controlnet"

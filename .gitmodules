@@ -13,3 +13,6 @@
 [submodule "Depth-Anything"]
 	path = Depth-Anything
 	url = https://github.com/LiheYoung/Depth-Anything.git
+[submodule "lama"]
+	path = lama
+	url = https://github.com/advimman/lama.git

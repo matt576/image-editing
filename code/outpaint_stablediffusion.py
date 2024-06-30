@@ -2,6 +2,7 @@ from diffusers import StableDiffusionInpaintPipeline
 import torch
 from PIL import Image
 import numpy as np
+from operations_image import expand_white_areas
 
 
 pipe = StableDiffusionInpaintPipeline.from_pretrained(
@@ -11,13 +12,35 @@ pipe = StableDiffusionInpaintPipeline.from_pretrained(
 pipe.to("cuda")
 
 
-image = Image.open(f"inputs/example_dog/dog.png")
-mask_image = Image.open(f"inputs/example_dog/dog_mask.png")
-reversed_mask_array = 255 - np.array(mask_image)
-reversed_mask_array = Image.fromarray(reversed_mask_array)
+def outpaint_stablediffusion(input_image: Image, prompt: str, coordinates: list, steps: int) -> Image:
 
-prompt = "dog sitting on a dirty street, cars in the background"
-# image and mask_image should be PIL images.
-# the mask structure is white for inpainting and black for keeping as is
-image = pipe(prompt=prompt, image=image, mask_image=reversed_mask_array).images[0]
-image.save("outputs/example_dog/outpaint-dog-street.png")
+    width, height = input_image.size
+    new_width = width + coordinates[0] + coordinates[1]
+    new_height = height + coordinates[2] + coordinates[3]
+
+    # new image with extended blank spaces
+    extended_image = Image.new('RGB', (new_width, new_height), color='white')
+    extended_image.paste(input_image, (coordinates[0], coordinates[2]))
+    extended_image.save("outputs/example_dog/dog-extendedimage.png")
+
+    # new mask image
+    extended_mask = Image.new('L', (new_width, new_height), color='white')
+    extended_mask.paste(Image.new('L', input_image.size, color='black'), (coordinates[0], coordinates[2]))
+    extended_mask.save("outputs/example_dog/dog-extendedmask.png")
+    extended_mask = expand_white_areas(extended_mask, 10)
+
+    #resized_input_image = input_image.resize((512, 512))
+    #resized_reversed_mask_array = reversed_mask_array.resize((512, 512))
+    output_image = pipe(prompt=prompt, image=extended_image, mask_image=extended_mask,  guidance_scale=7.5, num_inference_steps=steps).images[0]
+    resized_output_image = output_image.resize((new_width, new_height))
+    return resized_output_image
+
+
+if __name__ == "__main__":
+
+    image = Image.open(f"inputs/example_dog/dog.png")
+    prompt = "dog in a park and kids"
+    extend_right, extend_left, extend_up, extend_down = 0, 0, 0, 500
+    coordinates = [extend_right, extend_left, extend_up, extend_down]
+    output_image = outpaint_stablediffusion(image, prompt, coordinates, 50)
+    output_image.save("outputs/example_dog/dog-person-kids.png")

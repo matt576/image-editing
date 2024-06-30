@@ -1,6 +1,6 @@
 from PIL import Image
 import numpy as np
-from scipy.ndimage import binary_dilation
+from scipy.ndimage import binary_dilation, binary_erosion
 
 
 # function taking RGB image as input, a transforming it to a black-white image basing on the pixel brightness
@@ -19,15 +19,27 @@ def read_and_resize_image(input_image, new_size):
 
 
 # Expand white areas of an image
-def expand_white_areas(image_path, iterations=1):
+def expand_white_areas(mask_image: Image, iterations=1):
     
-    img = Image.open(image_path).convert('L')
+    img = mask_image.convert('L')
     img_array = np.array(img)
     binary_mask = img_array == 255
     dilated_mask = binary_dilation(binary_mask, iterations=iterations)
     expanded_array = np.where(dilated_mask, 255, 0).astype(np.uint8)
     expanded_img = Image.fromarray(expanded_array, mode='L')
     return expanded_img
+
+
+# shrink white areas of an image
+def shrink_white_areas(mask_image, iterations=1):
+
+    img = mask_image.convert('L')
+    img_array = np.array(img)
+    binary_mask = img_array == 255
+    eroded_mask = binary_erosion(binary_mask, iterations=iterations)
+    shrunk_array = np.where(eroded_mask, 255, 0).astype(np.uint8)
+    shrunk_img = Image.fromarray(shrunk_array, mode='L')
+    return shrunk_img
 
 
 if __name__ == "__main__":

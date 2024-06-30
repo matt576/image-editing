@@ -29,7 +29,9 @@ def postprocess_image(result: torch.Tensor, im_size: list)-> np.ndarray:
     im_array = np.squeeze(im_array)
     return im_array
 
-def extract_foreground(input_image: Image) -> Image:
+
+# extract foreground image (RMBG-1.4)
+def extract_foreground_image(input_image: Image) -> Image:
 
     # set the values for model size and images of how much percent of whole image should be dismissed
     model_size = (1024, 1024)
@@ -76,6 +78,17 @@ def extract_foreground(input_image: Image) -> Image:
     no_bg_image = no_bg_image.resize((input_image_size[1], input_image_size[0]))
 
     return no_bg_image
+
+
+def extract_foreground_mask(input_image: Image) -> Image:
+
+    input_image = input_image.convert('RGBA')
+    img_array = np.array(input_image)
+    alpha_channel = img_array[:, :, 3]
+    mask_array = np.where(alpha_channel > 0, 255, 0).astype(np.uint8)
+    output_mask = Image.fromarray(mask_array, mode='L')
+    return output_mask
+
 
 def scale_and_paste(original_image, background_image=None):
     

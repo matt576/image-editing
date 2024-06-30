@@ -4,7 +4,7 @@ from PIL import Image, ImageFilter
 import os, sys
 
 import cv2
-from extract_foreground import extract_foreground, scale_and_paste
+from extract_foreground import extract_foreground_image, scale_and_paste
 
 # adapth the repository path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -71,7 +71,7 @@ def apply_blur(input_img: Image, foreground_img: Image, boxBlur: int, sharpen: i
 
 # use the same 
 def get_fgbg(input_image):
-    foreground_img = extract_foreground(input_image)
+    foreground_img = extract_foreground_image(input_image)
     rescaled_img, white_bg_image = scale_and_paste(foreground_img, input_image)
     return rescaled_img, white_bg_image
 
@@ -79,7 +79,7 @@ def get_fgbg(input_image):
 def blur_image(input_image: Image, bBlur: int, sharpen: int = 0) -> Image:
     
     # extract foreground from the image
-    foreground_img = extract_foreground(input_image)
+    foreground_img = extract_foreground_image(input_image)
 
     # apply blur to the whole image
     blurred_img = apply_blur(input_image, foreground_img, bBlur, sharpen)

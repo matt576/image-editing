@@ -47,7 +47,7 @@ def input_handler(evt: gr.SelectData, input_image):
     image_with_points = input_image.copy()
     draw = ImageDraw.Draw(image_with_points)
     for point in selected_points:
-        draw.ellipse((point[0] - 5, point[1] - 5, point[0] + 5, point[1] + 5), fill="red", outline="red")
+        draw.ellipse((point[0] - 2, point[1] - 2, point[0] + 2, point[1] + 2), fill="red", outline="red")
 
     return coord_string, image_with_points
 
@@ -56,6 +56,10 @@ def reset_selected_points(input_image):
     selected_points = []
     print("Selected points have been reset.")
     return "", input_image
+
+def reload_image(original_image_path):
+    original_image = original_image_path
+    return original_image
 
 def update_task_selector(task_selector, task):
     return task
@@ -75,9 +79,12 @@ if __name__ == "__main__":
         Finally, click on 'Generate' and enjoy the App!
         """)
 
+        original_image_path = "test_dataset/jessi.png"
+        original_image = Image.open(original_image_path)
+
         with gr.Row():
             with gr.Column():
-                input_image = gr.Image(label="Input Image", sources='upload', type="pil", value="test_dataset/jessi.png", interactive=True)
+                input_image = gr.Image(label="Raw Input Image", sources='upload', type="pil", value=original_image_path, interactive=True)
 
             with gr.Column():
                 task_selector = gr.State(value="")
@@ -88,6 +95,8 @@ if __name__ == "__main__":
                     gr.Markdown("Type image coordinates manually or click on the image directly.")
                     coord_input = gr.Textbox(label="Pixel Coordinates (x,y), Format x1,y1; x2,y2 ...", value="")
                     reset_button = gr.Button("Reset Points")
+                    reload_image_button = gr.Button("Reload Original Image without points")
+
 
                     gr.Markdown("GroundedSAM: Required Inputs: Text Prompt - Object to be masked")
                     gr.Markdown("Input in the text box below the object(s) in the input image for which the masks are to be generated")
@@ -140,6 +149,12 @@ if __name__ == "__main__":
             fn=reset_selected_points,
             inputs=[input_image],
             outputs=[coord_input, input_image]
+        )
+
+        reload_image_button.click(
+            fn=reload_image,
+            inputs=[gr.State(original_image_path)],
+            outputs=[input_image]
         )
 
         tab_task_selector_1.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_1], outputs=[task_selector])

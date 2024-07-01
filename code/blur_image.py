@@ -2,7 +2,6 @@ import torch
 import numpy as np
 from PIL import Image, ImageFilter
 import os, sys
-
 import cv2
 from extract_foreground import extract_foreground_image, scale_and_paste
 
@@ -10,6 +9,7 @@ from extract_foreground import extract_foreground_image, scale_and_paste
 current_dir = os.path.dirname(os.path.abspath(__file__))
 config_path = os.path.join(current_dir, '..', 'Depth-Anything')
 sys.path.append(config_path)
+
 
 from depth_anything.dpt import DepthAnything
 from depth_anything.util.transform import Resize, NormalizeImage, PrepareForNet
@@ -19,6 +19,7 @@ from torchvision.transforms import Compose
 os.chdir(config_path)
 model = DepthAnything.from_pretrained("LiheYoung/depth_anything_vitl14")
 os.chdir(current_dir)
+
 
 transform = Compose([
         Resize(

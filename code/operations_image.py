@@ -3,6 +3,7 @@ import numpy as np
 from scipy.ndimage import binary_dilation, binary_erosion
 
 
+
 # function taking RGB image as input, a transforming it to a black-white image basing on the pixel brightness
 def rgb_to_thresholded_grayscale(input_image, threshold=127):
     
@@ -23,11 +24,15 @@ def expand_white_areas(mask_image: Image, iterations=1):
     
     img = mask_image.convert('L')
     img_array = np.array(img)
+    print("iterations: ", iterations)
+
+    # Create a binary mask where white pixels are True and black pixels are False and expand white areas
     binary_mask = img_array == 255
     dilated_mask = binary_dilation(binary_mask, iterations=iterations)
     expanded_array = np.where(dilated_mask, 255, 0).astype(np.uint8)
     expanded_img = Image.fromarray(expanded_array, mode='L')
     return expanded_img
+
 
 
 # shrink white areas of an image

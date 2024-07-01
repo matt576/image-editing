@@ -16,12 +16,12 @@ if __name__ == "__main__":
     # url = "https://user-images.githubusercontent.com/38061659/199705896-b48e17b8-b231-47cd-a270-4ffa5a93fa3e.png"
     # response = requests.get(url)
     # low_res_img = Image.open(BytesIO(response.content)).convert("RGB")
-    low_res_img = Image.open("inputs/batman.jpg")
+    low_res_img = Image.open("test_dataset/jessi.png").convert("RGB")
     original_width, original_height = low_res_img.size
     desired_width_scale = original_width / 128 ##new
     desired_height_scale = original_height / 128 ##new
     low_res_img = low_res_img.resize((128, 128))
-    low_res_img.save("ldm_low_res.png")
+    # low_res_img.save("inputs/superres/ldm_low_res.png")
 
     # run pipeline in inference (sample random noise and denoise)
     upscaled_image = pipeline(low_res_img, num_inference_steps=100, eta=1).images[0]
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     upscaled_image = upscaled_image.resize((final_width, final_height))
     # save image
 
-    upscaled_image.save("ldm_generated_image.png")
+    upscaled_image.save("outputs/superres/ldm_generated_image.png")
 
 def superres_gradio(input_image):
     device = "cuda" if torch.cuda.is_available() else "cpu"

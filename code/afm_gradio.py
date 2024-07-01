@@ -1,21 +1,30 @@
 import gradio as gr
 from PIL import Image, ImageDraw
 
-from mask_func import sam_gradio
-from inpaint_func import controlnet_inpaint_gradio
-from inpaint_ldm import ldm_removal_gradio
-from superres_func import superres_gradio
-from restyling_func import restyling_gradio
+# from mask_func import sam_gradio
+from mask_sam import sam_gradio
+# from inpaint_func import controlnet_inpaint_gradio
+from inpaint_sd_controlnet import controlnet_inpaint_gradio
+# from inpaint_ldm import ldm_removal_gradio
+from eraser_ldm import ldm_removal_gradio
+# from superres_func import superres_gradio
+from superres_ldm import superres_gradio
+# from restyling_func import restyling_gradio
+from restyling_sd import restyling_gradio
 from restyling_sdxl import restyling_sdxl_gradio
 from restyling_kandinsky import restyling_kandinsky_gradio
-from groundedsam_func import groundedsam_mask_gradio
-from groundedsam_inpaint import groundedsam_inpaint_gradio
+# from groundedsam_func import groundedsam_mask_gradio
+from mask_groundedsam import groundedsam_mask_gradio
+# from groundedsam_inpaint import groundedsam_inpaint_gradio
+from inpaint_groundedsam import groundedsam_inpaint_gradio
 from inpaint_sd import inpaint_sd_gradio
 from inpaint_sdxl import inpaint_sdxl_gradio
 from inpaint_kandinsky import inpaint_kandinsky_gradio
-from ldm_removal_pipe import ldm_removal_pipe_gradio
+# from ldm_removal_pipe import ldm_removal_pipe_gradio
+from eraser_ldm_pipe import ldm_removal_pipe_gradio
 from inpaint_pipe import inpaint_pipe_gradio
-from inpaint_func_pipe import inpaint_func_pipe_gradio
+# from inpaint_func_pipe import inpaint_func_pipe_gradio
+from inpaint_sd_controlnet_pipe import inpaint_func_pipe_gradio
 
 def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, 
                 ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling):

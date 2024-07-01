@@ -6,6 +6,8 @@ from inpaint_func import controlnet_inpaint_gradio
 from inpaint_ldm import ldm_removal_gradio
 from superres_func import superres_gradio
 from restyling_func import restyling_gradio
+from restyling_sdxl import restyling_sdxl_gradio
+from restyling_kandinsky import restyling_kandinsky_gradio
 from groundedsam_func import groundedsam_mask_gradio
 from groundedsam_inpaint import groundedsam_inpaint_gradio
 from inpaint_sd import inpaint_sd_gradio
@@ -16,7 +18,7 @@ from inpaint_pipe import inpaint_pipe_gradio
 from inpaint_func_pipe import inpaint_func_pipe_gradio
 
 def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, 
-                ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe):
+                ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling):
     print(f"Task selected: {task_selector}")
 
     if task_selector == "SAM":
@@ -44,7 +46,13 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
         return ldm_removal_gradio(input_image, mask_image, ddim_steps)
 
     if task_selector == "Restyling - Stable Diffusion v1.5":
-        return restyling_gradio(input_image, text_input)
+        return restyling_gradio(input_image, text_input_restyling)
+
+    if task_selector == "Restyling - Stable Diffusion XL":
+        return restyling_sdxl_gradio(input_image, text_input_restyling)
+
+    if task_selector == "Restyling - Kandinsky v2.2":
+        return restyling_kandinsky_gradio(input_image, text_input_restyling)
 
     if task_selector == "Superresolution - Stable Diffusion v1.5":
         return superres_gradio(input_image)
@@ -159,8 +167,15 @@ if __name__ == "__main__":
                     ddim_steps = gr.Slider(minimum=5, maximum=200, label="Number of DDIM sampling steps for object removal", value=150)
 
                 with gr.Tab("Restyling"):
-                    tab_task_selector_4 = gr.Dropdown(["Restyling - Stable Diffusion v1.5"], label="Select Model")
-                    text_input = gr.Textbox(label="Text Prompt: ")
+                    tab_task_selector_4 = gr.Dropdown(["Restyling - Stable Diffusion v1.5",
+                                                        "Restyling - Stable Diffusion XL",
+                                                        "Restyling - Kandinsky v2.2"], label="Select Model")
+                    gr.Markdown("""
+                                ### Instructions
+                                Required Inputs: Text Prompt   
+                                Example prompt: "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."
+                                """)     
+                    text_input_restyling = gr.Textbox(label="Text Prompt: ")
 
                 with gr.Tab("Superresolution"):
                     tab_task_selector_5 = gr.Dropdown(["Superresolution - Stable Diffusion v1.5"], label="Select Model")
@@ -219,7 +234,7 @@ if __name__ == "__main__":
 
         generate_button.click(
             fn=run_afm_app,
-            inputs=[task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe],
+            inputs=[task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling],
             outputs=output_image
         )
 

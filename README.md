@@ -173,28 +173,11 @@ Specify via Text Prompt the object you want to detect and the object you want to
 python groundedsam_inpaint.py   --config ../Grounded-Segment-Anything/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py   --grounded_checkpoint models/groundingdino_swint_ogc.pth   --sam_checkpoint models/sam_vit_h_4b8939.pth   --input_image inputs/example_dog/dog.png   --output_dir "outputs/grounded_sam"   --box_threshold 0.3   --text_threshold 0.25   --det_prompt "dog"   --inpaint_prompt "bear cub, high quality, detailed"   --device "cuda"
  ```
 
-### 7. Using the gradio app for groundedSAM
+### 7. .py
 
 ```bash
-cd Grounded-Segment-Anything
-python gradio_app.py
+
 ```
-
-For it to run properly, the following modifications were performed:
-
-Lines 196/197: change "image" to "composite" and "mask" to "layers" <br />
-Line 372: input_image = gr.ImageEditor(sources='upload', type="pil", value="assets/demo2.jpg") <br />
-Line 376: run_button = gr.Button() <br />
-Lines 391-394: with gr.Column():
-                gallery = gr.Gallery(
-                label="Generated images", 
-                show_label=False, 
-                elem_id="gallery", 
-                preview=True, 
-                object_fit="scale-down"
-                ) <br />
-Line 399: just comment out or remove <br />
-Line 400 (optional): change share=True if you need a public link <br />
 
 ### 8. Background Blurring (Depth Aynthing)
 Additional imports:
@@ -226,6 +209,13 @@ pip install controlnet_aux
 ```
 The method extracts the foreground subject from the original image.
 In the following, 
+
+### X. AFM Image Editing App
+
+```bash
+cd code
+python afm_gradio.py
+```
 
 
 #### Checkpoints:

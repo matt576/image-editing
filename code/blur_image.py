@@ -2,18 +2,23 @@ import torch
 import numpy as np
 from PIL import Image, ImageFilter
 import os, sys
+
 import cv2
-from mask_foreground import extract_foreground, scale_and_paste
+from extract_foreground import extract_foreground_image, scale_and_paste
 
-
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(os.path.join(parent_dir, 'Depth-Anything'))
+# adapth the repository path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(current_dir, '..', 'Depth-Anything')
+sys.path.append(config_path)
 
 from depth_anything.dpt import DepthAnything
 from depth_anything.util.transform import Resize, NormalizeImage, PrepareForNet
 from torchvision.transforms import Compose
 
+# change the current path to Depth-Anything to correctly maintain the model
+os.chdir(config_path)
 model = DepthAnything.from_pretrained("LiheYoung/depth_anything_vitl14")
+os.chdir(current_dir)
 
 transform = Compose([
         Resize(
@@ -50,21 +55,6 @@ def apply_blur(input_img: Image, foreground_img: Image, boxBlur: int, sharpen: i
     output = output.squeeze().cpu().numpy()
     prediction = (output * 255 / np.max(output)).astype("uint8")
 
-    """
-    # put the foreground mask on top of the depth map
-    foreground_img = np.array(foreground_img)
-    resized_foreground_img = cv2.resize(foreground_img, (np_image.shape[1], np_image.shape[0]))
-
-    prediction_foreground = np.zeros((resized_foreground_img.shape[0], resized_foreground_img.shape[1]), dtype=np.uint8)
-    prediction_foreground[np.any(resized_foreground_img != [0, 0, 0, 0], axis=-1)] = 255
-    print("prediction_foreground:", prediction_foreground)
-    Image.fromarray(prediction_foreground).save(f"/usr/prakt/s0075/image-editing/code/outputs/foreground/blurtest-prediction-fg.png")
-
-    prediction[prediction_foreground == 255] = 255
-    print("prediction:", prediction)
-    Image.fromarray(prediction).save(f"/usr/prakt/s0075/image-editing/code/outputs/foreground/blurtest-prediction2.png")
-    """
-
     # blur image given depth map
     oimg = Image.fromarray(resized_image)
     mimg = Image.fromarray(prediction)
@@ -81,22 +71,33 @@ def apply_blur(input_img: Image, foreground_img: Image, boxBlur: int, sharpen: i
 
 # use the same 
 def get_fgbg(input_image):
-    foreground_img = extract_foreground(input_image)
+    foreground_img = extract_foreground_image(input_image)
     rescaled_img, white_bg_image = scale_and_paste(foreground_img, input_image)
     return rescaled_img, white_bg_image
 
 
-input_img = Image.open("/usr/prakt/s0075/image-editing/code/inputs/portrait-examples/jake.jpg").convert("RGB")
-bBlur = 15
-sharpen = 0
-foreground_img = extract_foreground(input_img)
-foreground_img.save(f"/usr/prakt/s0075/image-editing/code/outputs/foreground/jake-fg.png")
+def blur_image(input_image: Image, bBlur: int, sharpen: int = 0) -> Image:
+    
+    # extract foreground from the image
+    foreground_img = extract_foreground_image(input_image)
+
+    # apply blur to the whole image
+    blurred_img = apply_blur(input_image, foreground_img, bBlur, sharpen)
+
+    # paste the original foreground element on top of the blurred image
+    blurred_img.paste(foreground_img, foreground_img)
+    return blurred_img
 
 
-blurred_img = apply_blur(input_img, foreground_img, bBlur, sharpen)
 
-# paste the original foreground element on top of the blurred image
-blurred_img.paste(foreground_img, foreground_img)
-blurred_img.save(f"/usr/prakt/s0075/image-editing/code/outputs/foreground/jake-b{bBlur}-s{sharpen}.png")
+if __name__ == "__main__":
 
+    directory_path = "/usr/prakt/s0075/image-editing/code/inputs/examples-depth/"
 
+    for filename in os.listdir(directory_path):
+        print(filename)
+        name = filename.split('.')[0]
+
+        input_image = Image.open(f"{directory_path}/{filename}").convert("RGB")
+        blurred_image = blur_image(input_image, 15, 0)
+        blurred_image.save(f"/usr/prakt/s0075/image-editing/code/outputs/examples-depth/{name}.png")

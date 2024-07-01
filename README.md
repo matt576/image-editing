@@ -103,6 +103,14 @@ Example:
 python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5
 ```
 
+## LaMa
+
+Example:
+```bash
+python eraser_lama.py model.path=$(pwd)/../lama/big-lama indir=$(pwd)/inputs/eval outdir=$(pwd)/outputs/eval
+```
+** Add additional imports from lama **
+
 ### 4. Background Replacement (Portrait)
 
 CUDA out of memory errors:

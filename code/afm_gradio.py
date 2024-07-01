@@ -12,8 +12,11 @@ from inpaint_sd import inpaint_sd_gradio
 from inpaint_sdxl import inpaint_sdxl_gradio
 from inpaint_kandinsky import inpaint_kandinsky_gradio
 from ldm_removal_pipe import ldm_removal_pipe_gradio
+from inpaint_pipe import inpaint_pipe_gradio
+from inpaint_func_pipe import inpaint_func_pipe_gradio
 
-def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x, coord_input, ddim_steps, ddim_steps_pipe, inpaint_input):
+def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, 
+                ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe):
     print(f"Task selected: {task_selector}")
 
     if task_selector == "SAM":
@@ -35,7 +38,7 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
         return inpaint_kandinsky_gradio(input_image, mask_image, text_input_x)
 
     if task_selector == "GroundedSAM Inpainting":
-        return groundedsam_inpaint_gradio(input_image, text_input, inpaint_input)
+        return groundedsam_inpaint_gradio(input_image, text_input_gsam, inpaint_input_gsam)
 
     if task_selector == "Object Removal LDM":
         return ldm_removal_gradio(input_image, mask_image, ddim_steps)
@@ -48,6 +51,12 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
 
     if task_selector == "LDM Removal Pipeline":
         return ldm_removal_pipe_gradio(input_image, coord_input, ddim_steps_pipe)
+
+    if task_selector in ["Stable Diffusion v1.5 Inpainting Pipeline", "Stable Diffusion XL Inpainting Pipeline", "Kandinsky v2.2 Inpainting Pipeline"]:
+        return inpaint_pipe_gradio(task_selector, input_image, coord_input, text_input_inpaint_pipe)
+
+    if task_selector == "Stable Diffusion with ControlNet Inpainting Pipeline":
+        return inpaint_func_pipe_gradio(input_image, coord_input, text_input_inpaint_pipe)
 
 selected_points = []
 
@@ -133,7 +142,7 @@ if __name__ == "__main__":
                     gr.Markdown("""
                                 ### Instructions
                                 All models in this section work with the given uploaded input mask.  
-                                Required Inputs: Text Prompt - Object to replace masked area on given input mask below.  
+                                Required Inputs: Input Mask (Upload) , Text Prompt - Object to replace masked area on given input mask below.  
                                 Input in the text box below the desired object to be inpainted in place of the mask input below.  
                                 Example prompt: 'white tiger, photorealistic, detailed, high quality'.
                                 """)
@@ -144,7 +153,7 @@ if __name__ == "__main__":
                     gr.Markdown("""
                                 ### Instructions
                                 - **Object Removal LDM**:  
-                                Required inputs: DDIM Steps  
+                                Required inputs: Input Mask (Upload) , DDIM Steps  
                                 Given the uploaded mask below, simply adjust the slider below according to the desired number of iterations:
                                 """)
                     ddim_steps = gr.Slider(minimum=5, maximum=200, label="Number of DDIM sampling steps for object removal", value=150)
@@ -158,10 +167,27 @@ if __name__ == "__main__":
                     gr.Markdown("Select model on the Dropdown menu and simply click the 'Generate' button to get your new image.")
 
                 with gr.Tab("Pipeline: Inpainting - Object Replacement"):
-                    tab_task_selector_6 = gr.Dropdown(["GroundedSAM Inpainting"], label="Select Model")
-                    gr.Markdown("GroundedSAM Inpainting: First, type which object to be detected, then what is going to replace it.")
-                    text_input = gr.Textbox(label="Text Prompt: ")
-                    inpaint_input = gr.Textbox(label="Inpainting Prompt: ")
+                    tab_task_selector_6 = gr.Dropdown(["GroundedSAM Inpainting",
+                                                    "Stable Diffusion with ControlNet Inpainting Pipeline", 
+                                                    "Stable Diffusion v1.5 Inpainting Pipeline", 
+                                                    "Stable Diffusion XL Inpainting Pipeline", 
+                                                    "Kandinsky v2.2 Inpainting Pipeline"], label="Select Model")
+                    gr.Markdown("""
+                                - **GroundedSAM Inpainting (GroundingDINO + SAM + Stable Diffusion)**:  
+                                Required Inputs: Detection Prompt , Inpainting Prompt  
+                                Input in the text box below the object(s) in the input image for which the masks are to be generated.  
+                                Example detection prompt: 'dog'.  
+                                Example inpaint prompt: 'white tiger, photorealistic, detailed, high quality'.
+                                """)
+                    text_input_gsam = gr.Textbox(label="Detection Prompt: ")
+                    inpaint_input_gsam = gr.Textbox(label="Inpainting Prompt: ")
+                    gr.Markdown("""
+                                - **Kandinsky v2.2 / Stable Diffusion v1.5 / SDXL / SD + ControlNet**:  
+                                Required Inputs: Pixel Coodinates , Inpainting Prompt  
+                                Input in the text box below the object(s) in the input image for which the masks are to be generated.  
+                                Example prompt: 'white tiger, photorealistic, detailed, high quality'.
+                                """)
+                    text_input_inpaint_pipe = gr.Textbox(label="Text Prompt: ")
 
                 with gr.Tab("Pipeline - Object Removal"):
                     tab_task_selector_7 = gr.Dropdown(["LDM Removal Pipeline"], label="Select Model")
@@ -193,7 +219,7 @@ if __name__ == "__main__":
 
         generate_button.click(
             fn=run_afm_app,
-            inputs=[task_selector, input_image, mask_image, text_input, text_input_x, coord_input, ddim_steps, ddim_steps_pipe, inpaint_input],
+            inputs=[task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe],
             outputs=output_image
         )
 

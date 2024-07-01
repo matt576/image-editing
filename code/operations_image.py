@@ -14,12 +14,12 @@ def read_and_resize_image(input_image, new_size):
     return resized_img
 
 
-def expand_white_areas(image_path, iterations=1):
+def expand_white_areas(image_path, iterations):
     
     # Load the image and convert to grayscale
     img = Image.open(image_path).convert('L')
     img_array = np.array(img)
-
+    print("iterations: ", iterations)
     # Create a binary mask where white pixels are True and black pixels are False and expand white areas
     binary_mask = img_array == 255
     dilated_mask = binary_dilation(binary_mask, iterations=iterations)

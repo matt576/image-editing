@@ -20,11 +20,11 @@ def read_and_resize_image(input_image, new_size):
 
 
 # Expand white areas of an image
-def expand_white_areas(mask_image: Image, iterations=1):
+def expand_white_areas(image_path, iterations):
     
-    img = mask_image.convert('L')
+    img = Image.open(image_path).convert('L')
     img_array = np.array(img)
-    print("iterations: ", iterations)
+    # print("iterations: ", iterations)
 
     # Create a binary mask where white pixels are True and black pixels are False and expand white areas
     binary_mask = img_array == 255

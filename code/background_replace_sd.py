@@ -38,8 +38,8 @@ def background_replace_portrait_stablediffusion(input_image: Image, prompt:str, 
 
 if __name__ == "__main__":
     
-    image = Image.open(f"inputs/camera/gamer.jpeg")
-    prompt = "person studying in a library, photorealistic"
+    image = Image.open(f"test_dataset/jessi.png")
+    prompt = "a block dog sitting on the grass in a park, photorealistic"
     output_image = background_replace_portrait_stablediffusion(image, prompt, 50)
-    output_image.save("outputs/example_dog/person-library.png")
+    output_image.save("outputs/eval/person-library.png")
     

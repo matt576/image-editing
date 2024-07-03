@@ -26,10 +26,11 @@ from inpaint_pipe import inpaint_pipe_gradio
 # from inpaint_func_pipe import inpaint_func_pipe_gradio
 from inpaint_sd_controlnet_pipe import inpaint_func_pipe_gradio
 from blur_image import portrait_gradio
+from outpaint_sd import outpaint_sd_gradio
 
 def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, 
                 ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling,
-                blur, sharpen):
+                blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint):
 
     print(f"Task selected: {task_selector}")
 
@@ -80,6 +81,9 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
 
     if task_selector == "Portrait Mode - Depth Anything":
         return portrait_gradio(input_image, blur, sharpen)
+
+    if task_selector == "Outpainting - Stable Diffusion":
+        return outpaint_sd_gradio(input_image, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint)
 
 selected_points = []
 
@@ -179,7 +183,7 @@ if __name__ == "__main__":
                                 Required inputs: Input Mask (Upload) , DDIM Steps  
                                 Given the uploaded mask below, simply adjust the slider below according to the desired number of iterations:
                                 """)
-                    ddim_steps = gr.Slider(minimum=5, maximum=200, label="Number of DDIM sampling steps for object removal", value=150)
+                    ddim_steps = gr.Slider(minimum=5, maximum=500, label="Number of DDIM sampling steps for object removal", value=150)
 
                 with gr.Tab("Restyling"):
                     tab_task_selector_4 = gr.Dropdown(["Restyling - Stable Diffusion v1.5",
@@ -230,7 +234,7 @@ if __name__ == "__main__":
                                 For a more detailed mask of a specific object or part of it, select multiple points.  
                                 Finally, choose number of DDIM steps simply click on the 'Generate' button:
                                 """)
-                    ddim_steps_pipe = gr.Slider(minimum=5, maximum=200, label="Number of DDIM sampling steps for object removal", value=150)
+                    ddim_steps_pipe = gr.Slider(minimum=5, maximum=500, label="Number of DDIM sampling steps for object removal", value=150)
 
                 with gr.Tab("Portrait Mode"):
                     tab_task_selector_8 = gr.Dropdown(["Portrait Mode - Depth Anything"], label='Select Model')
@@ -244,6 +248,22 @@ if __name__ == "__main__":
                                 """)
                     blur = gr.Slider(minimum=0, maximum=100, label="Box Blur value", value=15)
                     sharpen = gr.Slider(minimum=0, maximum=50, label="Sharpen Parameter", value=0)
+
+                with gr.Tab("Outpainting"):
+                    tab_task_selector_9 = gr.Dropdown(["Outpainting - Stable Diffusion"], label='Select Model')
+                    gr.Markdown("""
+                                ### Instructions
+                                - **Outpainting - Stable Diffusion**:  
+                                Required inputs: text prompt, extend left/right/up/down, steps  
+                                Choose how much and which direction you want to extend /outpaint your image and specify a text prompt.  
+                                Example prompt: "dog in a park with other dogs and cats and deers, colorful flowers, blue sky, sunny weather, no clouds"
+                                """)
+                    prompt_outpaint = gr.Textbox(label="Text Prompt: ")
+                    e_l = gr.Slider(minimum=0, maximum=1000, label="Extend Left", value=0)
+                    e_r = gr.Slider(minimum=0, maximum=1000, label="Extend Right", value=200)
+                    e_u = gr.Slider(minimum=0, maximum=1000, label="Extend Up", value=0)
+                    e_d = gr.Slider(minimum=0, maximum=1000, label="Extend Down", value=0)
+                    steps_outpaint = gr.Slider(minimum=0, maximum=500, label="Number of Steps", value=50)
                 
                 
                 
@@ -263,7 +283,7 @@ if __name__ == "__main__":
         generate_button.click(
             fn=run_afm_app,
             inputs=[task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, ddim_steps, ddim_steps_pipe, 
-                    inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling, blur, sharpen],
+                    inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling, blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint],
             outputs=output_image
         )
 
@@ -287,5 +307,6 @@ if __name__ == "__main__":
         tab_task_selector_6.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_6], outputs=[task_selector])
         tab_task_selector_7.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_7], outputs=[task_selector])
         tab_task_selector_8.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_8], outputs=[task_selector])
+        tab_task_selector_9.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_9], outputs=[task_selector])
 
     block.launch(share=True)

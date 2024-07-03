@@ -33,6 +33,19 @@ def expand_white_areas(image_path, iterations):
     expanded_img = Image.fromarray(expanded_array, mode='L')
     return expanded_img
 
+def expand_white_areas_outpainting(image, iterations):
+    
+    img = image.convert('L')
+    img_array = np.array(img)
+    # print("iterations: ", iterations)
+
+    # Create a binary mask where white pixels are True and black pixels are False and expand white areas
+    binary_mask = img_array == 255
+    dilated_mask = binary_dilation(binary_mask, iterations=iterations)
+    expanded_array = np.where(dilated_mask, 255, 0).astype(np.uint8)
+    expanded_img = Image.fromarray(expanded_array, mode='L')
+    return expanded_img
+
 
 # shrink white areas of an image
 def shrink_white_areas(mask_image, iterations=1):

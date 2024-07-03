@@ -219,8 +219,9 @@ The method extracts the foreground subject from the original image.
 In the following, 
 
 ### X. AFM Image Editing App
-
+Recommended gradio version: 4.32.1
 ```bash
+pip install gradio
 cd code
 python afm_gradio.py
 ```

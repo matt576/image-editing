@@ -25,9 +25,12 @@ from eraser_ldm_pipe import ldm_removal_pipe_gradio
 from inpaint_pipe import inpaint_pipe_gradio
 # from inpaint_func_pipe import inpaint_func_pipe_gradio
 from inpaint_sd_controlnet_pipe import inpaint_func_pipe_gradio
+from blur_image import portrait_gradio
 
 def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, 
-                ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling):
+                ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling,
+                blur, sharpen):
+
     print(f"Task selected: {task_selector}")
 
     if task_selector == "SAM":
@@ -75,6 +78,9 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
     if task_selector == "Stable Diffusion with ControlNet Inpainting Pipeline":
         return inpaint_func_pipe_gradio(input_image, coord_input, text_input_inpaint_pipe)
 
+    if task_selector == "Portrait Mode - Depth Anything":
+        return portrait_gradio(input_image, blur, sharpen)
+
 selected_points = []
 
 def input_handler(evt: gr.SelectData, input_image):
@@ -119,7 +125,7 @@ if __name__ == "__main__":
         Finally, click on 'Generate' and enjoy the App!
         """)
 
-        original_image_path = "test_dataset/jessi.png"
+        original_image_path = "test_dataset/jessi.png" # Select input image path here
         original_image = Image.open(original_image_path)
 
         with gr.Row():
@@ -225,6 +231,19 @@ if __name__ == "__main__":
                                 Finally, choose number of DDIM steps simply click on the 'Generate' button:
                                 """)
                     ddim_steps_pipe = gr.Slider(minimum=5, maximum=200, label="Number of DDIM sampling steps for object removal", value=150)
+
+                with gr.Tab("Portrait Mode"):
+                    tab_task_selector_8 = gr.Dropdown(["Portrait Mode - Depth Anything"], label='Select Model')
+                    gr.Markdown("""
+                                ### Instructions
+                                - **Portrait Mode - Depth Anything**:  
+                                Required inputs: box blur, sharpen  
+                                Recommended blur values range: 15-25  
+                                Recommended sharpen values range: 0-5   
+                                Adjust the required inputs with the siders below:
+                                """)
+                    blur = gr.Slider(minimum=0, maximum=100, label="Box Blur value", value=15)
+                    sharpen = gr.Slider(minimum=0, maximum=50, label="Sharpen Parameter", value=0)
                 
                 
                 
@@ -233,7 +252,7 @@ if __name__ == "__main__":
         with gr.Row():
             with gr.Column():
                 with gr.Accordion("Mask Input (Optional)", open=False):
-                    mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value="inputs/ldm_inputs/jessi_mask.png")
+                    mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value="inputs/ldm_inputs/jessi_mask.png") # Optional: just comment line out if not needed
 
             with gr.Column():
                 # generate_button = gr.Button("Generate")
@@ -243,7 +262,8 @@ if __name__ == "__main__":
 
         generate_button.click(
             fn=run_afm_app,
-            inputs=[task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling],
+            inputs=[task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, ddim_steps, ddim_steps_pipe, 
+                    inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling, blur, sharpen],
             outputs=output_image
         )
 
@@ -266,5 +286,6 @@ if __name__ == "__main__":
         tab_task_selector_5.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_5], outputs=[task_selector])
         tab_task_selector_6.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_6], outputs=[task_selector])
         tab_task_selector_7.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_7], outputs=[task_selector])
+        tab_task_selector_8.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_8], outputs=[task_selector])
 
     block.launch(share=True)

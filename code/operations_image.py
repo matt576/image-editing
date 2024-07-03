@@ -34,7 +34,6 @@ def expand_white_areas(image_path, iterations):
     return expanded_img
 
 
-
 # shrink white areas of an image
 def shrink_white_areas(mask_image, iterations=1):
 

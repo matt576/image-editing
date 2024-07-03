@@ -55,6 +55,7 @@ def apply_blur(input_img: Image, foreground_img: Image, boxBlur: int, sharpen: i
     # visualize the prediction
     output = output.squeeze().cpu().numpy()
     prediction = (output * 255 / np.max(output)).astype("uint8")
+    #     prediction = ((focus - output).abs() * 255 / np.max(output)).astype("uint8")
 
     # blur image given depth map
     oimg = Image.fromarray(resized_image)
@@ -93,7 +94,7 @@ def blur_image(input_image: Image, bBlur: int, sharpen: int = 0) -> Image:
 
 if __name__ == "__main__":
 
-    directory_path = "/usr/prakt/s0075/image-editing/code/inputs/examples-depth/"
+    directory_path = "/usr/prakt/s0075/image-editing/code/inputs/background-blurring/"
 
     for filename in os.listdir(directory_path):
         print(filename)
@@ -101,4 +102,4 @@ if __name__ == "__main__":
 
         input_image = Image.open(f"{directory_path}/{filename}").convert("RGB")
         blurred_image = blur_image(input_image, 15, 0)
-        blurred_image.save(f"/usr/prakt/s0075/image-editing/code/outputs/examples-depth/{name}.png")
+        blurred_image.save(f"/usr/prakt/s0075/image-editing/code/outputs/background-blurring/{name}.png")

@@ -38,9 +38,9 @@ def outpaint_stablediffusion(input_image: Image, prompt: str, coordinates: list,
 
 if __name__ == "__main__":
 
-    image = Image.open(f"outputs/outpainting/sd-dog-tiger4.png")
-    prompt = "dog in a park with colorful flowers"
+    image = Image.open(f"inputs/outpainting/taxi.png")
+    prompt = "black cat in front of the car"
     extend_left, extend_right, extend_up, extend_down = 0, 0, 0, 200
     coordinates = [extend_left, extend_right, extend_up, extend_down]
-    output_image = outpaint_stablediffusion(image, prompt, coordinates, 30)
-    output_image.save("outputs/outpainting/sd-dog-tiger5.png")
+    output_image = outpaint_stablediffusion(image, prompt, coordinates, 50)
+    output_image.save("outputs/outpainting/sd-taxi-50.png")

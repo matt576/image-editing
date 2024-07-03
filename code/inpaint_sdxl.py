@@ -4,6 +4,7 @@ from diffusers import AutoPipelineForInpainting
 # from diffusers.utils import load_image, make_image_grid
 # import numpy as np
 from PIL import Image
+from operations_image import expand_white_areas
 
 
 def inpaint_sdxl_gradio(input_image, mask_image, text_input):
@@ -35,21 +36,26 @@ def inpaint_sdxl_gradio(input_image, mask_image, text_input):
 
 if __name__ == "__main__":
 
-    output_dir = "outputs/controlnet"
-    filename = "jessi_inpainted_sdxl_dilated.png"
-    filename_resized = "jessi_inpainted_sdxl_resized.png"
+    output_dir = "outputs/inpainting"
+    filename = "dog.png"
+    filename_resized = "dog-ouput.png"
     prompt = "cat in color orange, photorealistic, detailed, high quality"
 
-    init_image = Image.open("test_dataset/jessi.png")
+    init_image = Image.open("inputs/dog.png")
     init_image = init_image.convert("RGB")
     original_width, original_height = init_image.size
 
     init_image = init_image.resize((512, 512))
 
-    mask_image = Image.open("inputs/eval/jessi_mask.png")
+    mask_image = Image.open("inputs/dog-mask.png")
     mask_image = mask_image.convert("L")
     # mask_original_width, mask_original_height = mask_image.size
     mask_image = mask_image.resize(init_image.size)
+    mask_image = expand_white_areas(mask_image, 10)
+
+    
+    print(mask_image.size, mask_image.info)
+    print(init_image.size, init_image.info)
 
     pipeline = AutoPipelineForInpainting.from_pretrained(
         "diffusers/stable-diffusion-xl-1.0-inpainting-0.1", torch_dtype=torch.float16, variant="fp16"

@@ -101,3 +101,6 @@ def main(predict_config: OmegaConf):
 
 if __name__ == '__main__':
     main()
+
+
+# python eraser_lama.py model.path=$(pwd)/../lama/big-lama indir=$(pwd)/inputs/lama outdir=$(pwd)/outputs/lama

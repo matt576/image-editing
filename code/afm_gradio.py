@@ -126,7 +126,7 @@ if __name__ == "__main__":
         """)
 
         original_image_path = "test_dataset/jessi.png" # Select input image path here
-        # original_image_path = "inputs/generated_input_gradio.png"
+        # original_image_path = "outputs/txt2img/generated_input.png"
         input_mask_path = "inputs/ldm_inputs/jessi_mask.png" # Optional
         original_image = Image.open(original_image_path)
 
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 
                 input_image = gr.Image(label="Input Image", sources='upload', type="pil", value=original_image_path, interactive=True)
 
-                with gr.Accordion("Txt2Img Generation (Optional)", open=False):
+                with gr.Accordion("Txt2Img Generation (Optional) - not ready yet", open=False):
                     tab_task_selector_11 = gr.Dropdown(["Txt2img - Stable Diffusion v1.5",
                                                         "Txt2img - Stable Diffusion XL",
                                                         "Txt2img - Kandinsky v2.2"], label="Select Model")
@@ -147,7 +147,6 @@ if __name__ == "__main__":
                                 Example prompt: "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."
                                 """)     
                     text_input_restyling = gr.Textbox(label="Text Prompt: ")
-                    str_res = gr.Slider(minimum=0.1, maximum=1.0, label="Strength", value=0.75)
                     gs_res = gr.Slider(minimum=0.0, maximum=50.0, label="Guidance Scale", value=7.5)
                     np_res = gr.Textbox(label="Negative Prompt", value="poor details, ugly, blurry")
                     steps_res = gr.Slider(minimum=5, maximum=500, label="Number of inference steps", value=150)

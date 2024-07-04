@@ -1,36 +1,37 @@
 import gradio as gr
 from PIL import Image, ImageDraw
 
-# from mask_func import sam_gradio
+## from mask_func import sam_gradio
 from mask_sam import sam_gradio
-# from inpaint_func import controlnet_inpaint_gradio
+## from inpaint_func import controlnet_inpaint_gradio
 from inpaint_sd_controlnet import controlnet_inpaint_gradio
-# from inpaint_ldm import ldm_removal_gradio
+## from inpaint_ldm import ldm_removal_gradio
 from eraser_ldm import ldm_removal_gradio
-# from superres_func import superres_gradio
+## from superres_func import superres_gradio
 from superres_ldm import superres_gradio
-# from restyling_func import restyling_gradio
+## from restyling_func import restyling_gradio
 from restyling_sd import restyling_gradio
 from restyling_sdxl import restyling_sdxl_gradio
 from restyling_kandinsky import restyling_kandinsky_gradio
-# from groundedsam_func import groundedsam_mask_gradio
+## from groundedsam_func import groundedsam_mask_gradio
 from mask_groundedsam import groundedsam_mask_gradio
-# from groundedsam_inpaint import groundedsam_inpaint_gradio
+## from groundedsam_inpaint import groundedsam_inpaint_gradio
 from inpaint_groundedsam import groundedsam_inpaint_gradio
 from inpaint_sd import inpaint_sd_gradio
 from inpaint_sdxl import inpaint_sdxl_gradio
 from inpaint_kandinsky import inpaint_kandinsky_gradio
-# from ldm_removal_pipe import ldm_removal_pipe_gradio
+## from ldm_removal_pipe import ldm_removal_pipe_gradio
 from eraser_ldm_pipe import ldm_removal_pipe_gradio
 from inpaint_pipe import inpaint_pipe_gradio
-# from inpaint_func_pipe import inpaint_func_pipe_gradio
+## from inpaint_func_pipe import inpaint_func_pipe_gradio
 from inpaint_sd_controlnet_pipe import inpaint_func_pipe_gradio
 from blur_image import portrait_gradio
 from outpaint_sd import outpaint_sd_gradio
+from background_replace_sd import background_replace_sd_gradio
 
 def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, 
                 ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling,
-                blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint):
+                blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint, prompt_background , steps_br):
 
     print(f"Task selected: {task_selector}")
 
@@ -85,6 +86,9 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
     if task_selector == "Outpainting - Stable Diffusion":
         return outpaint_sd_gradio(input_image, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint)
 
+    if task_selector == "Background Replacement - Stable Diffusion":
+        return background_replace_sd_gradio(input_image, prompt_background , steps_br)
+
 selected_points = []
 
 def input_handler(evt: gr.SelectData, input_image):
@@ -130,15 +134,13 @@ if __name__ == "__main__":
         """)
 
         original_image_path = "test_dataset/jessi.png" # Select input image path here
+        input_mask_path = "inputs/ldm_inputs/jessi_mask.png"
         original_image = Image.open(original_image_path)
 
         with gr.Row():
             with gr.Column():
+
                 input_image = gr.Image(label="Input Image", sources='upload', type="pil", value=original_image_path, interactive=True)
-                # gr.Markdown("Type image coordinates manually or click on the image directly:")
-                # coord_input = gr.Textbox(label="Pixel Coordinates (x,y), Format x1,y1; x2,y2 ...", value="")
-                # reset_button = gr.Button("Reset Points")
-                # reload_image_button = gr.Button("Reload Original Image without points")
 
             with gr.Column():
                 gr.Markdown("Type image coordinates manually or click on the image directly:")
@@ -264,6 +266,18 @@ if __name__ == "__main__":
                     e_u = gr.Slider(minimum=0, maximum=1000, label="Extend Up", value=0)
                     e_d = gr.Slider(minimum=0, maximum=1000, label="Extend Down", value=0)
                     steps_outpaint = gr.Slider(minimum=0, maximum=500, label="Number of Steps", value=50)
+
+                with gr.Tab("Background Replacement"):
+                    tab_task_selector_10 = gr.Dropdown(["Background Replacement - Stable Diffusion"], label='Select Model')
+                    gr.Markdown("""
+                                ### Instructions
+                                - **Background Replacement - Stable Diffusion**:  
+                                Required inputs: text prompt, steps  
+                                Specify the new background in the text box below.  
+                                Example prompt: "dog sitting on the beach, sunny day, blue sky"
+                                """)
+                    prompt_background = gr.Textbox(label="Text Prompt: ")
+                    steps_br = gr.Slider(minimum=0, maximum=500, label="Number of Steps", value=50)
                 
                 
                 
@@ -272,10 +286,9 @@ if __name__ == "__main__":
         with gr.Row():
             with gr.Column():
                 with gr.Accordion("Mask Input (Optional)", open=False):
-                    mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value="inputs/ldm_inputs/jessi_mask.png") # Optional: just comment line out if not needed
-
+                    # Optional: just comment line out if not needed
+                    mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value=input_mask_path)
             with gr.Column():
-                # generate_button = gr.Button("Generate")
                 output_image = gr.Image(label="Generated Image", type="pil")
 
         input_image.select(input_handler, inputs=[input_image], outputs=[coord_input, input_image])
@@ -283,7 +296,8 @@ if __name__ == "__main__":
         generate_button.click(
             fn=run_afm_app,
             inputs=[task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, ddim_steps, ddim_steps_pipe, 
-                    inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling, blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint],
+                    inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling, blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint,
+                    prompt_background, steps_br],
             outputs=output_image
         )
 
@@ -308,5 +322,6 @@ if __name__ == "__main__":
         tab_task_selector_7.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_7], outputs=[task_selector])
         tab_task_selector_8.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_8], outputs=[task_selector])
         tab_task_selector_9.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_9], outputs=[task_selector])
+        tab_task_selector_10.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_10], outputs=[task_selector])
 
     block.launch(share=True)

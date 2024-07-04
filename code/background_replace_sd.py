@@ -2,25 +2,24 @@ from diffusers import StableDiffusionInpaintPipeline
 import torch
 from PIL import Image
 import numpy as np
-from operations_image import expand_white_areas
+from operations_image import expand_white_areas, expand_white_areas_outpainting
 from extract_foreground import extract_foreground_mask, extract_foreground_image
 
 
-pipe = StableDiffusionInpaintPipeline.from_pretrained(
+def background_replace_mask_stablediffusion(input_image: Image, mask_image: Image, prompt: str, steps: int) -> Image:
+
+    pipe = StableDiffusionInpaintPipeline.from_pretrained(
     "stabilityai/stable-diffusion-2-inpainting",
     torch_dtype=torch.float16,
-)
-pipe.to("cuda")
-
-
-def background_replace_mask_stablediffusion(input_image: Image, mask_image: Image, prompt: str, steps: int) -> Image:
+    )
+    pipe.to("cuda")
 
     size = np.array(input_image).shape[:2]
     
     # reverse the mask for outpainting
     reversed_mask_array = 255 - np.array(mask_image)
     reversed_mask_array = Image.fromarray(reversed_mask_array)
-    # reversed_mask_array = expand_white_areas(reversed_mask_array, 5)
+    # reversed_mask_array = expand_white_areas_outpainting(reversed_mask_array, 5) #optional
     resized_input_image = input_image.resize((512, 512))
     resized_reversed_mask_array = reversed_mask_array.resize((512, 512))
     output_image = pipe(prompt=prompt, image=resized_input_image, mask_image=resized_reversed_mask_array,  guidance_scale=7.5, num_inference_steps=steps).images[0]
@@ -39,7 +38,22 @@ def background_replace_portrait_stablediffusion(input_image: Image, prompt:str, 
 if __name__ == "__main__":
     
     image = Image.open(f"test_dataset/jessi.png")
-    prompt = "a block dog sitting on the grass in a park, photorealistic"
+    image = image.convert("RGB")
+    prompt = "dog sitting on the beach, sunny day, blue sky"
     output_image = background_replace_portrait_stablediffusion(image, prompt, 50)
-    output_image.save("outputs/eval/person-library.png")
+    output_image.save("outputs/eval/jessi_background_replacement.png")
+
+def background_replace_sd_gradio(input_image, prompt, steps):
+    steps = int(steps)
+    input_image = input_image.convert("RGB")
+
+    output_image = background_replace_portrait_stablediffusion(input_image, prompt, steps)
+    outdir = "outputs/gradio/background_replace"
+    filename = "background_replace_sd_output_gradio.png"
+    output_image.save(f"{outdir}/{filename}")
+    print("Output image saved to: ", outdir + "/" + filename)
+
+    return output_image
+
+
     

@@ -81,12 +81,14 @@ def ldm_removal_pipe_gradio(input_image, coord_input_text, ddim_steps_pipe):
     output_mask = get_mask(input_image, input_points)
     image_array = np.where(output_mask, 255, 0).astype(np.uint8)
     pil_mask = Image.fromarray(image_array)
-    pil_mask.save(f"{output_dir_mask}/{filename}") 
+    pil_mask.save(f"{output_dir_mask}/{filename}")
+    print("Mask saved to: ", output_dir_mask + "/" + filename)
     
     image_path = f"{output_dir_mask}/{filename}"
     dil_iterations = 10
     pil_mask_dilated = expand_white_areas(image_path, iterations=dil_iterations)
-    pil_mask_dilated.save(f"{output_dir_mask}/{filename_dilated}") 
+    pil_mask_dilated.save(f"{output_dir_mask}/{filename_dilated}")
+    print("Dilated mask saved to: ", output_dir_mask + "/" + filename_dilated) 
 
     image = input_image
 
@@ -156,6 +158,7 @@ def ldm_removal_pipe_gradio(input_image, coord_input_text, ddim_steps_pipe):
             inpainted = Image.fromarray(inpainted.astype(np.uint8))
             inpainted = inpainted.resize((original_width, original_height))
             output_dir = "outputs/gradio"
-            filename = "ldm_removal_pipe.png"
+            filename_final = "ldm_removal_pipe.png"
             inpainted.save(f"{output_dir}/{filename}")
+            print("Final output image saved to: ", output_dir + "/" + filename_final)
             return inpainted

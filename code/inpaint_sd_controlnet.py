@@ -27,14 +27,15 @@ def inputation(input_image, mask_image, text_prompt, pipe):
     control_image = make_inpaint_condition(input_image, mask_image)      # image with extracted mask from input
     # test = torchvision.transforms.v2.functional.to_pil_image(control_image[0])
     # test.save(f"{output_dir}/test.png")
-
+    np = "poor quality, ugly, blurry, deformed"
     output = pipe(
         prompt=text_prompt,
-        num_inference_steps=5,
+        num_inference_steps=200,
         eta=1.0,
         image=input_image,
         mask_image=mask_image,
         control_image=control_image,
+        negative_prompt=np
     ).images[0]
     return output
 
@@ -80,7 +81,7 @@ def controlnet_inpaint_gradio(input_image, mask_image, text_input):
 if __name__ == "__main__":
     output_dir = "outputs/controlnet"
     filename = "jessi_inpainted_controlnet.png"
-    text_prompt = "black bear cub, photorealistic, detailed, high quality"
+    text_prompt = "batman the dark knight from christopher nolan movie, facing towards viewer, photorealistic, detailed, high quality"
 
     init_image = Image.open("test_dataset/jessi.png")
     init_image = init_image.convert("RGB")
@@ -92,7 +93,7 @@ if __name__ == "__main__":
     # else:
     init_image = init_image.resize((512, 512))
 
-    mask_image = Image.open("outputs/grounded_sam/gradio/groundedsam_mask_resized.png")
+    mask_image = Image.open("inputs/eval/jessi_mask.png")
     mask_image = mask_image.convert("L")
     mask_original_width, mask_original_height = mask_image.size
     # if mask_original_width > mask_original_height:
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     #     mask_image = mask_image.resize((512, 512))
 
     mask_image = mask_image.resize(init_image.size)
-    print(init_image.size, mask_image.size)
+    # print(init_image.size, mask_image.size)
 
     controlnet = ControlNetModel.from_pretrained("lllyasviel/control_v11p_sd15_inpaint",
                                              torch_dtype=torch.float16,

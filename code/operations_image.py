@@ -20,9 +20,24 @@ def read_and_resize_image(input_image, new_size):
 
 
 # Expand white areas of an image
-def expand_white_areas(input_image, iterations):
+def expand_white_areas(image_path, iterations):
     
-    img_array = np.array(input_image)
+    img = Image.open(image_path).convert('L')
+    img_array = np.array(img)
+    # print("iterations: ", iterations)
+
+    # Create a binary mask where white pixels are True and black pixels are False and expand white areas
+    binary_mask = img_array == 255
+    dilated_mask = binary_dilation(binary_mask, iterations=iterations)
+    expanded_array = np.where(dilated_mask, 255, 0).astype(np.uint8)
+    expanded_img = Image.fromarray(expanded_array, mode='L')
+    return expanded_img
+
+def expand_white_areas_outpainting(image, iterations):
+    
+    img = image.convert('L')
+    img_array = np.array(img)
+    # print("iterations: ", iterations)
 
     # Create a binary mask where white pixels are True and black pixels are False and expand white areas
     binary_mask = img_array == 255
@@ -53,3 +68,28 @@ if __name__ == "__main__":
     input_img = Image.open(input_path).convert("RGB")
     output_img = read_and_resize_image(input_img, new_size)
     output_img.save(output_path)
+    
+
+    # dilation of masks
+    dil_iterations = 10
+    image_path = 'inputs/eval/eval_2_mask.png'
+    image_input = Image.open(image_path)
+    image_output = expand_white_areas(image_path, iterations=dil_iterations)
+    output_path = f'inputs/eval/eval_2_mask_d{dil_iterations}.png'
+    image_output.save(output_path)
+
+
+### Template needed for gradio inpainting and eraser pipelines 
+# # Expand white areas of an image
+# def expand_white_areas(image_path, iterations):
+    
+#     img = Image.open(image_path).convert('L')
+#     img_array = np.array(img)
+#     # print("iterations: ", iterations)
+
+#     # Create a binary mask where white pixels are True and black pixels are False and expand white areas
+#     binary_mask = img_array == 255
+#     dilated_mask = binary_dilation(binary_mask, iterations=iterations)
+#     expanded_array = np.where(dilated_mask, 255, 0).astype(np.uint8)
+#     expanded_img = Image.fromarray(expanded_array, mode='L')
+#     return expanded_img

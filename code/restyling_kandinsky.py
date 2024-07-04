@@ -11,7 +11,7 @@ if __name__ == "__main__":
     )
     pipeline.enable_model_cpu_offload()
 
-    init_image = Image.open("inputs/city.png")
+    init_image = Image.open("test_dataset/pelican.png")
 
     original_width, original_height = init_image.size
 
@@ -22,21 +22,29 @@ if __name__ == "__main__":
     else:
         init_image = init_image.resize((512, 512))
 
-    prompt = "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."
+    prompt = "Photorealistic pelican on a pier by the beach, rain pouring down, dark clouds with streaks of lightning."
+    strength = 0.75
+    gs= 7.5
+    np = "poor details, blurry"
+    stp = 100
 
-    images = pipeline(prompt=prompt, image=init_image, strength=0.75, guidance_scale=7.5).images
+    images = pipeline(prompt=prompt, image=init_image, strength=strength, guidance_scale=gs, num_inference_steps=stp, negative_prompt=np).images
     output_image = images[0].resize((original_width, original_height))
 
     output_dir = "outputs/restyling"
-    filename = "restyling_output_kandinsky.png"
+    filename = "restyling_output_kandinsky_pelican.png"
     output_image.save(f"{output_dir}/{filename}")
 
-def restyling_kandinsky_gradio(input_image, text_prompt):
+def restyling_kandinsky_gradio(input_image, text_prompt, strength, guidance_scale, negative_prompt, steps):
     pipeline = AutoPipelineForImage2Image.from_pretrained(
     "kandinsky-community/kandinsky-2-2-decoder", torch_dtype=torch.float16, use_safetensors=True
     )
     pipeline.enable_model_cpu_offload()
 
+    strength = float(strength)
+    guidance_scale = float(guidance_scale)
+    steps = int(steps)
+    input_image = input_image.convert("RGB")
     original_width, original_height = input_image.size
 
     if original_width > original_height:
@@ -46,12 +54,12 @@ def restyling_kandinsky_gradio(input_image, text_prompt):
     else:
         input_image = input_image.resize((512, 512))
     
-    images = pipeline(prompt=text_prompt, image=input_image, strength=0.75, guidance_scale=7.5).images
+    images = pipeline(prompt=text_prompt, image=input_image, strength=strength, guidance_scale=guidance_scale, negative_prompt = negative_prompt, num_inference_steps=steps).images
 
     output_image = images[0].resize((original_width, original_height))
 
     output_dir = "outputs/gradio"
-    filename = "restyling_output_kandinsky.png"
+    filename = "restyling_output_kandinsky_new.png"
     output_image.save(f"{output_dir}/{filename}")
 
     return output_image

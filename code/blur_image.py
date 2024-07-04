@@ -94,7 +94,7 @@ def blur_image(input_image: Image, bBlur: int, sharpen: int = 0) -> Image:
 
 if __name__ == "__main__":
 
-    directory_path = "/usr/prakt/s0075/image-editing/code/inputs/background-blurring/"
+    directory_path = "test_dataset"
 
     for filename in os.listdir(directory_path):
         print(filename)
@@ -102,4 +102,21 @@ if __name__ == "__main__":
 
         input_image = Image.open(f"{directory_path}/{filename}").convert("RGB")
         blurred_image = blur_image(input_image, 15, 0)
-        blurred_image.save(f"/usr/prakt/s0075/image-editing/code/outputs/background-blurring/{name}.png")
+        blurred_image.save(f"outputs/blur/{name}.png")
+
+
+def portrait_gradio(input_image, blur, sharpen):
+    input_image = input_image.convert("RGB")
+    blur = int(blur)
+    sharpen = int(sharpen)
+
+    print("bBlur: ", blur)
+    print("sharpen: ", sharpen)
+
+    blurred_image = blur_image(input_image, blur, sharpen)
+
+    outdir = "outputs/gradio/portrait"
+    filename = "portrait_output_gradio.png"
+    blurred_image.save(f"{outdir}/{filename}")
+
+    return blurred_image

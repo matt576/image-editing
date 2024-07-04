@@ -2,31 +2,32 @@ from diffusers import StableDiffusionInpaintPipeline
 import torch
 from PIL import Image, ImageFilter
 import numpy as np
-from operations_image import expand_white_areas
-
-
-pipe = StableDiffusionInpaintPipeline.from_pretrained(
-    "stabilityai/stable-diffusion-2-inpainting",
-    torch_dtype=torch.float16,
-)
-pipe.to("cuda")
+from operations_image import expand_white_areas_outpainting
 
 
 def outpaint_stablediffusion(input_image: Image, prompt: str, coordinates: list, steps: int) -> Image:
+
+    pipe = StableDiffusionInpaintPipeline.from_pretrained(
+    "stabilityai/stable-diffusion-2-inpainting",
+    torch_dtype=torch.float16,
+    )
+    pipe.to("cuda")
 
     width, height = input_image.size
     new_width = width + coordinates[0] + coordinates[1]
     new_height = height + coordinates[2] + coordinates[3]
 
     # new image with extended blank spaces
-    extended_image = input_image.resize((new_width, new_height))
+    # extended_image = input_image.resize((new_width, new_height)) #delete
+    extended_image = Image.new("RGB", (new_width, new_height), (255, 255, 255)) # fixed
     # extended_image = extended_image.filter(ImageFilter.BoxBlur(10))
     extended_image.paste(input_image, (coordinates[0], coordinates[2]))
-
+    extended_image.save("outputs/outpainting/extended_image_temp.png")
     # new mask image
     extended_mask = Image.new('L', (new_width, new_height), color='white')
     extended_mask.paste(Image.new('L', input_image.size, color='black'), (coordinates[0], coordinates[2]))
-    extended_mask = expand_white_areas(extended_mask, 5)
+    extended_mask = expand_white_areas_outpainting(extended_mask, 5)
+    extended_mask.save("outputs/outpainting/extended_mask_temp.png")
 
     # extended_image = extended_image.resize((512, 512))
     # extended_mask = extended_mask.resize((512, 512))
@@ -38,9 +39,21 @@ def outpaint_stablediffusion(input_image: Image, prompt: str, coordinates: list,
 
 if __name__ == "__main__":
 
-    image = Image.open(f"inputs/outpainting/taxi.png")
-    prompt = "black cat in front of the car"
-    extend_left, extend_right, extend_up, extend_down = 0, 0, 0, 200
+    image = Image.open(f"test_dataset/jessi.png")
+    prompt = "dog in a park with colorful flowers and a black cat sitting on the grass"
+    extend_left, extend_right, extend_up, extend_down = 100, 200, 0, 0
     coordinates = [extend_left, extend_right, extend_up, extend_down]
-    output_image = outpaint_stablediffusion(image, prompt, coordinates, 50)
-    output_image.save("outputs/outpainting/sd-taxi-50.png")
+    output_image = outpaint_stablediffusion(image, prompt, coordinates, 30)
+    output_image.save("outputs/outpainting/jassi_outpainting_sd.png")
+
+
+def outpaint_sd_gradio(input_image, prompt, e_l, e_r, e_u, e_d, steps):
+    
+    print(prompt)
+    coordinates = [e_l, e_r, e_u, e_d]
+    output_image = outpaint_stablediffusion(input_image, prompt, coordinates, steps)
+
+    output_image.save("outputs/gradio/outpainting/outpainting_sd_output_gradio.png")
+
+    return output_image
+

@@ -30,13 +30,13 @@ def get_mask(input_image, input_points):
     best_mask = masks[max_index]
     return best_mask
 
-def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input_inpaint_pipe):
+def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input_inpaint_pipe, np_inpaint, steps_inpaint):
     print("task_selector: ", task_selector)
     prompt = text_input_inpaint_pipe
     output_dir_mask = "outputs/sam"
     filename = "mask_gradio_inpaint_pipe.png"
     filename_dilated = "mask_gradio_inpaint_pipe_dilated.png"
-
+    steps_inpaint = int(steps_inpaint)
     input_points = None
     if coord_input_text is not None:
         try:
@@ -54,7 +54,7 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
     output_mask = get_mask(input_image, input_points)
     image_array = np.where(output_mask, 255, 0).astype(np.uint8)
     pil_mask = Image.fromarray(image_array)
-    pil_mask.save(f"{output_dir_mask}/{filename}") 
+    # pil_mask.save(f"{output_dir_mask}/{filename}") 
     
     image_path = f"{output_dir_mask}/{filename}"
     dil_iterations = 10
@@ -77,7 +77,7 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
         )
         pipeline.enable_model_cpu_offload()
         print(prompt)
-        image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image).images[0]
+        image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, negative_prompt=np_inpaint,num_inference_steps=steps_inpaint).images[0]
         
         image_resized = image.resize((original_width, original_height))
         output_dir = "outputs/gradio/inpainting"
@@ -96,7 +96,7 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
 
         # mask_image = pipeline.mask_processor.blur(mask_image, blur_factor=33) #Optional
         print(prompt)
-        image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, generator=generator).images[0]
+        image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, generator=generator, negative_prompt=np_inpaint,num_inference_steps=steps_inpaint).images[0]
         
         image_resized = image.resize((original_width, original_height))
         output_dir = "outputs/gradio/inpainting"
@@ -112,7 +112,7 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
 
         generator = torch.Generator("cuda").manual_seed(92)
         print(prompt)
-        image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, generator=generator).images[0]
+        image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, generator=generator, negative_prompt=np_inpaint,num_inference_steps=steps_inpaint).images[0]
         
         image_resized = image.resize((original_width, original_height))
         output_dir = "outputs/gradio/inpainting"

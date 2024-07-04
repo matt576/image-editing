@@ -46,26 +46,27 @@ def make_inpaint_condition(image, image_mask):
     # print(f"Control image shape: {image.shape}")
     return image
 
-def inputation(input_image, mask_image, text_prompt, pipe):
+def inputation(input_image, mask_image, text_prompt, pipe, np_inpaint, steps_inpaint):
     control_image = make_inpaint_condition(input_image, mask_image)      # image with extracted mask from input
     # test = torchvision.transforms.v2.functional.to_pil_image(control_image[0])
     # test.save(f"{output_dir}/test.png")
 
     output = pipe(
         prompt=text_prompt,
-        num_inference_steps=5,
+        num_inference_steps=steps_inpaint,
         eta=1.0,
         image=input_image,
         mask_image=mask_image,
         control_image=control_image,
+        negative_prompt=np_inpaint,
     ).images[0]
     return output
 
-def inpaint_func_pipe_gradio(input_image, coord_input_text, text_input):
+def inpaint_func_pipe_gradio(input_image, coord_input_text, text_input, np_inpaint, steps_inpaint):
     output_dir_mask = "outputs/sam"
     filename = "mask_gradio_inpaint_pipe.png"
     filename_dilated = "mask_gradio_inpaint_pipe_dilated.png"
-
+    steps_inpaint = int(steps_inpaint)
     input_points = None
     if coord_input_text is not None:
         try:
@@ -83,7 +84,7 @@ def inpaint_func_pipe_gradio(input_image, coord_input_text, text_input):
     output_mask = get_mask(input_image, input_points)
     image_array = np.where(output_mask, 255, 0).astype(np.uint8)
     pil_mask = Image.fromarray(image_array)
-    pil_mask.save(f"{output_dir_mask}/{filename}") 
+    # pil_mask.save(f"{output_dir_mask}/{filename}") 
     
     image_path = f"{output_dir_mask}/{filename}"
     dil_iterations = 10
@@ -122,7 +123,7 @@ def inpaint_func_pipe_gradio(input_image, coord_input_text, text_input):
     pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
     pipe.enable_model_cpu_offload()
 
-    output = inputation(input_image, mask_image, text_input, pipe)
+    output = inputation(input_image, mask_image, text_input, pipe, np_inpaint, steps_inpaint)
     output = output.resize((original_width, original_height))
     output_dir = "outputs/gradio/inpainting"
     filename = "sdv15controlnet_inpaint_func_pipe_output.png"

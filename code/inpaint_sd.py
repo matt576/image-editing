@@ -34,11 +34,11 @@ def inpaint_sd_gradio(input_image, mask_image, text_input):
 
 if __name__ == "__main__":
 
-    output_dir = "outputs/controlnet"
+    output_dir = "outputs/inpainting_results"
     filename = "jessi_inpainted_sd.png"
     filename_resized = "jessi_inpainted_sd_resized.png"
-    prompt = "pikachu, photorealistic, detailed, high quality"
-
+    prompt = "batman the dark knight from christopher nolan movie, photorealistic, detailed, high quality"
+    np = "poor quality, ugly, blurry, deformed"
     init_image = Image.open("test_dataset/jessi.png")
     init_image = init_image.convert("RGB")
     original_width, original_height = init_image.size
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     # mask_image = pipeline.mask_processor.blur(mask_image, blur_factor=20) #Optional
 
-    image = pipeline(prompt=prompt, image=init_image, mask_image=mask_image).images[0]
+    image = pipeline(prompt=prompt, image=init_image, mask_image=mask_image, num_inference_steps=200, padding_mask_crop=32, negative_prompt=np).images[0]
     image.save(f"{output_dir}/{filename}")
     image_resized = image.resize((original_width, original_height))
     image_resized.save(f"{output_dir}/{filename_resized}")

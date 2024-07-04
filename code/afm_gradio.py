@@ -5,7 +5,8 @@ from PIL import Image, ImageDraw
 
 def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, 
                 ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling,
-                blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint, prompt_background , steps_br):
+                blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint, prompt_background , steps_br,
+                str_res, gs_res, np_res, steps_res):
 
     print(f"Task selected: {task_selector}")
 
@@ -43,15 +44,15 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
 
     if task_selector == "Restyling - Stable Diffusion v1.5":
         from restyling_sd import restyling_gradio
-        return restyling_gradio(input_image, text_input_restyling)
+        return restyling_gradio(input_image, text_input_restyling, str_res, gs_res, np_res, steps_res)
 
     if task_selector == "Restyling - Stable Diffusion XL":
         from restyling_sdxl import restyling_sdxl_gradio
-        return restyling_sdxl_gradio(input_image, text_input_restyling)
+        return restyling_sdxl_gradio(input_image, text_input_restyling, str_res, gs_res, np_res, steps_res)
 
     if task_selector == "Restyling - Kandinsky v2.2":
         from restyling_kandinsky import restyling_kandinsky_gradio
-        return restyling_kandinsky_gradio(input_image, text_input_restyling)
+        return restyling_kandinsky_gradio(input_image, text_input_restyling, str_res, gs_res, np_res, steps_res)
 
     if task_selector == "Superresolution - Stable Diffusion v1.5":
         from superres_ldm import superres_gradio
@@ -185,10 +186,14 @@ if __name__ == "__main__":
                                                         "Restyling - Kandinsky v2.2"], label="Select Model")
                     gr.Markdown("""
                                 ### Instructions
-                                Required Inputs: Text Prompt   
+                                Required Inputs: Text Prompt, str_res, gs_res, np_res, steps_res   
                                 Example prompt: "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."
                                 """)     
                     text_input_restyling = gr.Textbox(label="Text Prompt: ")
+                    str_res = gr.Slider(minimum=0.1, maximum=1.0, label="Strength", value=0.75)
+                    gs_res = gr.Slider(minimum=0.0, maximum=50.0, label="Guidance Scale", value=7.5)
+                    np_res = gr.Textbox(label="Negative Prompt", value="poor details, ugly, blurry")
+                    steps_res = gr.Slider(minimum=5, maximum=500, label="Number of inference steps", value=150)
 
                 with gr.Tab("Superresolution"):
                     tab_task_selector_5 = gr.Dropdown(["Superresolution - Stable Diffusion v1.5"], label="Select Model")
@@ -289,7 +294,7 @@ if __name__ == "__main__":
             fn=run_afm_app,
             inputs=[task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, ddim_steps, ddim_steps_pipe, 
                     inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling, blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint,
-                    prompt_background, steps_br],
+                    prompt_background, steps_br, str_res, gs_res, np_res, steps_res ],
             outputs=output_image
         )
 

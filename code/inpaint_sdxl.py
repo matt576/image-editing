@@ -35,11 +35,11 @@ def inpaint_sdxl_gradio(input_image, mask_image, text_input):
 
 if __name__ == "__main__":
 
-    output_dir = "outputs/controlnet"
+    output_dir = "outputs/inpainting_results"
     filename = "jessi_inpainted_sdxl_dilated.png"
     filename_resized = "jessi_inpainted_sdxl_resized.png"
-    prompt = "cat in color orange, photorealistic, detailed, high quality"
-
+    prompt = "batman the dark knight from christopher nolan movie, photorealistic, detailed, high quality"
+    np = "poor quality, ugly, blurry, deformed"
     init_image = Image.open("test_dataset/jessi.png")
     init_image = init_image.convert("RGB")
     original_width, original_height = init_image.size
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     # mask_image = pipeline.mask_processor.blur(mask_image, blur_factor=33) #Optional
 
-    image = pipeline(prompt=prompt, image=init_image, mask_image=mask_image, generator=generator).images[0]
+    image = pipeline(prompt=prompt, image=init_image, mask_image=mask_image, generator=generator, num_inference_steps=50, negative_prompt=np).images[0]
     image.save(f"{output_dir}/{filename}")
     image_resized = image.resize((original_width, original_height))
     image_resized.save(f"{output_dir}/{filename_resized}")

@@ -2,11 +2,10 @@ import gradio as gr
 from PIL import Image, ImageDraw
 
 
-
 def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, 
                 ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling,
                 blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint, prompt_background , steps_br,
-                str_res, gs_res, np_res, steps_res):
+                str_res, gs_res, np_res, steps_res, np_inpaint, steps_inpaint):
 
     print(f"Task selected: {task_selector}")
 
@@ -64,11 +63,11 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
 
     if task_selector in ["Stable Diffusion v1.5 Inpainting Pipeline", "Stable Diffusion XL Inpainting Pipeline", "Kandinsky v2.2 Inpainting Pipeline"]:
         from inpaint_pipe import inpaint_pipe_gradio
-        return inpaint_pipe_gradio(task_selector, input_image, coord_input, text_input_inpaint_pipe)
+        return inpaint_pipe_gradio(task_selector, input_image, coord_input, text_input_inpaint_pipe, np_inpaint, steps_inpaint)
 
     if task_selector == "Stable Diffusion with ControlNet Inpainting Pipeline":
         from inpaint_sd_controlnet_pipe import inpaint_func_pipe_gradio
-        return inpaint_func_pipe_gradio(input_image, coord_input, text_input_inpaint_pipe)
+        return inpaint_func_pipe_gradio(input_image, coord_input, text_input_inpaint_pipe, np_inpaint, steps_inpaint)
 
     if task_selector == "Portrait Mode - Depth Anything":
         from blur_image import portrait_gradio
@@ -127,13 +126,31 @@ if __name__ == "__main__":
         """)
 
         original_image_path = "test_dataset/jessi.png" # Select input image path here
-        input_mask_path = "inputs/ldm_inputs/jessi_mask.png"
+        # original_image_path = "inputs/generated_input_gradio.png"
+        input_mask_path = "inputs/ldm_inputs/jessi_mask.png" # Optional
         original_image = Image.open(original_image_path)
 
         with gr.Row():
             with gr.Column():
 
                 input_image = gr.Image(label="Input Image", sources='upload', type="pil", value=original_image_path, interactive=True)
+
+                with gr.Accordion("Txt2Img Generation (Optional)", open=False):
+                    tab_task_selector_11 = gr.Dropdown(["Txt2img - Stable Diffusion v1.5",
+                                                        "Txt2img - Stable Diffusion XL",
+                                                        "Txt2img - Kandinsky v2.2"], label="Select Model")
+                    gr.Markdown("""
+                                ### Instructions  
+                                Use this feature if you wish to generate your own input image.  
+                                After generation, simply uncomment the original_image_path line on the gradio script and relaunch the app!  
+                                Required Inputs: Text Prompt, str_res, gs_res, np_res, steps_res  
+                                Example prompt: "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."
+                                """)     
+                    text_input_restyling = gr.Textbox(label="Text Prompt: ")
+                    str_res = gr.Slider(minimum=0.1, maximum=1.0, label="Strength", value=0.75)
+                    gs_res = gr.Slider(minimum=0.0, maximum=50.0, label="Guidance Scale", value=7.5)
+                    np_res = gr.Textbox(label="Negative Prompt", value="poor details, ugly, blurry")
+                    steps_res = gr.Slider(minimum=5, maximum=500, label="Number of inference steps", value=150)
 
             with gr.Column():
                 gr.Markdown("Type image coordinates manually or click on the image directly:")
@@ -147,7 +164,7 @@ if __name__ == "__main__":
                     gr.Markdown("""
                                 ### Instructions
                                 - **SAM**:  
-                                Required inputs: Pixel Coordinates  
+                                Required inputs: Input Image, Pixel Coordinates  
                                 Type image coordinates manually or click on the image directly. Finally, simply click on the 'Generate' button.
                                 - **GroundedSAM (GroundingDINO + SAM)**:  
                                 Required Inputs: Text Prompt - Object to be masked  
@@ -155,30 +172,30 @@ if __name__ == "__main__":
                                 """)
                     text_input = gr.Textbox(label="Text Prompt: ")
 
-                with gr.Tab("Inpainting - Object Replacement"):
-                    tab_task_selector_2 = gr.Dropdown(["Stable Diffusion with ControlNet Inpainting", 
-                                                    "Stable Diffusion v1.5 Inpainting", 
-                                                    "Stable Diffusion XL Inpainting", 
-                                                    "Kandinsky v2.2 Inpainting"], 
-                                                    label="Select Model")
-                    gr.Markdown("""
-                                ### Instructions
-                                All models in this section work with the given uploaded input mask.  
-                                Required Inputs: Input Mask (Upload) , Text Prompt - Object to replace masked area on given input mask below.  
-                                Input in the text box below the desired object to be inpainted in place of the mask input below.  
-                                Example prompt: 'white tiger, photorealistic, detailed, high quality'.
-                                """)
-                    text_input_x = gr.Textbox(label="Text Prompt: ")
+                # with gr.Tab("Inpainting - Object Replacement"):
+                #     tab_task_selector_2 = gr.Dropdown(["Stable Diffusion with ControlNet Inpainting", 
+                #                                     "Stable Diffusion v1.5 Inpainting", 
+                #                                     "Stable Diffusion XL Inpainting", 
+                #                                     "Kandinsky v2.2 Inpainting"], 
+                #                                     label="Select Model")
+                #     gr.Markdown("""
+                #                 ### Instructions
+                #                 All models in this section work with the given uploaded input mask.  
+                #                 Required Inputs: Input Mask (Upload) , Text Prompt - Object to replace masked area on given input mask below.  
+                #                 Input in the text box below the desired object to be inpainted in place of the mask input below.  
+                #                 Example prompt: 'white tiger, photorealistic, detailed, high quality'.
+                #                 """)
+                #     text_input_x = gr.Textbox(label="Text Prompt: ")
 
-                with gr.Tab("Object Removal"):
-                    tab_task_selector_3 = gr.Dropdown(["Object Removal LDM"], label="Select Model")
-                    gr.Markdown("""
-                                ### Instructions
-                                - **Object Removal LDM**:  
-                                Required inputs: Input Mask (Upload) , DDIM Steps  
-                                Given the uploaded mask below, simply adjust the slider below according to the desired number of iterations:
-                                """)
-                    ddim_steps = gr.Slider(minimum=5, maximum=500, label="Number of DDIM sampling steps for object removal", value=150)
+                # with gr.Tab("Object Removal"):
+                #     tab_task_selector_3 = gr.Dropdown(["Object Removal LDM"], label="Select Model")
+                #     gr.Markdown("""
+                #                 ### Instructions
+                #                 - **Object Removal LDM**:  
+                #                 Required inputs: Input Mask (Upload) , DDIM Steps  
+                #                 Given the uploaded mask below, simply adjust the slider below according to the desired number of iterations:
+                #                 """)
+                #     ddim_steps = gr.Slider(minimum=5, maximum=500, label="Number of DDIM sampling steps for object removal", value=150)
 
                 with gr.Tab("Restyling"):
                     tab_task_selector_4 = gr.Dropdown(["Restyling - Stable Diffusion v1.5",
@@ -186,14 +203,15 @@ if __name__ == "__main__":
                                                         "Restyling - Kandinsky v2.2"], label="Select Model")
                     gr.Markdown("""
                                 ### Instructions
-                                Required Inputs: Text Prompt, str_res, gs_res, np_res, steps_res   
-                                Example prompt: "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."
+                                Required Inputs: Input Image, Text Prompt, str_res, gs_res, np_res, steps_res   
+                                Example Text Prompt: "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."  
+                                Example Negative Prompt: "poor details, ugly, blurry"
                                 """)     
                     text_input_restyling = gr.Textbox(label="Text Prompt: ")
-                    str_res = gr.Slider(minimum=0.1, maximum=1.0, label="Strength", value=0.75)
-                    gs_res = gr.Slider(minimum=0.0, maximum=50.0, label="Guidance Scale", value=7.5)
-                    np_res = gr.Textbox(label="Negative Prompt", value="poor details, ugly, blurry")
-                    steps_res = gr.Slider(minimum=5, maximum=500, label="Number of inference steps", value=150)
+                    str_res = gr.Slider(minimum=0.1, maximum=1.0, label="Strength: ", value=0.75)
+                    gs_res = gr.Slider(minimum=0.0, maximum=50.0, label="Guidance Scale: ", value=7.5)
+                    np_res = gr.Textbox(label="Negative Prompt: ")
+                    steps_res = gr.Slider(minimum=5, maximum=500, label="Number of inference steps: ", value=150)
 
                 with gr.Tab("Superresolution"):
                     tab_task_selector_5 = gr.Dropdown(["Superresolution - Stable Diffusion v1.5"], label="Select Model")
@@ -207,7 +225,7 @@ if __name__ == "__main__":
                                                     "Kandinsky v2.2 Inpainting Pipeline"], label="Select Model")
                     gr.Markdown("""
                                 - **GroundedSAM Inpainting (GroundingDINO + SAM + Stable Diffusion)**:  
-                                Required Inputs: Detection Prompt , Inpainting Prompt  
+                                Required Inputs: Input Image, Detection Prompt , Inpainting Prompt  
                                 Input in the text box below the object(s) in the input image for which the masks are to be generated.  
                                 Example detection prompt: 'dog'.  
                                 Example inpaint prompt: 'white tiger, photorealistic, detailed, high quality'.
@@ -216,18 +234,21 @@ if __name__ == "__main__":
                     inpaint_input_gsam = gr.Textbox(label="Inpainting Prompt: ")
                     gr.Markdown("""
                                 - **Kandinsky v2.2 / Stable Diffusion v1.5 / SDXL / SD + ControlNet**:  
-                                Required Inputs: Pixel Coodinates , Inpainting Prompt  
+                                Required Inputs: Input Image, Pixel Coodinates , Inpainting Prompt  
                                 Input in the text box below the object(s) in the input image for which the masks are to be generated.  
-                                Example prompt: 'white tiger, photorealistic, detailed, high quality'.
+                                Example Text Prompt: 'white tiger, photorealistic, detailed, high quality'.  
+                                Example Negative Prompt: 'poor details, ugly, blurry'.
                                 """)
                     text_input_inpaint_pipe = gr.Textbox(label="Text Prompt: ")
+                    np_inpaint = gr.Textbox(label="Negative Prompt: ")
+                    steps_inpaint = gr.Slider(minimum=5, maximum=500, label="Number of inference steps: ", value=150)                   
 
                 with gr.Tab("Pipeline - Object Removal"):
                     tab_task_selector_7 = gr.Dropdown(["LDM Removal Pipeline"], label="Select Model")
                     gr.Markdown("""
                                 ### Instructions
                                 - **LDM Removal Pipeline**:  
-                                Required inputs: Pixel Coodinates, DDIM Steps  
+                                Required inputs: Input Image, Pixel Coodinates, DDIM Steps  
                                 If you wish to view the mask before the fnal output, go to the 'Mask Generation Preview' Tab.  
                                 Type the image coordinates manually in the box under the image or click on the image directly.  
                                 For a more detailed mask of a specific object or part of it, select multiple points.  
@@ -240,7 +261,7 @@ if __name__ == "__main__":
                     gr.Markdown("""
                                 ### Instructions
                                 - **Portrait Mode - Depth Anything**:  
-                                Required inputs: box blur, sharpen  
+                                Required inputs: Input Image, box blur, sharpen  
                                 Recommended blur values range: 15-25  
                                 Recommended sharpen values range: 0-5   
                                 Adjust the required inputs with the siders below:
@@ -253,7 +274,7 @@ if __name__ == "__main__":
                     gr.Markdown("""
                                 ### Instructions
                                 - **Outpainting - Stable Diffusion**:  
-                                Required inputs: text prompt, extend left/right/up/down, steps  
+                                Required inputs: Input Image, Text Prompt, extend left/right/up/down, steps  
                                 Choose how much and which direction you want to extend /outpaint your image and specify a text prompt.  
                                 Example prompt: "dog in a park with other dogs and cats and deers, colorful flowers, blue sky, sunny weather, no clouds"
                                 """)
@@ -269,7 +290,7 @@ if __name__ == "__main__":
                     gr.Markdown("""
                                 ### Instructions
                                 - **Background Replacement - Stable Diffusion**:  
-                                Required inputs: text prompt, steps  
+                                Required inputs: Input Image, Text Prompt, steps  
                                 Specify the new background in the text box below.  
                                 Example prompt: "dog sitting on the beach, sunny day, blue sky"
                                 """)
@@ -282,9 +303,35 @@ if __name__ == "__main__":
 
         with gr.Row():
             with gr.Column():
-                with gr.Accordion("Mask Input (Optional)", open=False):
+                with gr.Accordion("Mask Input Tasks (Optional)", open=False):
                     # Optional: just comment line out if not needed
                     mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value=input_mask_path)
+
+                    with gr.Tab("Inpainting - Object Replacement"):
+                        tab_task_selector_2 = gr.Dropdown(["Stable Diffusion with ControlNet Inpainting", 
+                                                        "Stable Diffusion v1.5 Inpainting", 
+                                                        "Stable Diffusion XL Inpainting", 
+                                                        "Kandinsky v2.2 Inpainting"], 
+                                                        label="Select Model")
+                        gr.Markdown("""
+                                    ### Instructions
+                                    All models in this section work with the given uploaded input mask.  
+                                    Required Inputs: Input Mask (Upload) , Text Prompt - Object to replace masked area on given input mask below.  
+                                    Input in the text box below the desired object to be inpainted in place of the mask input below.  
+                                    Example prompt: 'white tiger, photorealistic, detailed, high quality'.
+                                    """)
+                        text_input_x = gr.Textbox(label="Text Prompt: ")
+
+                    with gr.Tab("Object Removal"):
+                        tab_task_selector_3 = gr.Dropdown(["Object Removal LDM"], label="Select Model")
+                        gr.Markdown("""
+                                    ### Instructions
+                                    - **Object Removal LDM**:  
+                                    Required inputs: Input Mask (Upload) , DDIM Steps  
+                                    Given the uploaded mask below, simply adjust the slider below according to the desired number of iterations:
+                                    """)
+                        ddim_steps = gr.Slider(minimum=5, maximum=500, label="Number of DDIM sampling steps for object removal", value=150)
+
             with gr.Column():
                 output_image = gr.Image(label="Generated Image", type="pil")
 
@@ -294,7 +341,7 @@ if __name__ == "__main__":
             fn=run_afm_app,
             inputs=[task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, ddim_steps, ddim_steps_pipe, 
                     inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling, blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint,
-                    prompt_background, steps_br, str_res, gs_res, np_res, steps_res ],
+                    prompt_background, steps_br, str_res, gs_res, np_res, steps_res, np_inpaint, steps_inpaint],
             outputs=output_image
         )
 
@@ -320,5 +367,6 @@ if __name__ == "__main__":
         tab_task_selector_8.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_8], outputs=[task_selector])
         tab_task_selector_9.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_9], outputs=[task_selector])
         tab_task_selector_10.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_10], outputs=[task_selector])
+        tab_task_selector_11.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_11], outputs=[task_selector])
 
     block.launch(share=True)

@@ -1,33 +1,7 @@
 import gradio as gr
 from PIL import Image, ImageDraw
 
-## from mask_func import sam_gradio
-from mask_sam import sam_gradio
-## from inpaint_func import controlnet_inpaint_gradio
-from inpaint_sd_controlnet import controlnet_inpaint_gradio
-## from inpaint_ldm import ldm_removal_gradio
-from eraser_ldm import ldm_removal_gradio
-## from superres_func import superres_gradio
-from superres_ldm import superres_gradio
-## from restyling_func import restyling_gradio
-from restyling_sd import restyling_gradio
-from restyling_sdxl import restyling_sdxl_gradio
-from restyling_kandinsky import restyling_kandinsky_gradio
-## from groundedsam_func import groundedsam_mask_gradio
-from mask_groundedsam import groundedsam_mask_gradio
-## from groundedsam_inpaint import groundedsam_inpaint_gradio
-from inpaint_groundedsam import groundedsam_inpaint_gradio
-from inpaint_sd import inpaint_sd_gradio
-from inpaint_sdxl import inpaint_sdxl_gradio
-from inpaint_kandinsky import inpaint_kandinsky_gradio
-## from ldm_removal_pipe import ldm_removal_pipe_gradio
-from eraser_ldm_pipe import ldm_removal_pipe_gradio
-from inpaint_pipe import inpaint_pipe_gradio
-## from inpaint_func_pipe import inpaint_func_pipe_gradio
-from inpaint_sd_controlnet_pipe import inpaint_func_pipe_gradio
-from blur_image import portrait_gradio
-from outpaint_sd import outpaint_sd_gradio
-from background_replace_sd import background_replace_sd_gradio
+
 
 def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, 
                 ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling,
@@ -36,57 +10,75 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
     print(f"Task selected: {task_selector}")
 
     if task_selector == "SAM":
+        from mask_sam import sam_gradio
         return sam_gradio(input_image, coord_input)
 
     if task_selector == "GroundedSAM":
+        from mask_groundedsam import groundedsam_mask_gradio
         return groundedsam_mask_gradio(input_image, text_input)
 
     if task_selector == "Stable Diffusion with ControlNet Inpainting":
+        from inpaint_sd_controlnet import controlnet_inpaint_gradio
         return controlnet_inpaint_gradio(input_image, mask_image, text_input_x)
 
     if task_selector == "Stable Diffusion v1.5 Inpainting":
+        from inpaint_sd import inpaint_sd_gradio
         return inpaint_sd_gradio(input_image, mask_image, text_input_x)
 
     if task_selector == "Stable Diffusion XL Inpainting":
+        from inpaint_sdxl import inpaint_sdxl_gradio
         return inpaint_sdxl_gradio(input_image, mask_image, text_input_x)
 
     if task_selector == "Kandinsky v2.2 Inpainting":
+        from inpaint_kandinsky import inpaint_kandisnky_gradio
         return inpaint_kandinsky_gradio(input_image, mask_image, text_input_x)
 
     if task_selector == "GroundedSAM Inpainting":
+        from inpaint_groundedsam import groundedsam_inpaint_gradio
         return groundedsam_inpaint_gradio(input_image, text_input_gsam, inpaint_input_gsam)
 
     if task_selector == "Object Removal LDM":
+        from eraser_ldm import ldm_removal_gradio
         return ldm_removal_gradio(input_image, mask_image, ddim_steps)
 
     if task_selector == "Restyling - Stable Diffusion v1.5":
+        from restyling_sd import restyling_gradio
         return restyling_gradio(input_image, text_input_restyling)
 
     if task_selector == "Restyling - Stable Diffusion XL":
+        from restyling_sdxl import restyling_sdxl_gradio
         return restyling_sdxl_gradio(input_image, text_input_restyling)
 
     if task_selector == "Restyling - Kandinsky v2.2":
+        from restyling_kandinsky import restyling_kandinsky_gradio
         return restyling_kandinsky_gradio(input_image, text_input_restyling)
 
     if task_selector == "Superresolution - Stable Diffusion v1.5":
+        from superres_ldm import superres_gradio
         return superres_gradio(input_image)
 
     if task_selector == "LDM Removal Pipeline":
+        from eraser_ldm_pipe import ldm_removal_pipe_gradio
         return ldm_removal_pipe_gradio(input_image, coord_input, ddim_steps_pipe)
 
     if task_selector in ["Stable Diffusion v1.5 Inpainting Pipeline", "Stable Diffusion XL Inpainting Pipeline", "Kandinsky v2.2 Inpainting Pipeline"]:
+        from inpaint_pipe import inpaint_pipe_gradio
         return inpaint_pipe_gradio(task_selector, input_image, coord_input, text_input_inpaint_pipe)
 
     if task_selector == "Stable Diffusion with ControlNet Inpainting Pipeline":
+        from inpaint_sd_controlnet_pipe import inpaint_func_pipe_gradio
         return inpaint_func_pipe_gradio(input_image, coord_input, text_input_inpaint_pipe)
 
     if task_selector == "Portrait Mode - Depth Anything":
+        from blur_image import portrait_gradio
         return portrait_gradio(input_image, blur, sharpen)
 
     if task_selector == "Outpainting - Stable Diffusion":
+        from outpaint_sd import outpaint_sd_gradio
         return outpaint_sd_gradio(input_image, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint)
 
     if task_selector == "Background Replacement - Stable Diffusion":
+        from background_replace_sd import background_replace_sd_gradio
         return background_replace_sd_gradio(input_image, prompt_background , steps_br)
 
 selected_points = []

@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw
 def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, 
                 ddim_steps, ddim_steps_pipe, inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling,
                 blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint, prompt_background , steps_br,
-                str_res, gs_res, np_res, steps_res, np_inpaint, steps_inpaint):
+                str_res, gs_res, np_res, steps_res, np_inpaint, steps_inpaint, prompt_txt2img, np_txt2img, gs_txt2img, steps_txt2img):
 
     print(f"Task selected: {task_selector}")
 
@@ -81,6 +81,10 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
         from background_replace_sd import background_replace_sd_gradio
         return background_replace_sd_gradio(input_image, prompt_background , steps_br)
 
+    if task_selector in ["Stable Diffusion v1.5 Txt2Img", "Stable Diffusion XL Txt2Img", "Kandinsky v2.2 Txt2Img"]:
+        from txt2img_generation import txt2img_gradio
+        return txt2img_gradio(input_image, task_selector, prompt_txt2img, np_txt2img, gs_txt2img, steps_txt2img)
+
 selected_points = []
 
 def input_handler(evt: gr.SelectData, input_image):
@@ -135,10 +139,10 @@ if __name__ == "__main__":
 
                 input_image = gr.Image(label="Input Image", sources='upload', type="pil", value=original_image_path, interactive=True)
 
-                with gr.Accordion("Txt2Img Generation (Optional) - not ready yet", open=False):
-                    tab_task_selector_11 = gr.Dropdown(["Txt2img - Stable Diffusion v1.5",
-                                                        "Txt2img - Stable Diffusion XL",
-                                                        "Txt2img - Kandinsky v2.2"], label="Select Model")
+                with gr.Accordion("Txt2Img Generation (Optional)", open=False):
+                    tab_task_selector_11 = gr.Dropdown(["Stable Diffusion v1.5 Txt2Img",
+                                                        "Stable Diffusion XL Txt2Img",
+                                                        "Kandinsky v2.2 Txt2Img"], label="Select Model")
                     gr.Markdown("""
                                 ### Instructions  
                                 Use this feature if you wish to generate your own input image.  
@@ -146,10 +150,10 @@ if __name__ == "__main__":
                                 Required Inputs: Text Prompt, str_res, gs_res, np_res, steps_res  
                                 Example prompt: "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."
                                 """)     
-                    text_input_restyling = gr.Textbox(label="Text Prompt: ")
-                    gs_res = gr.Slider(minimum=0.0, maximum=50.0, label="Guidance Scale", value=7.5)
-                    np_res = gr.Textbox(label="Negative Prompt", value="poor details, ugly, blurry")
-                    steps_res = gr.Slider(minimum=5, maximum=500, label="Number of inference steps", value=150)
+                    prompt_txt2img = gr.Textbox(label="Text Prompt: ")
+                    np_txt2img = gr.Textbox(label="Negative Prompt", value="poor details, ugly, blurry")
+                    gs_txt2img = gr.Slider(minimum=0.0, maximum=50.0, label="Guidance Scale", value=3.5)
+                    steps_txt2img = gr.Slider(minimum=5, maximum=500, label="Number of inference steps", value=150)
 
             with gr.Column():
                 gr.Markdown("Type image coordinates manually or click on the image directly:")
@@ -340,7 +344,7 @@ if __name__ == "__main__":
             fn=run_afm_app,
             inputs=[task_selector, input_image, mask_image, text_input, text_input_x, text_input_gsam, coord_input, ddim_steps, ddim_steps_pipe, 
                     inpaint_input_gsam, text_input_inpaint_pipe, text_input_restyling, blur, sharpen, prompt_outpaint, e_l, e_r, e_u, e_d, steps_outpaint,
-                    prompt_background, steps_br, str_res, gs_res, np_res, steps_res, np_inpaint, steps_inpaint],
+                    prompt_background, steps_br, str_res, gs_res, np_res, steps_res, np_inpaint, steps_inpaint, prompt_txt2img, np_txt2img, gs_txt2img, steps_txt2img],
             outputs=output_image
         )
 

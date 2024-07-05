@@ -1,7 +1,7 @@
 from diffusers import AutoPipelineForText2Image
 import torch
 
-def txt2img_gradio(input_image, task_selector, prompt, gs, steps, negative_prompt):
+def txt2img_gradio(input_image, task_selector, prompt, negative_prompt, gs, steps):
     print(task_selector)
 
     gs = float(gs)
@@ -22,7 +22,6 @@ def txt2img_gradio(input_image, task_selector, prompt, gs, steps, negative_promp
                         guidance_scale=gs
                         ).images[0]
 
-    
     elif task_selector == "Stable Diffusion XL Txt2Img":
 
         pipeline = AutoPipelineForText2Image.from_pretrained(
@@ -46,8 +45,8 @@ def txt2img_gradio(input_image, task_selector, prompt, gs, steps, negative_promp
         generator = torch.Generator("cuda").manual_seed(31)
         image = pipeline(prompt=prompt, 
                         generator=generator,
-                        height=512,
-                        width=512,
+                        height=768,
+                        width=768,
                         negative_prompt=negative_prompt,
                         num_inference_steps=steps,
                         guidance_scale=gs
@@ -55,19 +54,16 @@ def txt2img_gradio(input_image, task_selector, prompt, gs, steps, negative_promp
     else:
         print("Please pick a valid model: SD, SDXL, Kandinsky")
 
-
     image.save("outputs/txt2img/generated_input.png", format="PNG", optimize=True, compress_level=6)
-
     return image
-
-
 
 if __name__ == "__main__":
 
-    # Pick model:
+    ##### Pick model: #####
     # txt2img_model = "SD"
-    # txt2img_model = "SDXL"
-    txt2img_model = "Kandinsky"
+    txt2img_model = "SDXL"
+    # txt2img_model = "Kandinsky"
+    ###### ##### ##### #####
 
     print(txt2img_model)
 
@@ -91,7 +87,6 @@ if __name__ == "__main__":
                         guidance_scale=gs
                         ).images[0]
 
-    
     elif txt2img_model == "SDXL":
 
         pipeline = AutoPipelineForText2Image.from_pretrained(
@@ -115,14 +110,13 @@ if __name__ == "__main__":
         generator = torch.Generator("cuda").manual_seed(31)
         image = pipeline(prompt=prompt, 
                         generator=generator,
-                        height=512,
-                        width=512,
+                        height=768,
+                        width=768,
                         negative_prompt=negative_prompt,
                         num_inference_steps=steps,
                         guidance_scale=gs
                         ).images[0]
     else:
         print("Please pick a valid model: SD, SDXL, Kandinsky")
-
 
     image.save("outputs/txt2img/tx2img_output.png", format="PNG", optimize=True, compress_level=6)

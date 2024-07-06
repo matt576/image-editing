@@ -97,3 +97,4 @@ def superres_upscaler_gradio(input_image, steps):
 
     os.makedirs("outputs/gradio/superres", exist_ok=True)
     upscaled_image.save("outputs/gradio/superres/superres_upscaler_output_gradio.png")
+    return upscaled_image

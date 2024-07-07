@@ -1,16 +1,20 @@
 # Image-Editing
 
 Image-Editing tool allows for AI-supported modification of images using a variety of technologies.
-Currently, the following functions are supported:
+Our repository includes implementation of the methods, examplary results of the methods and evaluation.
+Additionally, we created a jupyter notebook to better understand to possibilities of our Image-Editing tool and an app for running the methods on a webserver using gradio.
+The tool supports the following functions:
+- Mask generation
 - Background blurring
 - Background replacement
 - Object removal
-- Inpainting / Outpaining
+- Inpainting
+- Outpainting
 - Restyling
-- Super-resolution
+- Superresolution
 
-## 1. Set-up the environment:
-In the first place clone the current project.
+# 1. Set-up the environment:
+Clone the current project and initialize the submodules.
 
 ```bash
 git clone --recursive https://github.com/matt576/image-editing.git
@@ -37,42 +41,11 @@ In case the torch version is not supporting CUDA, manually install the version.
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
-## 2. Functions demonstration:
-### 1. Inpainting (Mask: SAM -> Diffusion: ControlNet)
-#### Checkpoints:
-###### SAM:
-Model:  facebook/sam-vit-base <br />
-Pipeline: facebook/sam-vit-base <br />
-###### ControlNet:
-Model: lllyasviel/control_v11p_sd15_inpaint <br />
-Pipeline: runwayml/stable-diffusion-v1-5 <br />
+*LIST NEXT REQUIREMENTS*
+*MODELS TO DOWNLOAD*
 
-Error: ControlNet generates black images for dtype.float16: <br />
-Error: Output produced contains NSFW content -> set safety_checker=None, requires_safety_checker=False for loading pipe
-
-
-Example:
-```bash
-python mask_func.py
-```
-### 2. Conditional Inpainting (Mask: Manual -> Diffusion: ControlNet Inpainting)
-#### Checkpoints:
-###### ControlNet:
-Model: lllyasviel/control_v11p_sd15_inpaint <br />
-Pipeline: runwayml/stable-diffusion-v1-5 <br />
-
-Example:
-```bash
-python inpaint_func.py
-```
-
-### 3. Magic Eraser (Mask: SAM -> Diffusion: Latent Diffusion)
-#### Checkpoints:
-###### SAM:
-Model:  facebook/sam-vit-base <br />
-Pipeline: facebook/sam-vit-base <br />
-###### Latent Diffusion:
-Model: https://heibox.uni-heidelberg.de/f/4d9ac7ea40c64582b7c9/?dl=1
+# 1.1. Download the necessary models unavailable on huggingface
+Latent diffusion:
 ```bash
 wget -O models/ldm_inpainting/last.ckpt https://heibox.uni-heidelberg.de/f/4d9ac7ea40c64582b7c9/?dl=1
 ```
@@ -84,9 +57,17 @@ pip install pytorch-lightning==1.6.1  # possibly newer version
 pip install einops==0.3.0
 pip install -e git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers
 ```
-In the file: **image-editing\src\taming-transformers\taming\data\utils.py**
+pip install opencv-python
 
-Change line 11:
+pip install -qr https://huggingface.co/briaai/RMBG-1.4/resolve/main/requirements.txt
+pip install controlnet_aux
+
+
+# 1.2 Modifications for compatibility purposes 
+Latent Diffusion:
+
+In the file: **image-editing\src\taming-transformers\taming\data\utils.py**
+change line 11:
 ```bash
 from torch._six import string_classes
 ```
@@ -94,31 +75,109 @@ to
 ```bash
 string_classes = str
 ```
-Due to a no longer existing module _six since Pytorch 1.10. <br />
-Error: ControlNet generates black images for dtype.float16: <br />
-Error: Output produced contains NSFW content -> set safety_checker=None, requires_safety_checker=False for loading pipe
 
-Example:
+
+# 2. Functions demonstration:
+In order to visualise the examples, we prepared a jupyter notebooks for each of the functions located in
+
 ```bash
-python inpaint_ldm.py --indir inputs/example_dog --outdir outputs/inpainting_results --steps 5
+image-editing/code/notebooks/
+```
+Those generate outputs for examplary images and helps getting familiar with the variety of possibilities provided by the Image-Editing tool.
+
+List of the available notebooks:
+```bash
+/1-Mask-Generation.ipynb
+/2-Background-Blurring.ipynb
+/3-Background-Replacement.ipynb
+/4-Eraser.ipynb
+/5-Inpainting.ipynb
+/6-Outpainting.ipynb
+/7-Restyling.ipynb
+/8-Superresolution.ipynb
 ```
 
-## LaMa
+# 3. Gradio App - Demo
+In order to use all the capabilities of our tool, we developed an app in a form of webserver usoing gradio.
+This allows any user to generate images, apply the overmentioned functionalities, visualise and download the results.
+Our program supports usage of more than just one model for a each function. The used model can be selected before generating the image.
+In the following we introduce the guide and steps of how to use the gradio app.
+*Write some more sentences and steps, include screenshots / lists of methods etc*
+1.
+2.
+3.
+4.
+5.
 
-Example:
+
+# 4. Functions and used models
+To allow users more flexibility, we included several models for each functionality.
+This section describes the implemented pipelines and exact model checkpoints used in the tool.
+Additionally this helps us evaluate the results and compare them to the state-of-the-art methods.
+
+## 1. Mask Generation
+- SAM: facebook/sam-vit-huge
+- Grounded-SAM: 
+
+## 2. Background-Blurring
+- Depth-Anything pipeline
+    - Depth estimation: LiheYoung/depth_anything_vitl14
+    - Foreground extraction: briaai/RMBG-1.4
+
+
+## 3. Background-Replacement
+- Stable-diffusion pipeline: stabilityai/stable-diffusion-2-inpainting
+
+## 4. Eraser
+- Latent Diffusion pipelime: ldm_inpainting/last
+
+- Lama pipeline: big-lama/best
+
+## 5. Inpainting
+- Stable-diffusion-v-1.5 pipeline: runwayml/stable-diffusion-inpainting
+- Kandinsky-2.2 pipeline: kandinsky-community/kandinsky-2-2-decoder-inpaint
+- Stable diffusion XL pipeline: diffusers/stable-diffusion-xl-1.0-inpainting-0.1
+- Stable diffusion with controlnet pipeline
+    - Controlnet: lllyasviel/control_v11p_sd15_inpaint
+    - Stable diffusion: runwayml/stable-diffusion-v1-5
+
+## 6. Outpainting
+- Stable diffusion pipeline: stabilityai/stable-diffusion-2-inpainting
+- Stable diffusion XL pipeline: diffusers/stable-diffusion-xl-1.0-inpainting-0.1
+
+## 7. Restyling:
+- Stable diffusion pipeline: runwayml/stable-diffusion-v1-5
+- Kandinsky pipeline: kandinsky-community/kandinsky-2-2-decoder
+- Stable diffusion XL pipeline: stabilityai/stable-diffusion-xl-refiner-1.0
+
+## 8. Superresolution:
+- Latent diffusion pipeline: CompVis/ldm-super-resolution-4x-openimages
+- Upscaler pipeline: stabilityai/stable-diffusion-x4-upscaler
+
+
+# 5. Evaluation
+## The evualuation results are stored in
 ```bash
-python eraser_lama.py model.path=$(pwd)/../lama/big-lama indir=$(pwd)/inputs/eval outdir=$(pwd)/outputs/eval
+image-editing/code/outputs/
 ```
-** Add additional imports from lama **
+and contain generated images for the introduced models.
+The evaluation is basing on comaprison the models to state-of-the-art tools or end products distributed by companies like Google, Apple etc.
+The overmentioned models are evaluated against:
+1. Mask generation: 
+2. Background blurring: Blur by Google Photos
+3. Background replacement: SmartBackground by PicsArt
+4. Object removal: Magic Eraser by Google Photos
+5. Inpainting: DALL-E by OpenAI
+6. Outpainting: DALL-E by OpenAI
+7. Restyling: Image Style Transfer by PicsArt
+8. Superresolution: Image Upscaler by PicsArt
 
-### 4. Background Replacement (Portrait)
-
-CUDA out of memory errors:
-Models: 
-- diffusers/controlnet-depth-sdxl-1.0
-- OzzyGT/RealVisXL_V4.0_inpainting
-
-
+---
+---
+---
+---
+---
+---
 
 
 ### 5. GroundedSAM-based mask generation
@@ -181,42 +240,6 @@ Specify via Text Prompt the object you want to detect and the object you want to
 python groundedsam_inpaint.py   --config ../Grounded-Segment-Anything/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py   --grounded_checkpoint models/groundingdino_swint_ogc.pth   --sam_checkpoint models/sam_vit_h_4b8939.pth   --input_image inputs/example_dog/dog.png   --output_dir "outputs/grounded_sam"   --box_threshold 0.3   --text_threshold 0.25   --det_prompt "dog"   --inpaint_prompt "bear cub, high quality, detailed"   --device "cuda"
  ```
 
-### 7. .py
-
-```bash
-
-```
-
-### 8. Background Blurring (Depth Aynthing)
-Additional imports:
-```bash
-pip install opencv-python
-```
-The method applies the Depth-Anything model to perform depth estimation.
-In order to extract the foreground and background of the image to apply background blurring/restyling we can use the following techniques:
-1. Splitting the output to several sections depending on the distance measurement
-2. Thresholding and applying varable blurring filter
-3. Merging the individual images to a single output
-
-#### Checkpoints:
-###### Depth Anything:
-Model: LiheYoung/depth_anything_vitl14
-
-Example:
-```bash
-python blurring.py
-```
-Errors: The path for directory needs to be modified. File Depth-Anything/depth_anything/dpt.py
-in lines [147, 149] should have path leading to the model.
-
-### 9. Background Replacement (RMBG-1.4)
-Additional imports:
-```bash
-pip install -qr https://huggingface.co/briaai/RMBG-1.4/resolve/main/requirements.txt
-pip install controlnet_aux
-```
-The method extracts the foreground subject from the original image.
-In the following, 
 
 ### X. AFM Image Editing App
 
@@ -224,20 +247,3 @@ In the following,
 cd code
 python afm_gradio.py
 ```
-
-
-#### Checkpoints:
-###### Depth Anything:
-Model: 
-
-Errors: The path for directory needs to be modified. File Depth-Anything/depth_anything/dpt.py
-in lines [147, 149] should have path leading to the model.
-
-# Alternative models to compare results
-1. Mask generation: RMBG-1.4 | GroundedSAM | SAM
-2. Inpainting: ControlNet | ! Stable Diffusion ! | GroundedSAM
-3. Outpainting: InpaintAnything (Replace)
-4. Eraser: Latent Diffusion | ! LaMa !
-5. Blurring: Depth Anything
-6. Background Replacement (Portrait): ! Stable Diffusion ! |
-7. Superresolution

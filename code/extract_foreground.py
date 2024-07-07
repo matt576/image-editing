@@ -145,17 +145,17 @@ model.to(device)
 
 
 def get_fgbg(input_image):
-    foreground = extract_foreground(input_image)
+    foreground = extract_foreground_image(input_image)
     rescaled_img, white_bg_image = scale_and_paste(foreground)
     return rescaled_img, white_bg_image
 
 
 if __name__ == "__main__":
     import os
-    directory_path = "/usr/prakt/s0075/image-editing/code/inputs/portrait-examples/"
+    directory_path = "/usr/prakt/s0075/image-editing/code/inputs/background-blurring/"
 
     for filename in os.listdir(directory_path):
         print(filename)
         input_image = Image.open(f"{directory_path}/{filename}").convert("RGB")
         extracted_img, _ = get_fgbg(input_image)
-        extracted_img.save(f"/usr/prakt/s0075/image-editing/code/outputs/foreground/{filename}.png")
+        extracted_img.save(f"/usr/prakt/s0075/image-editing/code/outputs/foreground/{filename}")

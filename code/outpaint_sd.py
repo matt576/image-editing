@@ -19,14 +19,19 @@ def outpaint_stablediffusion(input_image: Image, prompt: str, coordinates: list,
     new_height = height + coordinates[2] + coordinates[3]
 
     # new image with extended blank spaces
-    extended_image = input_image.resize((new_width, new_height))
+    extended_image = Image.new('RGB', (new_width, new_height), color='white')
+    random_noise_array = np.random.randint(0, 256, (new_height, new_width, 3), dtype=np.uint8)
+    extended_image = Image.fromarray(random_noise_array)
+    # extended_image = input_image.resize((new_width, new_height))
     # extended_image = extended_image.filter(ImageFilter.BoxBlur(10))
     extended_image.paste(input_image, (coordinates[0], coordinates[2]))
+    extended_image.save("outputs/outpainting/extended_image.png")
 
     # new mask image
     extended_mask = Image.new('L', (new_width, new_height), color='white')
     extended_mask.paste(Image.new('L', input_image.size, color='black'), (coordinates[0], coordinates[2]))
     extended_mask = expand_white_areas(extended_mask, 5)
+    extended_mask.save("outputs/outpainting/extended_mask.png")
 
     # extended_image = extended_image.resize((512, 512))
     # extended_mask = extended_mask.resize((512, 512))
@@ -38,9 +43,9 @@ def outpaint_stablediffusion(input_image: Image, prompt: str, coordinates: list,
 
 if __name__ == "__main__":
 
-    image = Image.open(f"inputs/outpainting/taxi.png")
-    prompt = "black cat in front of the car"
-    extend_left, extend_right, extend_up, extend_down = 0, 0, 0, 200
+    image = Image.open(f"inputs/outpainting/armchair.png")
+    prompt = "room with an armchair and green plants in a pot"
+    extend_left, extend_right, extend_up, extend_down = 0, 200, 0, 0
     coordinates = [extend_left, extend_right, extend_up, extend_down]
-    output_image = outpaint_stablediffusion(image, prompt, coordinates, 50)
-    output_image.save("outputs/outpainting/sd-taxi-50.png")
+    output_image = outpaint_stablediffusion(image, prompt, coordinates, 10)
+    output_image.save("outputs/outpainting/armchair-plants-sd.png")

@@ -54,7 +54,7 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
     output_mask = get_mask(input_image, input_points)
     image_array = np.where(output_mask, 255, 0).astype(np.uint8)
     pil_mask = Image.fromarray(image_array)
-    # pil_mask.save(f"{output_dir_mask}/{filename}") 
+    pil_mask.save(f"{output_dir_mask}/{filename}") 
     
     image_path = f"{output_dir_mask}/{filename}"
     dil_iterations = 10

@@ -125,7 +125,7 @@ def inpaint_func_pipe_gradio(input_image, coord_input_text, text_input, np_inpai
 
     output = inputation(input_image, mask_image, text_input, pipe, np_inpaint, steps_inpaint)
     output = output.resize((original_width, original_height))
-    output_dir = "outputs/gradio/inpainting"
+    output_dir = "outputs/gradio"
     filename = "sdv15controlnet_inpaint_func_pipe_output.png"
     output.save(f"{output_dir}/{filename}")
     return output

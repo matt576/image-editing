@@ -83,7 +83,7 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
         image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, negative_prompt=np_inpaint,num_inference_steps=steps_inpaint).images[0]
         
         image_resized = image.resize((original_width, original_height))
-        output_dir = "outputs/gradio/inpainting"
+        output_dir = "outputs/gradio"
         filename = "inpaint_pipe_sd_output.png"
         image_resized.save(f"{output_dir}/{filename}")
         return image_resized 
@@ -104,7 +104,7 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
         image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, generator=generator, negative_prompt=np_inpaint,num_inference_steps=steps_inpaint).images[0]
         
         image_resized = image.resize((original_width, original_height))
-        output_dir = "outputs/gradio/inpainting"
+        output_dir = "outputs/gradio"
         filename = "inpaint_pipe_sdxl_output.png"
         image_resized.save(f"{output_dir}/{filename}")
         return image_resized 
@@ -123,7 +123,7 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
         image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, generator=generator, negative_prompt=np_inpaint,num_inference_steps=steps_inpaint).images[0]
         
         image_resized = image.resize((original_width, original_height))
-        output_dir = "outputs/gradio/inpainting"
+        output_dir = "outputs/gradio"
         filename = "inpaint_pipe_kandinsky_output.png"
         image_resized.save(f"{output_dir}/{filename}")
         return image_resized

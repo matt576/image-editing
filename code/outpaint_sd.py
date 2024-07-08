@@ -43,9 +43,9 @@ def outpaint_stablediffusion(input_image: Image, prompt: str, coordinates: list,
 
 if __name__ == "__main__":
 
-    image = Image.open(f"inputs/outpainting/armchair.png")
-    prompt = "room with an armchair and green plants in a pot"
-    extend_left, extend_right, extend_up, extend_down = 0, 200, 0, 0
+    image = Image.open(f"outputs/outpainting/vermeer-sd-1.png")
+    prompt = "womand and a green plant in a pot"
+    extend_left, extend_right, extend_up, extend_down = 0, 300, 0, 0
     coordinates = [extend_left, extend_right, extend_up, extend_down]
-    output_image = outpaint_stablediffusion(image, prompt, coordinates, 10)
-    output_image.save("outputs/outpainting/armchair-plants-sd.png")
+    output_image = outpaint_stablediffusion(image, prompt, coordinates, 25)
+    output_image.save("outputs/outpainting/vermeer-sd-2.png")

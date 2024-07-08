@@ -62,9 +62,9 @@ def shrink_white_areas(mask_image, iterations=1):
 if __name__ == "__main__":
 
     # resize image
-    input_path = 'image-editing/code/inputs/bear.png'    # Path to the input image
-    output_path = 'image-editing/code/inputs/restyling/bear.png' # Path to save the resized image
-    new_size = (640, 480)                    # New size as a tuple (width, height)
+    input_path = 'inputs/sleep.png'    # Path to the input image
+    output_path = 'inputs/inpainting/sleep.png' # Path to save the resized image
+    new_size = (480, 640)                    # New size as a tuple (width, height)
     input_img = Image.open(input_path).convert("RGB")
     output_img = read_and_resize_image(input_img, new_size)
     output_img.save(output_path)

@@ -35,14 +35,6 @@ def background_replace_portrait_stablediffusion(input_image: Image, prompt:str, 
     return output_image
 
 
-if __name__ == "__main__":
-    
-    image = Image.open(f"test_dataset/jessi.png")
-    image = image.convert("RGB")
-    prompt = "dog sitting on the beach, sunny day, blue sky"
-    output_image = background_replace_portrait_stablediffusion(image, prompt, 50)
-    output_image.save("outputs/eval/jessi_background_replacement.png")
-
 def background_replace_sd_gradio(input_image, prompt, steps):
     steps = int(steps)
     input_image = input_image.convert("RGB")
@@ -52,8 +44,15 @@ def background_replace_sd_gradio(input_image, prompt, steps):
     filename = "background_replace_sd_output_gradio.png"
     output_image.save(f"{outdir}/{filename}")
     print("Output image saved to: ", outdir + "/" + filename)
-
     return output_image
 
 
+
+if __name__ == "__main__":
     
+    image = Image.open(f"test_dataset/jessi.png")
+    image = image.convert("RGB")
+    prompt = "dog sitting on the beach, sunny day, blue sky"
+    output_image = background_replace_portrait_stablediffusion(image, prompt, 50)
+    output_image.save("outputs/eval/jessi_background_replacement.png")
+

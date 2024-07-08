@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from PIL import Image, ImageFilter
-import os, sys
+import os, sys, copy
 import cv2
 from extract_foreground import extract_foreground_image, scale_and_paste
 
@@ -37,7 +37,7 @@ transform = Compose([
 
 
 
-def apply_blur(input_img: Image, foreground_img: Image, boxBlur: int, sharpen: int):
+def apply_blur(input_img: Image, foreground_img: Image, boxBlur: int, sharpen: int, set_focal_point: bool) -> Image:
 
     image = np.array(input_img)
     image_norm = np.array(image) / 255.0
@@ -55,7 +55,23 @@ def apply_blur(input_img: Image, foreground_img: Image, boxBlur: int, sharpen: i
     # visualize the prediction
     output = output.squeeze().cpu().numpy()
     prediction = (output * 255 / np.max(output)).astype("uint8")
-    #     prediction = ((focus - output).abs() * 255 / np.max(output)).astype("uint8")
+    
+    if set_focal_point:
+        focus = copy.deepcopy(prediction)
+
+        # apply the foreground mask to depth estimation
+        foreground_img = foreground_img.resize((resized_image.shape[1], resized_image.shape[0]))
+        np_im = np.array(foreground_img)
+        foreground_mask = np.zeros((np_im.shape[0], np_im.shape[1]), dtype=np.uint8)
+        foreground_mask[np_im[:, :, 3] > 0] = 1
+        focus[foreground_mask == 0] = 0
+
+        # calculate the average pixel value (distance) of the foreground element
+        non_zero_pixels = focus[focus > 0]
+        average_focus = np.mean(non_zero_pixels)
+
+        # modify the depth map to focus on the foreground object
+        prediction = np.clip(255 - np.abs(prediction - average_focus).astype("uint8"), 0, 255)
 
     # blur image given depth map
     oimg = Image.fromarray(resized_image)
@@ -78,13 +94,13 @@ def get_fgbg(input_image):
     return rescaled_img, white_bg_image
 
 
-def blur_image(input_image: Image, bBlur: int, sharpen: int = 0) -> Image:
+def blur_image(input_image: Image, bBlur: int, sharpen: int = 0, set_focal_point=False) -> Image:
     
     # extract foreground from the image
     foreground_img = extract_foreground_image(input_image)
 
     # apply blur to the whole image
-    blurred_img = apply_blur(input_image, foreground_img, bBlur, sharpen)
+    blurred_img = apply_blur(input_image, foreground_img, bBlur, sharpen, set_focal_point)
 
     # paste the original foreground element on top of the blurred image
     blurred_img.paste(foreground_img, foreground_img)
@@ -99,7 +115,6 @@ if __name__ == "__main__":
     for filename in os.listdir(directory_path):
         print(filename)
         name = filename.split('.')[0]
-
         input_image = Image.open(f"{directory_path}/{filename}").convert("RGB")
         blurred_image = blur_image(input_image, 15, 0)
         blurred_image.save(f"outputs/blur/{name}.png")

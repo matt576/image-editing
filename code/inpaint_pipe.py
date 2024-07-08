@@ -49,12 +49,12 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
         except ValueError:
             print("Invalid input format for coordinates (expected: x1,y1;x2,y2;x3,y3)")
             input_points = None
-
+    print(input_points)
     input_image = input_image.convert("RGB")
     output_mask = get_mask(input_image, input_points)
     image_array = np.where(output_mask, 255, 0).astype(np.uint8)
     pil_mask = Image.fromarray(image_array)
-    # pil_mask.save(f"{output_dir_mask}/{filename}") 
+    pil_mask.save(f"{output_dir_mask}/{filename}") 
     
     image_path = f"{output_dir_mask}/{filename}"
     dil_iterations = 10
@@ -63,13 +63,16 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
 
     input_image = input_image.convert("RGB")
     original_width, original_height = input_image.size
-    input_image = input_image.resize((512, 512))
+    # input_image = input_image.resize((512, 512))
 
     mask_image = pil_mask_dilated
     mask_image = mask_image.convert("L")
-    mask_image = mask_image.resize(input_image.size)
+    # mask_image = mask_image.resize(input_image.size)
 
     if task_selector == "Stable Diffusion v1.5 Inpainting Pipeline":
+        input_image = input_image.resize((512, 512))
+        mask_image = mask_image.resize(input_image.size)
+
         pipeline = AutoPipelineForInpainting.from_pretrained(
         "runwayml/stable-diffusion-inpainting",
         variant="fp16",
@@ -80,12 +83,14 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
         image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, negative_prompt=np_inpaint,num_inference_steps=steps_inpaint).images[0]
         
         image_resized = image.resize((original_width, original_height))
-        output_dir = "outputs/gradio/inpainting"
+        output_dir = "outputs/gradio"
         filename = "inpaint_pipe_sd_output.png"
         image_resized.save(f"{output_dir}/{filename}")
         return image_resized 
 
     elif task_selector == "Stable Diffusion XL Inpainting Pipeline":
+        input_image = input_image.resize((1024, 1024))
+        mask_image = mask_image.resize(input_image.size)
 
         pipeline = AutoPipelineForInpainting.from_pretrained(
         "diffusers/stable-diffusion-xl-1.0-inpainting-0.1", torch_dtype=torch.float16, variant="fp16"
@@ -99,12 +104,15 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
         image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, generator=generator, negative_prompt=np_inpaint,num_inference_steps=steps_inpaint).images[0]
         
         image_resized = image.resize((original_width, original_height))
-        output_dir = "outputs/gradio/inpainting"
+        output_dir = "outputs/gradio"
         filename = "inpaint_pipe_sdxl_output.png"
         image_resized.save(f"{output_dir}/{filename}")
         return image_resized 
 
     elif task_selector == "Kandinsky v2.2 Inpainting Pipeline":
+        input_image = input_image.resize((768, 768))
+        mask_image = mask_image.resize(input_image.size)
+
         pipeline = AutoPipelineForInpainting.from_pretrained(
         "kandinsky-community/kandinsky-2-2-decoder-inpaint", torch_dtype=torch.float16
         )
@@ -115,7 +123,7 @@ def inpaint_pipe_gradio(task_selector, input_image, coord_input_text, text_input
         image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, generator=generator, negative_prompt=np_inpaint,num_inference_steps=steps_inpaint).images[0]
         
         image_resized = image.resize((original_width, original_height))
-        output_dir = "outputs/gradio/inpainting"
+        output_dir = "outputs/gradio"
         filename = "inpaint_pipe_kandinsky_output.png"
         image_resized.save(f"{output_dir}/{filename}")
         return image_resized

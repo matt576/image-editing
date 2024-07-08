@@ -45,7 +45,7 @@ if __name__ == "__main__":
     init_image = init_image.convert("RGB")
     original_width, original_height = init_image.size
 
-    init_image = init_image.resize((512, 512))
+    init_image = init_image.resize((1024, 1024))
 
     mask_image = Image.open("inputs/dog-mask.png")
     mask_image = mask_image.convert("L")

@@ -2,7 +2,7 @@ from diffusers import StableDiffusionInpaintPipeline
 import torch
 from PIL import Image, ImageFilter
 import numpy as np
-from operations_image import expand_white_areas
+from operations_image import expand_white_areas, expand_white_areas_outpainting
 from diffusers import AutoPipelineForInpainting
 
 
@@ -19,14 +19,6 @@ def outpaint_stablediffusionxl(input_image: Image, prompt: str, coordinates: lis
 
     # new image with extended blank spaces
     extended_image = input_image.resize((new_width, new_height))  # the same image resized to new size
-    #random_noise_array = np.random.randint(0, 256, (new_height, new_width, 3), dtype=np.uint8)
-    #extended_image = Image.fromarray(random_noise_array)
-    #white_image = Image.new('RGB', extended_image.size, color='white')
-    #average_color = np.mean(np.array(input_image), axis=(0, 1))
-    #average_color = tuple(np.round(average_color).astype(int))
-    #print(average_color)
-    #extended_image = Image.new('RGB', (new_width, new_height), color=average_color)
-    #extended_image = extended_image.filter(ImageFilter.BoxBlur(10))
     extended_image.paste(input_image, (coordinates[0], coordinates[2]))
     extended_image.save("outputs/outpainting/extended_image.png")
 
@@ -34,7 +26,7 @@ def outpaint_stablediffusionxl(input_image: Image, prompt: str, coordinates: lis
     extended_mask = Image.new('L', (new_width, new_height), color='white')
     input_mask = Image.new('L', input_image.size, color='black')
     extended_mask.paste(input_mask, (coordinates[0], coordinates[2]))
-    extended_mask = expand_white_areas(extended_mask, 5)
+    extended_mask = expand_white_areas_outpainting(extended_mask, 5)
     extended_mask.save("outputs/outpainting/extended_mask.png")
 
     # extended_image = extended_image.resize((512, 512))
@@ -55,12 +47,22 @@ def outpaint_stablediffusionxl(input_image: Image, prompt: str, coordinates: lis
     return output_image
 
 
-if __name__ == "__main__":
+def outpaint_sdxl_gradio(input_image, prompt, e_l, e_r, e_u, e_d, steps):
+    print(prompt)
+    coordinates = [e_l, e_r, e_u, e_d]
+    output_image = outpaint_stablediffusionxl(input_image, prompt, coordinates, steps)
+    output_image.save("outputs/gradio/outpainting/outpainting_sdxl_output_gradio.png")
+    return output_image
 
+
+if __name__ == "__main__":
     
     image = Image.open(f"inputs/outpainting/armchair.png")
     prompt = "green plants in a red pot"
-    extend_right, extend_left, extend_up, extend_down = 0, 200, 0, 0
-    coordinates = [extend_right, extend_left, extend_up, extend_down]
+    extend_left, extend_right, extend_up, extend_down = 200, 0, 0, 0
+    coordinates = [extend_left, extend_right, extend_up, extend_down]
     output_image = outpaint_stablediffusionxl(image, prompt, coordinates, 15)
     output_image.save("outputs/outpainting/armchair-plant-sdxl.png")
+
+
+

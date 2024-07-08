@@ -84,7 +84,7 @@ def inpaint_func_pipe_gradio(input_image, coord_input_text, text_input, np_inpai
     output_mask = get_mask(input_image, input_points)
     image_array = np.where(output_mask, 255, 0).astype(np.uint8)
     pil_mask = Image.fromarray(image_array)
-    # pil_mask.save(f"{output_dir_mask}/{filename}") 
+    pil_mask.save(f"{output_dir_mask}/{filename}") 
     
     image_path = f"{output_dir_mask}/{filename}"
     dil_iterations = 10
@@ -125,7 +125,7 @@ def inpaint_func_pipe_gradio(input_image, coord_input_text, text_input, np_inpai
 
     output = inputation(input_image, mask_image, text_input, pipe, np_inpaint, steps_inpaint)
     output = output.resize((original_width, original_height))
-    output_dir = "outputs/gradio/inpainting"
+    output_dir = "outputs/gradio"
     filename = "sdv15controlnet_inpaint_func_pipe_output.png"
     output.save(f"{output_dir}/{filename}")
     return output

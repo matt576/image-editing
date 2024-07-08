@@ -142,9 +142,9 @@ if __name__ == "__main__":
         Finally, click on 'Generate' and enjoy the App!
         """)
 
-        original_image_path = "test_dataset/wilson.png" # Select input image path here
+        original_image_path = "inputs/test_dataset_matt_images/jessi.png" # Select input image path here
         # original_image_path = "outputs/txt2img/generated_input.png" # for txt2img generated input image
-        input_mask_path = "inputs/ldm_inputs/jessi_mask.png" # Optional, make sure it matches the input image
+        input_mask_path = "inputs/gradio_masks/jessi_mask.png" # Optional, make sure it matches the input image
         original_image = Image.open(original_image_path)
 
         with gr.Row():

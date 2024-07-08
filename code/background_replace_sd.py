@@ -52,7 +52,7 @@ def background_replace_sd_gradio(input_image, prompt, steps):
     input_image = input_image.convert("RGB")
 
     output_image = background_replace_portrait_stablediffusion(input_image, prompt, steps)
-    outdir = "outputs/gradio/background_replace"
+    outdir = "outputs/gradio"
     filename = "background_replace_sd_output_gradio.png"
     output_image.save(f"{outdir}/{filename}")
     print("Output image saved to: ", outdir + "/" + filename)

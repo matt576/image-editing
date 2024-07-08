@@ -1,4 +1,4 @@
-from diffusers import StableDiffusionInpaintPipeline
+from diffusers import DiffusionPipeline
 import torch
 from PIL import Image
 import numpy as np
@@ -8,21 +8,28 @@ from extract_foreground import extract_foreground_mask, extract_foreground_image
 
 def background_replace_mask_stablediffusion(input_image: Image, mask_image: Image, prompt: str, steps: int) -> Image:
 
-    pipe = StableDiffusionInpaintPipeline.from_pretrained(
-    "stabilityai/stable-diffusion-2-inpainting",
+    pipe = DiffusionPipeline.from_pretrained(
+    "diffusers/stable-diffusion-xl-1.0-inpainting-0.1",
     torch_dtype=torch.float16,
+    variant="fp16"
     )
     pipe.to("cuda")
-
+    generator = torch.Generator(device="cuda").manual_seed(0)
     size = np.array(input_image).shape[:2]
     
     # reverse the mask for outpainting
     reversed_mask_array = 255 - np.array(mask_image)
     reversed_mask_array = Image.fromarray(reversed_mask_array)
     reversed_mask_array = expand_white_areas_outpainting(reversed_mask_array, 2) #optional
-    resized_input_image = input_image.resize((512, 512))
-    resized_reversed_mask_array = reversed_mask_array.resize((512, 512))
-    output_image = pipe(prompt=prompt, image=resized_input_image, mask_image=resized_reversed_mask_array,  guidance_scale=7.5, num_inference_steps=steps).images[0]
+    resized_input_image = input_image.resize((1024, 1024))
+    resized_reversed_mask_array = reversed_mask_array.resize((1024, 1024))
+    output_image = pipe(prompt=prompt, 
+                        image=resized_input_image, 
+                        mask_image=resized_reversed_mask_array,  
+                        guidance_scale=7.5,
+                        num_inference_steps=20,#steps,
+                        strength=0.99,
+                        generator=generator).images[0]
     resized_output_image = output_image.resize((size[1], size[0]))
     return resized_output_image
 
@@ -41,7 +48,7 @@ if __name__ == "__main__":
     image = image.convert("RGB")
     prompt = "dog sitting on the beach, sunny day, blue sky"
     output_image = background_replace_portrait_stablediffusion(image, prompt, 50)
-    output_image.save("outputs/eval/jessi_background_replacement.png")
+    output_image.save("outputs/eval/jessi_background_replacement_sdxl.png")
 
 def background_replace_sd_gradio(input_image, prompt, steps):
     steps = int(steps)

@@ -36,17 +36,6 @@ def outpaint_stablediffusion(input_image: Image, prompt: str, coordinates: list,
     resized_output_image = output_image.resize((new_width, new_height))
     return resized_output_image
 
-
-if __name__ == "__main__":
-
-    image = Image.open(f"test_dataset/jessi.png")
-    prompt = "dog in a park with colorful flowers and a black cat sitting on the grass"
-    extend_left, extend_right, extend_up, extend_down = 100, 200, 0, 0
-    coordinates = [extend_left, extend_right, extend_up, extend_down]
-    output_image = outpaint_stablediffusion(image, prompt, coordinates, 30)
-    output_image.save("outputs/outpainting/jassi_outpainting_sd.png")
-
-
 def outpaint_sd_gradio(input_image, prompt, e_l, e_r, e_u, e_d, steps):
     
     print(prompt)
@@ -56,3 +45,12 @@ def outpaint_sd_gradio(input_image, prompt, e_l, e_r, e_u, e_d, steps):
     output_image.save("outputs/gradio/outpainting/outpainting_sd_output_gradio.png")
 
     return output_image
+
+if __name__ == "__main__":
+
+    image = Image.open(f"test_dataset/jessi.png")
+    prompt = "dog in a park with colorful flowers and a black cat sitting on the grass"
+    extend_left, extend_right, extend_up, extend_down = 100, 200, 0, 0
+    coordinates = [extend_left, extend_right, extend_up, extend_down]
+    output_image = outpaint_stablediffusion(image, prompt, coordinates, 30)
+    output_image.save("outputs/outpainting/jassi_outpainting_sd.png")

@@ -56,4 +56,3 @@ def outpaint_sd_gradio(input_image, prompt, e_l, e_r, e_u, e_d, steps):
     output_image.save("outputs/gradio/outpainting/outpainting_sd_output_gradio.png")
 
     return output_image
-

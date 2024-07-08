@@ -27,7 +27,7 @@ def background_replace_mask_stablediffusion(input_image: Image, mask_image: Imag
                         image=resized_input_image, 
                         mask_image=resized_reversed_mask_array,  
                         guidance_scale=7.5,
-                        num_inference_steps=20,#steps,
+                        num_inference_steps=steps,
                         strength=0.99,
                         generator=generator).images[0]
     resized_output_image = output_image.resize((size[1], size[0]))
@@ -35,7 +35,7 @@ def background_replace_mask_stablediffusion(input_image: Image, mask_image: Imag
 
 
 # method extracting foreground (RMBG-1.4) and outpainting the background (stable-diffusion-2-inpaint)
-def background_replace_portrait_stablediffusion(input_image: Image, prompt:str, steps=50) -> Image:
+def background_replace_portrait_stablediffusion(input_image: Image, prompt:str, steps) -> Image:
     forground_image = extract_foreground_image(input_image)
     foreground_mask = extract_foreground_mask(forground_image)
     output_image = background_replace_mask_stablediffusion(input_image, foreground_mask, prompt, steps)
@@ -46,11 +46,11 @@ if __name__ == "__main__":
     
     image = Image.open(f"test_dataset/jessi.png")
     image = image.convert("RGB")
-    prompt = "dog sitting on the beach, sunny day, blue sky"
+    prompt = "dog sitting on the middle of a busy city street in tokyo, sunny day, blue sky"
     output_image = background_replace_portrait_stablediffusion(image, prompt, 50)
     output_image.save("outputs/eval/jessi_background_replacement_sdxl.png")
 
-def background_replace_sd_gradio(input_image, prompt, steps):
+def background_replace_sdxl_gradio(input_image, prompt, steps):
     steps = int(steps)
     input_image = input_image.convert("RGB")
 

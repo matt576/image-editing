@@ -95,7 +95,7 @@ pip install --no-build-isolation -e ../Grounded-Segment-Anything/GroundingDINO #
 ```
 In case you encounter path issues when running GroundedSAM-related functions, copy the GroundingDINO folder (found inside GroundedSAM submodule) into the code folder as an immediate temporary solution.
 
-7. Install Gradio:
+7. Install Gradio: <br />
 Recommended version: 4.32.1
 ```bash
 pip install gradio
@@ -155,8 +155,11 @@ List of the available notebooks:
 
 # 3. Gradio App - UI
 In order to use all the capabilities of our tool in an user-friendly way, we developed an app in a form of webserver UI using the gradio library. <br />
+
 This allows any user to upload their own images or artificially generate them via txt2img prompting, apply the aforementioned functionalities with different input parameters, visualize and download the results. <br />
+
 Our program supports usage of more than just one model for a each function. The used model can be selected on the dropdown menus within each tab before generating the output image. <br />
+
 In this section, we introduce the guide and steps of how to use the gradio app.
 
 0. (Optional) Before launching the app, open the file

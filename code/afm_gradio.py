@@ -31,7 +31,7 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
         return inpaint_sdxl_gradio(input_image, mask_image, text_input_x)
 
     if task_selector == "Kandinsky v2.2 Inpainting":
-        from inpaint_kandinsky import inpaint_kandisnky_gradio
+        from inpaint_kandinsky import inpaint_kandinsky_gradio
         return inpaint_kandinsky_gradio(input_image, mask_image, text_input_x)
 
     if task_selector == "GroundedSAM Inpainting":

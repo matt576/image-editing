@@ -103,4 +103,4 @@ if __name__ == '__main__':
     main()
 
 
-# python eraser_lama.py model.path=$(pwd)/../lama/big-lama indir=$(pwd)/inputs/lama outdir=$(pwd)/outputs/lama
+# python eraser_lama.py model.path=$(pwd)/models/big-lama indir=$(pwd)/inputs/untracked/eraser-lama outdir=$(pwd)/outputs/untracked/eraser-lama

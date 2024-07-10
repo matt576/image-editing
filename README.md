@@ -96,18 +96,26 @@ pip install --no-build-isolation -e ../Grounded-Segment-Anything/GroundingDINO #
 ```
 In case you encounter path issues when running GroundedSAM-related functions, copy the GroundingDINO folder (found inside GroundedSAM submodule) into the code folder as an immediate temporary solution.
 
-7. Install Gradio: <br />
-Recommended version: 4.32.1
+7. LaMa setup:
 ```bash
-pip install gradio
+pip install easydict
+pip install scikit-learn
+pip install kornia
+pip install hydra-core==1.1.0
+pip install albumentations==0.5.2
+pip install webdataset
 ```
 
-8. LAMA setup:
+8. Install Gradio: <br />
+
 ```bash
-pip install xxxx
+pip install gradio
+# Recommended version: 4.32.1
 ```
-*LIST NEXT REQUIREMENTS* LAMA
+
+*LIST NEXT REQUIREMENTS* LAMA check
 *MODELS TO DOWNLOAD*
+*DOUBLE CHECK all is here then delete this
 
 # 2. Download the necessary model checkpoints for functions unavailable on huggingface diffusers/tranformers
 Latent diffusion:

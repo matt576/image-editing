@@ -295,7 +295,7 @@ def groundedsam_mask_gradio(input_image, text_input):
         predictor = SamPredictor(sam_hq_model_registry[sam_version](checkpoint=sam_hq_checkpoint).to(device))
     else:
         predictor = SamPredictor(sam_model_registry[sam_version](checkpoint=sam_checkpoint).to(device))
-    image_path_temp = "outputs/grounded_sam/gradio/temp_image.png"
+    image_path_temp = "outputs/gradio/gsam_temp_image.png"
     input_image.save(image_path_temp)
     image = cv2.imread(image_path_temp)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)    

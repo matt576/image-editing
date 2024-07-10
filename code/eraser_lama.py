@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import traceback
+from PIL import Image
 
 # adapt the repository paths
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -92,12 +93,63 @@ def main(predict_config: OmegaConf):
             cur_res = cv2.cvtColor(cur_res, cv2.COLOR_RGB2BGR)
             cv2.imwrite(cur_out_fname, cur_res)
 
+
+            # for filename in os.listdir(indir):
+            #     file_path = os.path.join(indir, filename)
+            #     if os.path.isfile(file_path):
+            #         os.remove(file_path)
+
+            
+
     except KeyboardInterrupt:
         LOGGER.warning('Interrupted by user')
     except Exception as ex:
         LOGGER.critical(f'Prediction failed due to {ex}:\n{traceback.format_exc()}')
         sys.exit(1)
 
+    pil_image = Image.fromarray(cur_res)
+            
+    # o_dir = "outputs/gradio"
+    # o_file = "ldm_removal_pipe.png"
+    # pil_image.save(f"{o_dir}/{o_file}")
+    # pil_image.save("/usr/prakt/s0073/image-editing/outputs/gradio/eraser_lama_output.png")
+
+def eraser_lama_gradio(input_image, mask_image):
+    # Please update your respective paths
+    model_path = "/usr/prakt/s0073/image-editing/code/models/big-lama/"
+    print(model_path)
+
+    indir = "/usr/prakt/s0073/image-editing/code/inputs/untracked/eraser-lama" 
+    if not os.path.exists(indir):
+        os.makedirs(indir)
+
+    outdir = "/usr/prakt/s0073/image-editing/code/outputs/untracked/eraser-lama"
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+
+    input_image = input_image.convert("RGB")
+    filename_image = "lama_gradio.png"
+    input_image.save(f"{indir}/{filename_image}")
+
+    mask_image = mask_image.convert("L")
+    filename_mask = "lama_gradio_mask001.png"
+    mask_image.save(f"{indir}/{filename_mask}")
+
+    command = "python eraser_lama.py model.path={} indir={} outdir={}".format(model_path, indir, outdir)
+    os.system(command)
+
+    # pil_image = Image.fromarray(cur_res)
+
+    # pil_image.save("outputs/gradio/eraser_lama_output.png")
+
+
+    # for filename in os.listdir(indir):
+    #     file_path = os.path.join(indir, filename)
+    #     if os.path.isfile(file_path):
+    #         os.remove(file_path)
+
+def eraser_lama_gradio_pipe(input_image, coord_input_text):
+    pass
 
 if __name__ == '__main__':
     main()

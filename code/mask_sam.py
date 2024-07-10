@@ -2,6 +2,7 @@ import torch
 from PIL import Image
 from transformers import SamModel, SamProcessor
 import numpy as np
+from operations_image import expand_white_areas_outpainting
 
 
 def get_mask(input_image, input_points):
@@ -23,7 +24,10 @@ def get_mask(input_image, input_points):
     return best_mask
 
 
-def sam_gradio(input_image, coord_input_text):
+def sam_gradio(input_image, coord_input_text, dilation_bool, dilation_value):
+    print(dilation_bool)
+    dilation_value = int(dilation_value)
+    print(dilation_value)
     output_dir = "outputs/sam"
     filename = "mask_gradio.png"
 
@@ -44,8 +48,13 @@ def sam_gradio(input_image, coord_input_text):
     output = get_mask(input_image, input_points)
     image_array = np.where(output, 255, 0).astype(np.uint8)
     pil_image = Image.fromarray(image_array)
-    pil_image.save(f"{output_dir}/{filename}") 
-    return pil_image
+    pil_image.save(f"{output_dir}/{filename}")
+
+    if dilation_bool == "Yes":
+        dilation = dilation_value
+        return expand_white_areas_outpainting(pil_image, dilation)
+    else:
+        return pil_image
 
 
 if __name__ == "__main__":

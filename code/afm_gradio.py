@@ -152,7 +152,7 @@ if __name__ == "__main__":
         Finally, click on 'Generate' and enjoy the App!
         """)
 
-        original_image_path = "inputs/outpainting/oscar2.png" # Select input image path here
+        original_image_path = "inputs/superresolution/city.png" # Select input image path here
         # original_image_path = "outputs/txt2img/generated_input.png" # for txt2img generated input image
         input_mask_path = "outputs/sam/mask_gradio.png" # Optional, make sure it matches the input image
         original_image = Image.open(original_image_path)
@@ -285,7 +285,7 @@ if __name__ == "__main__":
                     steps_inpaint = gr.Slider(minimum=5, maximum=200, label="Number of inference steps: ", value=150, step=1)                   
 
                 with gr.Tab("Pipeline - Object Removal"):
-                    tab_task_selector_7 = gr.Dropdown(["LDM Removal Pipeline"], label="Select Model")
+                    tab_task_selector_7 = gr.Dropdown(["LDM Removal Pipeline", " "], label="Select Model")
                     gr.Markdown("""
                                 ### Instructions
                                 - **LDM Removal Pipeline**:  

@@ -130,6 +130,9 @@ def update_task_selector(task_selector, task):
 def reload_image_with_output(output_image):
     return output_image
 
+def reload_mask(output_image):
+    return output_image
+
 title = "# AFM Image-Editing App"
 
 if __name__ == "__main__":
@@ -174,6 +177,8 @@ if __name__ == "__main__":
                 with gr.Accordion("Mask Input Tasks (Optional)", open=False):
                     # Optional: just comment line out if not needed
                     mask_image = gr.Image(label="Input Mask (Optional)", sources='upload', type="pil", value=input_mask_path)
+
+                    reload_mask_button = gr.Button("Reload Input Mask with Mask Generation Preview Output")
 
                     with gr.Tab("Inpainting - Object Replacement"):
                         tab_task_selector_2 = gr.Dropdown(["Stable Diffusion with ControlNet Inpainting", 
@@ -394,6 +399,12 @@ if __name__ == "__main__":
             fn=reload_image_with_output,
             inputs=[output_image],
             outputs=[input_image]
+        )
+
+        reload_mask_button.click(
+            fn=reload_mask,
+            inputs=[output_image],
+            outputs=[mask_image]
         )
 
         tab_task_selector_1.change(fn=update_task_selector, inputs=[task_selector, tab_task_selector_1], outputs=[task_selector])

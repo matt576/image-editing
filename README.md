@@ -231,7 +231,7 @@ Additionally this helps us evaluate the results and compare them to the state-of
 - Latent diffusion pipeline: CompVis/ldm-super-resolution-4x-openimages
 - Upscaler pipeline: stabilityai/stable-diffusion-x4-upscaler
 
-## 9. Txt2Imt Image Generation
+## 9. Txt2Img Image Generation
 - Stable-diffusion-v-1.5: runwayml/stable-diffusion-v1-5
 - Kandinsky-2.2: kandinsky-community/kandinsky-2-2-decoder
 - Stable diffusion XL: stabilityai/stable-diffusion-xl-base-1.0

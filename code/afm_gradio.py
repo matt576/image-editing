@@ -127,6 +127,9 @@ def reload_image(original_image_path):
 def update_task_selector(task_selector, task):
     return task
 
+def reload_image_with_output(output_image):
+    return output_image
+
 title = "# AFM Image-Editing App"
 
 if __name__ == "__main__":
@@ -202,6 +205,7 @@ if __name__ == "__main__":
                 coord_input = gr.Textbox(label="Pixel Coordinates (x,y), Format x1,y1; x2,y2 ...", value="")
                 reset_button = gr.Button("Reset coordinates")
                 reload_image_button = gr.Button("Reload Original Image")
+                reload_output_button = gr.Button("Reload Input Image with Output")
                 task_selector = gr.State(value="")
 
                 with gr.Tab("Mask Generation Preview"):
@@ -383,6 +387,12 @@ if __name__ == "__main__":
         reload_image_button.click(
             fn=reload_image,
             inputs=[gr.State(original_image_path)],
+            outputs=[input_image]
+        )
+
+        reload_output_button.click(
+            fn=reload_image_with_output,
+            inputs=[output_image],
             outputs=[input_image]
         )
 

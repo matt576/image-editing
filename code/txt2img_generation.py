@@ -54,7 +54,7 @@ def txt2img_gradio(input_image, task_selector, prompt, negative_prompt, gs, step
     else:
         print("Please pick a valid model: SD, SDXL, Kandinsky")
 
-    image.save("outputs/txt2img/generated_input.png", format="PNG", optimize=True, compress_level=6)
+    image.save("outputs/gradio/generated_txt2img.png", format="PNG", optimize=True, compress_level=6)
     return image
 
 if __name__ == "__main__":

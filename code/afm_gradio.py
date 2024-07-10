@@ -137,12 +137,12 @@ if __name__ == "__main__":
         gr.Markdown(
         """
         Welcome to the AFM Image-Editing App!
-        First select the desired task on the Dropdown menu below.
+        First, select the desired model on the Dropdown menu.
         Then, input the necessary prompts.
         Finally, click on 'Generate' and enjoy the App!
         """)
 
-        original_image_path = "inputs/test_dataset_matt_images/jessi.png" # Select input image path here
+        original_image_path = "inputs/outpainting/oscar2.png" # Select input image path here
         # original_image_path = "outputs/txt2img/generated_input.png" # for txt2img generated input image
         input_mask_path = "inputs/gradio_masks/jessi_mask.png" # Optional, make sure it matches the input image
         original_image = Image.open(original_image_path)

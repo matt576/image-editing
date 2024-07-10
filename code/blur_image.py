@@ -130,8 +130,8 @@ def portrait_gradio(input_image, blur, sharpen):
 
     blurred_image = blur_image(input_image, blur, sharpen)
 
-    outdir = "outputs/gradio/portrait"
-    filename = "portrait_output_gradio.png"
+    outdir = "outputs/gradio"
+    filename = "blur_output_gradio.png"
     blurred_image.save(f"{outdir}/{filename}")
 
     return blurred_image

@@ -51,7 +51,7 @@ def outpaint_sdxl_gradio(input_image, prompt, e_l, e_r, e_u, e_d, steps):
     print(prompt)
     coordinates = [e_l, e_r, e_u, e_d]
     output_image = outpaint_stablediffusionxl(input_image, prompt, coordinates, steps)
-    output_image.save("outputs/gradio/outpainting/outpainting_sdxl_output_gradio.png")
+    output_image.save("outputs/gradio/outpainting_sdxl_output_gradio.png")
     return output_image
 
 

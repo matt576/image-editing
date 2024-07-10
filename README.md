@@ -109,10 +109,23 @@ pip install xxxx
 *LIST NEXT REQUIREMENTS* LAMA
 *MODELS TO DOWNLOAD*
 
+
+9. Jupyter notebooks:
+```bash
+pip install ipykernel
+```
+
+
 # 2. Download the necessary model checkpoints for functions unavailable on huggingface diffusers/tranformers
 Latent diffusion:
 ```bash
 wget -O models/ldm_inpainting/last.ckpt https://heibox.uni-heidelberg.de/f/4d9ac7ea40c64582b7c9/?dl=1
+```
+LaMa:
+```bash
+curl -LJO https://huggingface.co/smartywu/big-lama/resolve/main/big-lama.zip
+unzip big-lama.zip -d ~/image-editing/code/models/
+rm big-lama.zip
 ```
 GroundedSAM (SAM + GroundingDINO):
 ```bash
@@ -231,7 +244,7 @@ Additionally this helps us evaluate the results and compare them to the state-of
 - Latent diffusion pipeline: CompVis/ldm-super-resolution-4x-openimages
 - Upscaler pipeline: stabilityai/stable-diffusion-x4-upscaler
 
-## 9. Txt2Imt Image Generation
+## 9. Txt2Img Image Generation
 - Stable-diffusion-v-1.5: runwayml/stable-diffusion-v1-5
 - Kandinsky-2.2: kandinsky-community/kandinsky-2-2-decoder
 - Stable diffusion XL: stabilityai/stable-diffusion-xl-base-1.0

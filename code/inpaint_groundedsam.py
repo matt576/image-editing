@@ -189,7 +189,7 @@ def groundedsam_inpaint_gradio(input_image, text_input, inpaint_input):
     inpainted_image = pipe(prompt=inpaint_input, image=input_image_resized, mask_image=mask_pil).images[0]
     inpainted_image = inpainted_image.resize(size)
 
-    output_dir = "outputs/grounded_sam/gradio"
+    output_dir = "outputs/gradio"
     filename = "groundedsam_inpaint.png"
     inpainted_image.save(f"{output_dir}/{filename}")
 

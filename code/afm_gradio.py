@@ -16,7 +16,7 @@ def run_afm_app(task_selector, input_image, mask_image, text_input, text_input_x
 
     if task_selector == "GroundedSAM":
         from mask_groundedsam import groundedsam_mask_gradio
-        return groundedsam_mask_gradio(input_image, text_input)
+        return groundedsam_mask_gradio(input_image, text_input, dilation_bool, dilation_value)
 
     if task_selector == "Stable Diffusion with ControlNet Inpainting":
         from inpaint_sd_controlnet import controlnet_inpaint_gradio
@@ -152,7 +152,7 @@ if __name__ == "__main__":
         Finally, choose the model on the Dropdown within each tab and click on 'Generate'! Enjoy the App!
         """)
 
-        original_image_path = "inputs/outpainting/scott.png" # Select input image path here
+        original_image_path = "inputs/inpainting/castle.png" # Select input image path here
         # original_image_path = "outputs/txt2img/generated_input.png" # for txt2img generated input image
         input_mask_path = "outputs/sam/mask_gradio.png" # Optional, make sure it matches the input image
         original_image = Image.open(original_image_path)
@@ -227,7 +227,7 @@ if __name__ == "__main__":
                                     Please note, due to compability issues with the LaMa model and our gradio app, the output visualiztion will not
                                     work in the app, but your output will be saved to: code/outputs/untracked/eraser-lama.
                                     """)
-                        ddim_steps = gr.Slider(minimum=5, maximum=200, label="Number of DDIM sampling steps for object removal LDM", value=150, step=1)
+                        ddim_steps = gr.Slider(minimum=5, maximum=300, label="Number of DDIM sampling steps for object removal LDM", value=150, step=1)
 
             with gr.Column():
 
@@ -237,14 +237,14 @@ if __name__ == "__main__":
                     gr.Markdown("""
                                 ### Instructions
                                 - **SAM**:  
-                                Required inputs: Input Image, Pixel Coordinates  
+                                Required inputs: Input Image, Pixel Coordinates, (Optional) Dilation  
                                 Type image coordinates manually or click on the image directly. Finally, simply click on the 'Generate' button.
                                 """)
                     dilation_bool = gr.Dropdown(["Yes", "No"], label="Use dilation (recommended for inapinting)")
                     dilation_value = gr.Slider(minimum=0, maximum=30, label="Dilation value (recommended: 10) ", value=10, step = 1)
                     gr.Markdown("""
                                 - **GroundedSAM (GroundingDINO + SAM)**:  
-                                Required Inputs: Text Prompt - Object to be masked  
+                                Required Inputs: Text Prompt [object(s) to be detected], (Optional) Dilation  
                                 Input in the text box below the object(s) in the input image for which the masks are to be generated.
                                 """)
                     text_input = gr.Textbox(label="Text Prompt: ")
@@ -312,7 +312,7 @@ if __name__ == "__main__":
                                 For a more detailed mask of a specific object or part of it, select multiple points.  
                                 Finally, choose number of DDIM steps simply click on the 'Generate' button:
                                 """)
-                    ddim_steps_pipe = gr.Slider(minimum=5, maximum=200, label="Number of DDIM sampling steps for object removal", value=150, step=1)
+                    ddim_steps_pipe = gr.Slider(minimum=5, maximum=300, label="Number of DDIM sampling steps for object removal", value=150, step=1)
 
                 with gr.Tab("Portrait Mode"):
                     tab_task_selector_8 = gr.Dropdown(["Portrait Mode - Depth Anything"], label='Select Model')

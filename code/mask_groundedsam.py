@@ -6,7 +6,7 @@ import numpy as np
 import json
 import torch
 from PIL import Image
-
+from operations_image import expand_white_areas_outpainting
 
 # adapth the repository path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -267,7 +267,8 @@ def load_image_gradio(input_image):
     image, _ = transform(image_pil, None)  # 3, h, w
     return image_pil, image
 
-def groundedsam_mask_gradio(input_image, text_input):
+def groundedsam_mask_gradio(input_image, text_input, dilation_bool, dilation_value):
+    dilation_value = int(dilation_value)
     config_file = "GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"  # change the path of the model config file
     grounded_checkpoint = "models/groundingdino_swint_ogc.pth" # change the path of the model
     sam_version = "vit_h"
@@ -323,8 +324,15 @@ def groundedsam_mask_gradio(input_image, text_input):
     pil_mask = Image.fromarray((mask * 255).astype('uint8'), mode='L')     # Return the segmentation mask as a PIL image
 
     pil_mask_resized = pil_mask.resize((original_width, original_height))
-    
-    output_dir = "outputs/grounded_sam/gradio"
+
+    output_dir = "outputs/gradio"
     filename = "groundedsam_mask_resized.png"
+    
+
+    if dilation_bool == "Yes":
+        pil_mask_resized = expand_white_areas_outpainting(pil_mask_resized, dilation_value)
+         
     pil_mask_resized.save(f"{output_dir}/{filename}")
-    return pil_mask
+    return pil_mask_resized
+
+    

@@ -25,9 +25,7 @@ def get_mask(input_image, input_points):
 
 
 def sam_gradio(input_image, coord_input_text, dilation_bool, dilation_value):
-    print(dilation_bool)
     dilation_value = int(dilation_value)
-    print(dilation_value)
     output_dir = "outputs/sam"
     filename = "mask_gradio.png"
 
@@ -51,10 +49,10 @@ def sam_gradio(input_image, coord_input_text, dilation_bool, dilation_value):
     pil_image.save(f"{output_dir}/{filename}")
 
     if dilation_bool == "Yes":
-        dilation = dilation_value
-        return expand_white_areas_outpainting(pil_image, dilation)
-    else:
-        return pil_image
+        pil_image = expand_white_areas_outpainting(pil_image, dilation_value)
+
+    pil_image.save(f"{output_dir}/{filename}")
+    return pil_image
 
 
 if __name__ == "__main__":

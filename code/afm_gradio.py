@@ -147,12 +147,12 @@ if __name__ == "__main__":
         gr.Markdown(
         """
         Welcome to the AFM Image-Editing App!
-        First, select upload an input image or generate it via Txt2Img below.
+        First, upload an input image or generate it via Txt2Img below.
         Then, choose the desired task by navigating the tabs.
         Finally, choose the model on the Dropdown within each tab and click on 'Generate'! Enjoy the App!
         """)
 
-        original_image_path = "inputs/inpainting/castle.png" # Select input image path here
+        original_image_path = "inputs/outpainting/scott.png" # Select input image path here
         # original_image_path = "outputs/txt2img/generated_input.png" # for txt2img generated input image
         input_mask_path = "outputs/sam/mask_gradio.png" # Optional, make sure it matches the input image
         original_image = Image.open(original_image_path)
@@ -227,7 +227,7 @@ if __name__ == "__main__":
                                     Please note, due to compability issues with the LaMa model and our gradio app, the output visualiztion will not
                                     work in the app, but your output will be saved to: code/outputs/untracked/eraser-lama.
                                     """)
-                        ddim_steps = gr.Slider(minimum=5, maximum=300, label="Number of DDIM sampling steps for object removal LDM", value=150, step=1)
+                        ddim_steps = gr.Slider(minimum=5, maximum=250, label="Number of DDIM sampling steps for object removal LDM", value=150, step=1)
 
             with gr.Column():
 
@@ -241,7 +241,7 @@ if __name__ == "__main__":
                                 Type image coordinates manually or click on the image directly. Finally, simply click on the 'Generate' button.
                                 """)
                     dilation_bool = gr.Dropdown(["Yes", "No"], label="Use dilation (recommended for inapinting)")
-                    dilation_value = gr.Slider(minimum=0, maximum=30, label="Dilation value (recommended: 10) ", value=10, step = 1)
+                    dilation_value = gr.Slider(minimum=0, maximum=50, label="Dilation value (recommended: 10) ", value=10, step = 1)
                     gr.Markdown("""
                                 - **GroundedSAM (GroundingDINO + SAM)**:  
                                 Required Inputs: Text Prompt [object(s) to be detected], (Optional) Dilation  
@@ -312,7 +312,7 @@ if __name__ == "__main__":
                                 For a more detailed mask of a specific object or part of it, select multiple points.  
                                 Finally, choose number of DDIM steps simply click on the 'Generate' button:
                                 """)
-                    ddim_steps_pipe = gr.Slider(minimum=5, maximum=300, label="Number of DDIM sampling steps for object removal", value=150, step=1)
+                    ddim_steps_pipe = gr.Slider(minimum=5, maximum=250, label="Number of DDIM sampling steps for object removal", value=150, step=1)
 
                 with gr.Tab("Portrait Mode"):
                     tab_task_selector_8 = gr.Dropdown(["Portrait Mode - Depth Anything"], label='Select Model')

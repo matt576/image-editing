@@ -7,8 +7,9 @@ from PIL import Image
 from operations_image import expand_white_areas
 
 
-def inpaint_sdxl_gradio(input_image, mask_image, text_input):
-    output_dir = "outputs/gradio/inpainting"
+def inpaint_sdxl_gradio(input_image, mask_image, text_input, steps):
+    steps=int(steps)
+    output_dir = "outputs/gradio"
     filename = "inpainted_sdxl_gradio.png"
     prompt = text_input
     input_image = input_image.convert("RGB")
@@ -27,7 +28,7 @@ def inpaint_sdxl_gradio(input_image, mask_image, text_input):
 
     # mask_image = pipeline.mask_processor.blur(mask_image, blur_factor=33) #Optional
     print(prompt)
-    image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, generator=generator).images[0]
+    image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, generator=generator, num_inference_steps=steps).images[0]
     
     image_resized = image.resize((original_width, original_height))
     image_resized.save(f"{output_dir}/{filename}")

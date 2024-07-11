@@ -8,8 +8,9 @@ Using the inpainting specific finetuded stable diffusion v1.5 model from
 https://github.com/runwayml/stable-diffusion?tab=readme-ov-file
 """
 
-def inpaint_sd_gradio(input_image, mask_image, text_input):
-    output_dir = "outputs/gradio/inpainting"
+def inpaint_sd_gradio(input_image, mask_image, text_input, steps):
+    steps=int(steps)
+    output_dir = "outputs/gradio"
     filename = "inpainted_sd_gradio.png"
     prompt = text_input
     input_image = input_image.convert("RGB")
@@ -26,7 +27,7 @@ def inpaint_sd_gradio(input_image, mask_image, text_input):
     )
     pipeline.enable_model_cpu_offload()
     print(prompt)
-    image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image).images[0]
+    image = pipeline(prompt=prompt, image=input_image, mask_image=mask_image, num_inference_steps=steps).images[0]
     
     image_resized = image.resize((original_width, original_height))
     image_resized.save(f"{output_dir}/{filename}")

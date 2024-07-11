@@ -30,7 +30,7 @@ def inputation(input_image, mask_image, text_prompt, pipe):
     np = "poor quality, ugly, blurry, deformed"
     output = pipe(
         prompt=text_prompt,
-        num_inference_steps=200,
+        num_inference_steps=100,
         eta=1.0,
         image=input_image,
         mask_image=mask_image,

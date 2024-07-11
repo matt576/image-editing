@@ -163,13 +163,16 @@ List of the available notebooks:
 ```
 
 # 5. Gradio App - UI
+
+In this section, we introduce the guide and steps of how to use the gradio app.
+
 In order to use all the capabilities of our tool in an user-friendly way, we developed an app in a form of webserver UI using the gradio library. <br />
 
 This allows any user to upload their own images or artificially generate them via txt2img prompting, apply the aforementioned functionalities with different input parameters, visualize and download the results. <br />
 
 Our program supports usage of more than just one model for a each function. The used model can be selected on the dropdown menus within each tab before generating the output image. <br />
 
-In this section, we introduce the guide and steps of how to use the gradio app.
+![alt text](code/inputs/image.png)
 
 0. (Optional) Before launching the app, open the file
 ```bash
@@ -184,14 +187,14 @@ This is an optional step, since you can also upload an input image (e.g. via dra
 cd code
 python afm_gradio.py
 ```
-After that, a public- and a local link for the accessing the UI will be generated. If you're using GPUs via remote access (SSH/Tunnel), we recommend using the public link.
+After that, a public- and a local links for the accessing the UI will be generated. If you're using GPUs via remote access (SSH/Tunnel), we recommend using the public link.
 
 2. Confirm your input image or open the accordion 'Txt2Img' if you'd like to generate your own input, and follow the instructions in the app.
 3. Select your image editing task by clicking on a tab.
 4. Within a tab, select the model on the dropdown menu and give the required inpit prompts by folllowing the instructions in the app.
 5. Click 'Generate' and enjoy the app!
 
-*Write some more sentences and steps, include screenshots / lists of methods etc*
+(Optional): For inpainting / eraser, you have the option of directly inputting the image coordinates (clicking on image or writing coordinates) into the task (pipeline tabs), or if you prefer, first generate a mask preview and load the output mask as input for the optional mask input tasks on the left hand side.
 
 # 6. Functions and used models
 To allow users more flexibility, we included several models for each functionality. <br />

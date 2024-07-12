@@ -117,10 +117,23 @@ pip install gradio
 *MODELS TO DOWNLOAD*
 *DOUBLE CHECK all is here then delete this
 
+
+9. Jupyter notebooks:
+```bash
+pip install ipykernel
+```
+
+
 # 2. Download the necessary model checkpoints for functions unavailable on huggingface diffusers/tranformers
 Latent diffusion:
 ```bash
 wget -O models/ldm_inpainting/last.ckpt https://heibox.uni-heidelberg.de/f/4d9ac7ea40c64582b7c9/?dl=1
+```
+LaMa:
+```bash
+curl -LJO https://huggingface.co/smartywu/big-lama/resolve/main/big-lama.zip
+unzip big-lama.zip -d ~/image-editing/code/models/
+rm big-lama.zip
 ```
 GroundedSAM (SAM + GroundingDINO):
 ```bash

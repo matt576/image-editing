@@ -35,7 +35,7 @@ def inpaint_sd_gradio(input_image, mask_image, text_input, steps):
 
 if __name__ == "__main__":
 
-    output_dir = "outputs/inpainting_results"
+    output_dir = "outputs"
     filename = "jessi_inpainted_sd.png"
     filename_resized = "jessi_inpainted_sd_resized.png"
     prompt = "batman the dark knight from christopher nolan movie, photorealistic, detailed, high quality"

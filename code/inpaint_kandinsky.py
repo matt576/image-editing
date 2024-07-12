@@ -33,7 +33,7 @@ def inpaint_kandinsky_gradio(input_image, mask_image, text_input, steps):
 
 if __name__ == "__main__":
 
-    output_dir = "outputs/inpainting_results"
+    output_dir = "outputs"
     filename = "jessi_inpainted_kandinsky_dilated.png"
     filename_resized = "jessi_inpainted_kandinsky_resized.png"
     prompt = "white tiger, photorealistic, detailed, high quality"

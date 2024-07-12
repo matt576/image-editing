@@ -152,7 +152,7 @@ if __name__ == "__main__":
         Finally, choose the model on the Dropdown within each tab and click on 'Generate'! Enjoy the App!
         """)
 
-        original_image_path = "inputs/outpainting/scott.png" # Select input image path here
+        original_image_path = "inputs/background-replacement/aston.png" # Select input image path here
         # original_image_path = "outputs/txt2img/generated_input.png" # for txt2img generated input image
         input_mask_path = "outputs/sam/mask_gradio.png" # Optional, make sure it matches the input image
         original_image = Image.open(original_image_path)

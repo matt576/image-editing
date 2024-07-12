@@ -79,7 +79,7 @@ def controlnet_inpaint_gradio(input_image, mask_image, text_input):
     return output
 
 if __name__ == "__main__":
-    output_dir = "outputs/controlnet"
+    output_dir = "outputs"
     filename = "jessi_inpainted_controlnet.png"
     text_prompt = "batman the dark knight from christopher nolan movie, facing towards viewer, photorealistic, detailed, high quality"
 

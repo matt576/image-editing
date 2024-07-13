@@ -320,7 +320,7 @@ if __name__ == "__main__":
                                 ### Instructions
                                 - **Portrait Mode - Depth Anything**:  
                                 Required inputs: Input Image, box blur, sharpen  
-                                Recommended blur values range: 15-25  
+                                Recommended blur values range: 2-25  
                                 Recommended sharpen values range: 0-5   
                                 Adjust the required inputs with the siders below:
                                 """)

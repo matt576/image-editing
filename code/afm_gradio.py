@@ -152,7 +152,7 @@ if __name__ == "__main__":
         Finally, choose the model on the Dropdown within each tab and click on 'Generate'! Enjoy the App!
         """)
 
-        original_image_path = "inputs/outpainting/scott.png" # Select input image path here
+        original_image_path = "inputs/superresolution/lenna.png" # Select input image path here
         # original_image_path = "outputs/txt2img/generated_input.png" # for txt2img generated input image
         input_mask_path = "outputs/sam/mask_gradio.png" # Optional, make sure it matches the input image
         original_image = Image.open(original_image_path)
@@ -320,7 +320,7 @@ if __name__ == "__main__":
                                 ### Instructions
                                 - **Portrait Mode - Depth Anything**:  
                                 Required inputs: Input Image, box blur, sharpen  
-                                Recommended blur values range: 15-25  
+                                Recommended blur values range: 5-25  
                                 Recommended sharpen values range: 0-5   
                                 Adjust the required inputs with the siders below:
                                 """)

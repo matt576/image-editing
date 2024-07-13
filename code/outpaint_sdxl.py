@@ -40,6 +40,7 @@ def outpaint_stablediffusionxl(input_image: Image, prompt: str, coordinates: lis
         guidance_scale=7.5,
         num_inference_steps=steps,
         strength=0.99,
+        negative_prompt="blurry, poor quality, poor details, deformed, extra limbs"
         # generator=generator
     ).images[0]
 

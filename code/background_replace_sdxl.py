@@ -29,6 +29,7 @@ def background_replace_mask_stablediffusion(input_image: Image, mask_image: Imag
                         guidance_scale=7.5,
                         num_inference_steps=steps,
                         strength=0.99,
+                        negative_prompt="blurry, poor quality, poor details, deformed, extra limbs",
                         generator=generator).images[0]
     resized_output_image = output_image.resize((size[1], size[0]))
     return resized_output_image

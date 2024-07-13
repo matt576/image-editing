@@ -113,11 +113,6 @@ pip install gradio
 # Recommended version: 4.32.1
 ```
 
-*LIST NEXT REQUIREMENTS* LAMA check
-*MODELS TO DOWNLOAD*
-*DOUBLE CHECK all is here then delete this
-
-
 9. Jupyter notebooks:
 ```bash
 pip install ipykernel
@@ -167,7 +162,7 @@ List of the available notebooks:
 /1-Mask-Generation.ipynb
 /2-Background-Blurring.ipynb
 /3-Background-Replacement.ipynb
-/4-Eraser.ipynb
+/4-Object-Removal.ipynb
 /5-Inpainting.ipynb
 /6-Outpainting.ipynb
 /7-Restyling.ipynb
@@ -207,7 +202,7 @@ After that, a public- and a local links for the accessing the UI will be generat
 4. Within a tab, select the model on the dropdown menu and give the required inpit prompts by folllowing the instructions in the app.
 5. Click 'Generate' and enjoy the app!
 
-(Optional): For inpainting / eraser, you have the option of directly inputting the image coordinates (clicking on image or writing coordinates) into the task (pipeline tabs), or if you prefer, first generate a mask preview and load the output mask as input for the optional mask input tasks on the left hand side.
+(Optional): For inpainting / object removal, you have the option of directly inputting the image coordinates (clicking on image or writing coordinates) into the task (pipeline tabs), or if you prefer, first generate a mask preview and load the output mask as input for the optional mask input tasks on the left hand side.
 
 # 6. Functions and used models
 To allow users more flexibility, we included several models for each functionality. <br />
@@ -229,7 +224,7 @@ Additionally this helps us evaluate the results and compare them to the state-of
     - stabilityai/stable-diffusion-2-inpainting
     - diffusers/stable-diffusion-xl-1.0-inpainting-0.1 
 
-## 4. Eraser
+## 4. Object-Removal
 - Latent Diffusion pipelime: ldm_inpainting/last
 
 - Lama pipeline: big-lama/best

@@ -314,7 +314,7 @@ if __name__ == "__main__":
                                 """)
                     ddim_steps_pipe = gr.Slider(minimum=5, maximum=250, label="Number of DDIM sampling steps for object removal", value=150, step=1)
 
-                with gr.Tab("Portrait Mode"):
+                with gr.Tab("Background Blurring"):
                     tab_task_selector_8 = gr.Dropdown(["Portrait Mode - Depth Anything"], label='Select Model')
                     gr.Markdown("""
                                 ### Instructions
@@ -325,7 +325,7 @@ if __name__ == "__main__":
                                 Adjust the required inputs with the siders below:
                                 """)
                     blur = gr.Slider(minimum=0, maximum=50, label="Box Blur value", value=15, step=1)
-                    sharpen = gr.Slider(minimum=0, maximum=20, label="Sharpen Parameter", value=0, step=1)
+                    sharpen = gr.Slider(minimum=0, maximum=7, label="Sharpen Parameter", value=0, step=1)
 
                 with gr.Tab("Outpainting"):
                     tab_task_selector_9 = gr.Dropdown(["Outpainting - Stable Diffusion", "Outpainting - Stable Diffusion XL"], label='Select Model')

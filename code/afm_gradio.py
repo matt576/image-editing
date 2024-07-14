@@ -240,7 +240,7 @@ if __name__ == "__main__":
                                 Required inputs: Input Image, Pixel Coordinates, (Optional) Dilation  
                                 Type image coordinates manually or click on the image directly. Finally, simply click on the 'Generate' button.
                                 """)
-                    dilation_bool = gr.Dropdown(["Yes", "No"], label="Use dilation (recommended for inapinting)")
+                    dilation_bool = gr.Dropdown(["Yes", "No"], label="Use dilation (recommended for inpainting)")
                     dilation_value = gr.Slider(minimum=0, maximum=50, label="Dilation value (recommended: 10) ", value=10, step = 1)
                     gr.Markdown("""
                                 - **GroundedSAM (GroundingDINO + SAM)**:  

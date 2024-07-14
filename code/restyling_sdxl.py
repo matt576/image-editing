@@ -41,7 +41,7 @@ def restyling_sdxl_gradio(input_image, text_prompt, strength, guidance_scale, ne
     "stabilityai/stable-diffusion-xl-refiner-1.0", torch_dtype=torch.float16, variant="fp16", use_safetensors=True
     )
     pipeline.enable_model_cpu_offload()
-
+    generator = torch.Generator(device="cuda").manual_seed(0) #  new
     strength = float(strength)
     guidance_scale = float(guidance_scale)
     steps = int(steps)
@@ -55,7 +55,13 @@ def restyling_sdxl_gradio(input_image, text_prompt, strength, guidance_scale, ne
     else:
         input_image = input_image.resize((512, 512))
     
-    images = pipeline(prompt=text_prompt, image=input_image, strength=strength, guidance_scale=guidance_scale, negative_prompt = negative_prompt, num_inference_steps=steps).images
+    images = pipeline(prompt=text_prompt, 
+                    image=input_image, 
+                    strength=strength, 
+                    guidance_scale=guidance_scale, 
+                    negative_prompt = negative_prompt, 
+                    # generator=generator,
+                    num_inference_steps=steps).images
 
     output_image = images[0].resize((original_width, original_height))
 

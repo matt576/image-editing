@@ -41,7 +41,7 @@ def outpaint_stablediffusion(input_image: Image, prompt: str, coordinates: list,
                         image=extended_image, 
                         mask_image=extended_mask, 
                         guidance_scale=7.5, 
-                        num_inference_steps=steps
+                        num_inference_steps=steps,
                         negative_prompt="blurry, poor quality, poor details, deformed, extra limbs").images[0]
     resized_output_image = output_image.resize((new_width, new_height))
     return resized_output_image

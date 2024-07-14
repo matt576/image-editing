@@ -35,7 +35,7 @@ if __name__ == "__main__":
     pipeline = LDMSuperResolutionPipeline.from_pretrained(model_id)
     pipeline = pipeline.to(device)
 
-    low_res_img = Image.open("test_dataset/jessi.png").convert("RGB")
+    low_res_img = Image.open("inputs/superresolution/lenna.png").convert("RGB")
     original_width, original_height = low_res_img.size
 
     if original_width > original_height:
@@ -52,8 +52,11 @@ if __name__ == "__main__":
     patches = divide_image(low_res_img, patch_size)
 
     num_inference_steps = 100
+    # counter = 0
     upscaled_patches = []
     for patch in patches:
+        # patch.save(f"patch{counter}.png")
+        # counter = counter + 1
         upscaled_patch = pipeline(image=patch, num_inference_steps=num_inference_steps, eta=1).images[0]
         upscaled_patches.append(upscaled_patch)
 

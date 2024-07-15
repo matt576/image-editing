@@ -77,15 +77,25 @@ def superres_gradio(input_image, steps):
     low_res_img = input_image.convert("RGB")
     original_width, original_height = low_res_img.size
 
-    if original_width > original_height:
-        low_res_img = low_res_img.resize((768, 512))
-        new_size = (768, 512)
-    elif original_width < original_height:
-        low_res_img = low_res_img.resize((512, 768))
-        new_size = (512, 768)
-    else:
-        low_res_img = low_res_img.resize((512, 512))
-        new_size = (512, 512)
+    closest_width = int(round(original_width / 128)) * 128 ###
+    closest_height = int(round(original_height / 128)) * 128 ###
+    low_res_img = low_res_img.resize((closest_width, closest_height))###
+    new_size = (closest_width, closest_height) ###
+
+    # if original_width < 350 or original_height < 350:
+    #     low_res_img = low_res_img.resize((256, 256))
+    #     new_size = (256, 256)
+    # else:
+    #     if original_width > original_height:
+    #         low_res_img = low_res_img.resize((768, 512))
+    #         new_size = (768, 512)
+    #     elif original_width < original_height:
+    #         low_res_img = low_res_img.resize((512, 768))
+    #         new_size = (512, 768)
+    #     else:
+    #         low_res_img = low_res_img.resize((512, 512))
+    #         new_size = (512, 512)
+
     
     patch_size = 128
     patches = divide_image(low_res_img, patch_size)

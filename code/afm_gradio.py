@@ -152,9 +152,9 @@ if __name__ == "__main__":
         Finally, choose the model on the Dropdown within each tab and click on 'Generate'! Enjoy the App!
         """)
 
-        original_image_path = "inputs/superresolution/lenna.png" # Select input image path here
+        original_image_path = "inputs/demo/milton.png" # Select input image path here
         # original_image_path = "outputs/txt2img/generated_input.png" # for txt2img generated input image
-        input_mask_path = "outputs/sam/mask_gradio.png" # Optional, make sure it matches the input image
+        input_mask_path = "inputs/gradio_masks/jessi_mask.png" # Optional, make sure it matches the input image
         original_image = Image.open(original_image_path)
 
         with gr.Row():
@@ -185,12 +185,13 @@ if __name__ == "__main__":
                                 Use this feature if you wish to generate your own input image.  
                                 After generation, simply uncomment the original_image_path line on the gradio script and relaunch the app!  
                                 Required Inputs: Text Prompt, str_res, gs_res, np_res, steps_res  
-                                Example prompt: "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."
+                                Example prompt: "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."  
+                                Example negative prompt: "poor details, poor quality, blurry, deformed, extra limbs"
                                 """)     
-                    prompt_txt2img = gr.Textbox(label="Text Prompt: ")
-                    np_txt2img = gr.Textbox(label="Negative Prompt", value="poor details, ugly, blurry")
-                    gs_txt2img = gr.Slider(minimum=0.0, maximum=50.0, label="Guidance Scale", value=3.5)
-                    steps_txt2img = gr.Slider(minimum=5, maximum=200, label="Number of inference steps", value=50, step=1)
+                    prompt_txt2img = gr.Textbox(label="Text Prompt: ", value="Photorealistic Gotham City night skyline, Batman standing on top of skyscraper, close shot, unreal engine, cinematic, rain pouring down, dark clouds with streaks of lightning")
+                    np_txt2img = gr.Textbox(label="Negative Prompt", value="poor details, poor quality, blurry, deformed, extra limbs")
+                    gs_txt2img = gr.Slider(minimum=0.0, maximum=50.0, label="Guidance Scale", value=7.5)
+                    steps_txt2img = gr.Slider(minimum=5, maximum=200, label="Number of inference steps", value=30, step=1)
 
                 with gr.Accordion("Mask Input Tasks (Optional)", open=False):
                     gr.Markdown("""
@@ -210,9 +211,9 @@ if __name__ == "__main__":
                                     All models in this section work with the given uploaded input mask.  
                                     Required Inputs: Input Mask (Upload) , Text Prompt - Object to replace masked area on given input mask below.  
                                     Input in the text box below the desired object to be inpainted in place of the mask input below.  
-                                    Example prompt: 'white tiger, photorealistic, detailed, high quality'.
+                                    Example prompt: "astronaut, white suit, 8k, extremely detailed, ornate, cinematic lighting, vivid, photorealistic, detailed, high quality"
                                     """)
-                        text_input_x = gr.Textbox(label="Text Prompt: ")
+                        text_input_x = gr.Textbox(label="Text Prompt: ", value="astronaut, white suit, 8k, extremely detailed, ornate, cinematic lighting, vivid, photorealistic, detailed, high quality")
                         steps_inp = gr.Slider(minimum=5, maximum=200, label="Number of inference steps: ", value=50, step=1) 
 
                     with gr.Tab("Object Removal"):
@@ -240,14 +241,14 @@ if __name__ == "__main__":
                                 Required inputs: Input Image, Pixel Coordinates, (Optional) Dilation  
                                 Type image coordinates manually or click on the image directly. Finally, simply click on the 'Generate' button.
                                 """)
-                    dilation_bool = gr.Dropdown(["Yes", "No"], label="Use dilation (recommended for inapinting)")
+                    dilation_bool = gr.Dropdown(["Yes", "No"], label="Use dilation (recommended for inpainting)")
                     dilation_value = gr.Slider(minimum=0, maximum=50, label="Dilation value (recommended: 10) ", value=10, step = 1)
                     gr.Markdown("""
                                 - **GroundedSAM (GroundingDINO + SAM)**:  
                                 Required Inputs: Text Prompt [object(s) to be detected], (Optional) Dilation  
                                 Input in the text box below the object(s) in the input image for which the masks are to be generated.
                                 """)
-                    text_input = gr.Textbox(label="Text Prompt: ")
+                    text_input = gr.Textbox(label="Text Prompt: ", value="dog")
 
                 with gr.Tab("Restyling"):
                     tab_task_selector_4 = gr.Dropdown(["Restyling - Stable Diffusion v1.5",
@@ -257,12 +258,12 @@ if __name__ == "__main__":
                                 ### Instructions
                                 Required Inputs: Input Image, Text Prompt, str_res, gs_res, np_res, steps_res   
                                 Example Text Prompt: "Photorealistic Gotham City night skyline, rain pouring down, dark clouds with streaks of lightning."  
-                                Example Negative Prompt: "poor details, ugly, blurry"
+                                Example Negative Prompt: "poor details, poor quality, blurry, deformed, extra limbs"
                                 """)     
-                    text_input_restyling = gr.Textbox(label="Text Prompt: ")
-                    str_res = gr.Slider(minimum=0.1, maximum=1.0, label="Strength: ", value=0.75)
-                    gs_res = gr.Slider(minimum=0.0, maximum=50.0, label="Guidance Scale: ", value=7.5)
-                    np_res = gr.Textbox(label="Negative Prompt: ")
+                    text_input_restyling = gr.Textbox(label="Text Prompt: ", value="Futuristic night city from Cyberpunk 2077, rainy night, close shot, 35 mm, realism, octane render, 8 k, exploration, cinematic, pixbay, modernist, realistic, unreal engine, hyper detailed, photorealistic, maximum detail, volumetric light, moody cinematic epic concept art, vivid")
+                    str_res = gr.Slider(minimum=0.1, maximum=1.0, label="Strength: ", value=0.75, step=0.01)
+                    gs_res = gr.Slider(minimum=0.0, maximum=50.0, label="Guidance Scale: ", value=7.5, step=0.1)
+                    np_res = gr.Textbox(label="Negative Prompt: ", value="poor details, poor quality, blurry, deformed, extra limbs")
                     steps_res = gr.Slider(minimum=5, maximum=150, label="Number of inference steps: ", value=30, step=1)
 
                 with gr.Tab("Superresolution"):
@@ -285,20 +286,20 @@ if __name__ == "__main__":
                                 - **GroundedSAM Inpainting (GroundingDINO + SAM + Stable Diffusion)**:  
                                 Required Inputs: Input Image, Detection Prompt , Inpainting Prompt  
                                 Input in the text box below the object(s) in the input image for which the masks are to be generated.  
-                                Example detection prompt: 'dog'.  
-                                Example inpaint prompt: 'white tiger, photorealistic, detailed, high quality'.
+                                Example detection prompt: "dog"  
+                                Example inpaint prompt: "white tiger, photorealistic, detailed, high quality"
                                 """)
-                    text_input_gsam = gr.Textbox(label="Detection Prompt: ")
-                    inpaint_input_gsam = gr.Textbox(label="Inpainting Prompt: ")
+                    text_input_gsam = gr.Textbox(label="Detection Prompt: ", value="dog")
+                    inpaint_input_gsam = gr.Textbox(label="Inpainting Prompt: ", value="astronaut, white suit, 8k, extremely detailed, ornate, cinematic lighting, vivid, photorealistic, detailed, high quality")
                     gr.Markdown("""
                                 - **Kandinsky v2.2 / Stable Diffusion v1.5 / SDXL / SD + ControlNet**:  
                                 Required Inputs: Input Image, Pixel Coodinates , Inpainting Prompt  
                                 Input in the text box below the object(s) in the input image for which the masks are to be generated.  
-                                Example Text Prompt: 'white tiger, photorealistic, detailed, high quality'.  
-                                Example Negative Prompt: 'poor details, ugly, blurry'.
+                                Example Text Prompt: "white tiger, photorealistic, detailed, high quality"  
+                                Example Negative Prompt: "poor details, poor quality, blurry, deformed, extra limbs"
                                 """)
-                    text_input_inpaint_pipe = gr.Textbox(label="Text Prompt: ")
-                    np_inpaint = gr.Textbox(label="Negative Prompt: ")
+                    text_input_inpaint_pipe = gr.Textbox(label="Text Prompt: ", value="astronaut, white suit, 8k, extremely detailed, ornate, cinematic lighting, vivid, photorealistic, detailed, high quality")
+                    np_inpaint = gr.Textbox(label="Negative Prompt: ", value="poor details, poor quality, blurry, deformed, extra limbs")
                     steps_inpaint = gr.Slider(minimum=5, maximum=200, label="Number of inference steps: ", value=150, step=1)                   
 
                 with gr.Tab("Pipeline - Object Removal"):
@@ -324,7 +325,7 @@ if __name__ == "__main__":
                                 Recommended sharpen values range: 0-5   
                                 Adjust the required inputs with the siders below:
                                 """)
-                    blur = gr.Slider(minimum=0, maximum=50, label="Box Blur value", value=15, step=1)
+                    blur = gr.Slider(minimum=0, maximum=50, label="Box Blur value", value=5, step=1)
                     sharpen = gr.Slider(minimum=0, maximum=20, label="Sharpen Parameter", value=0, step=1)
 
                 with gr.Tab("Outpainting"):
@@ -334,13 +335,13 @@ if __name__ == "__main__":
                                 - **Outpainting - Stable Diffusion**:  
                                 Required inputs: Input Image, Text Prompt, extend left/right/up/down, steps  
                                 Choose how much and which direction you want to extend /outpaint your image and specify a text prompt.  
-                                Example prompt: "dog in a park with other dogs and cats and deers, colorful flowers, blue sky, sunny weather, no clouds"
+                                Example prompt: "open plan, kitchen and living room, black umbrella on the floor, modular furniture with cotton textiles, wooden floor, high ceiling, large steel windows viewing a city"
                                 """)
-                    prompt_outpaint = gr.Textbox(label="Text Prompt: ")
-                    e_l = gr.Slider(minimum=0, maximum=1000, label="Extend Left", value=0, step=1)
+                    prompt_outpaint = gr.Textbox(label="Text Prompt: ", value="open plan, kitchen and living room, black umbrella on the floor, modular furniture with cotton textiles, wooden floor, high ceiling, large steel windows viewing a city")
+                    e_l = gr.Slider(minimum=0, maximum=1000, label="Extend Left", value=200, step=1)
                     e_r = gr.Slider(minimum=0, maximum=1000, label="Extend Right", value=200, step=1)
-                    e_u = gr.Slider(minimum=0, maximum=1000, label="Extend Up", value=0, step=1)
-                    e_d = gr.Slider(minimum=0, maximum=1000, label="Extend Down", value=0, step=1)
+                    e_u = gr.Slider(minimum=0, maximum=1000, label="Extend Up", value=200, step=1)
+                    e_d = gr.Slider(minimum=0, maximum=1000, label="Extend Down", value=200, step=1)
                     steps_outpaint = gr.Slider(minimum=0, maximum=200, label="Number of Steps", value=50, step=1)
 
                 with gr.Tab("Background Replacement"):
@@ -352,8 +353,8 @@ if __name__ == "__main__":
                                 Specify the new background in the text box below.  
                                 Example prompt: "dog sitting on the beach, sunny day, blue sky"
                                 """)
-                    prompt_background = gr.Textbox(label="Text Prompt: ")
-                    steps_br = gr.Slider(minimum=0, maximum=200, label="Number of Steps", value=20, step=1)
+                    prompt_background = gr.Textbox(label="Text Prompt: ", value="dog sitting on the beach, sunny day, blue sky, cinematic, pixbay, modernist, realistic, unreal engine, hyper detailed, photorealistic, maximum detail, volumetric light, moody cinematic epic concept art, vivid")
+                    steps_br = gr.Slider(minimum=0, maximum=200, label="Number of Steps", value=30, step=1)
 
 
 

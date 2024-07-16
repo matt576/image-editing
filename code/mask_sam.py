@@ -26,8 +26,8 @@ def get_mask(input_image, input_points):
 
 def sam_gradio(input_image, coord_input_text, dilation_bool, dilation_value):
     dilation_value = int(dilation_value)
-    # output_dir = "outputs/sam"
-    output_dir = "code/inputs/gradio_masks"
+    output_dir = "outputs/sam"
+    # output_dir = "code/inputs/gradio_masks"
     filename = "mask_gradio.png"
 
     input_points = None

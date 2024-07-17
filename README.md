@@ -13,7 +13,7 @@ The tool supports the following functions:
 - Outpainting
 - Restyling
 - Superresolution
-- Txt2Img Image Generation
+- Txt2Img Generation
 
 # 1. Set up the environment:
 1. Clone the repo and initialize the submodules:
@@ -155,7 +155,7 @@ In order to visualise the examples, we prepared a jupyter notebooks for each of 
 ```bash
 image-editing/code/notebooks/
 ```
-Those serve as tutorials to help getting familiar with the variety of possibilities provided by the Image-Editing tool and generate outputs for examplary images.
+These serve as tutorials to help getting familiar with the variety of possibilities provided by the Image-Editing tool and generate outputs for examplary images.
 
 List of the available notebooks:
 ```bash
@@ -170,11 +170,11 @@ List of the available notebooks:
 /9-Txt2Img.ipynb
 ```
 
-# 5. Gradio App - UI
+# 5. Gradio App - GUI
 
 In this section, we introduce the guide and steps of how to use the gradio app.
 
-In order to use all the capabilities of our tool in an user-friendly way, we developed an app in a form of webserver UI using the gradio library. <br />
+In order to use all the capabilities of our tool in an user-friendly way, we developed an app in a form of webserver GUI using the Gradio library. <br />
 
 This allows any user to upload their own images or artificially generate them via txt2img prompting, apply the aforementioned functionalities with different input parameters, visualize and download the results. <br />
 
@@ -213,18 +213,18 @@ Additionally this helps us evaluate the results and compare them to the state-of
 - SAM: facebook/sam-vit-huge
 - Grounded-SAM: facebook/sam-vit-huge + GroundingDINO
 
-## 2. Background-Blurring
+## 2. Background Blurring
 - Depth-Anything pipeline
     - Depth estimation: LiheYoung/depth_anything_vitl14
     - Foreground extraction: briaai/RMBG-1.4
 
 
-## 3. Background-Replacement
+## 3. Background Replacement
 - Stable-diffusion pipelines: 
     - stabilityai/stable-diffusion-2-inpainting
     - diffusers/stable-diffusion-xl-1.0-inpainting-0.1 
 
-## 4. Object-Removal
+## 4. Object Removal
 - Latent Diffusion pipelime: ldm_inpainting/last
 
 - Lama pipeline: big-lama/best
@@ -250,7 +250,7 @@ Additionally this helps us evaluate the results and compare them to the state-of
 - Latent diffusion pipeline: CompVis/ldm-super-resolution-4x-openimages
 - Upscaler pipeline: stabilityai/stable-diffusion-x4-upscaler
 
-## 9. Txt2Img Image Generation
+## 9. Txt2Img Generation
 - Stable-diffusion-v-1.5: runwayml/stable-diffusion-v1-5
 - Kandinsky-2.2: kandinsky-community/kandinsky-2-2-decoder
 - Stable diffusion XL: stabilityai/stable-diffusion-xl-base-1.0

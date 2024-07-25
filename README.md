@@ -261,13 +261,5 @@ Additionally this helps us evaluate the results and compare them to the state-of
 image-editing/code/outputs/
 ```
 and contain generated images for the introduced models.
-The evaluation is basing on comaprison the models to state-of-the-art tools or end products distributed by companies like Google, Apple etc.
-The overmentioned models are evaluated against:
-1. Mask generation: 
-2. Background blurring: Blur by Google Photos
-3. Background replacement: SmartBackground by PicsArt
-4. Object removal: Magic Eraser by Google Photos
-5. Inpainting: DALL-E by OpenAI
-6. Outpainting: DALL-E by OpenAI
-7. Restyling: Image Style Transfer by PicsArt
-8. Superresolution: Image Upscaler by PicsArt
+The qualitative evaluation is based on objective and subjective comaparison of the models to state-of-the-art tools or end products distributed by companies like Google, and also between the published models themselves.
+

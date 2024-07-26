@@ -59,7 +59,7 @@ def superres_upscaler_gradio(input_image, steps):
     upscaled_image.save("outputs/gradio/superres/superres_upscaler_output_gradio.png")
     return upscaled_image
 
-    if __name__ == "__main__":
+if __name__ == "__main__":
 
     model_id = "stabilityai/stable-diffusion-x4-upscaler"
     pipeline = StableDiffusionUpscalePipeline.from_pretrained(model_id, torch_dtype=torch.float16)

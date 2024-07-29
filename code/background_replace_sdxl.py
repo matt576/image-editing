@@ -42,15 +42,6 @@ def background_replace_portrait_stablediffusion(input_image: Image, prompt:str, 
     output_image = background_replace_mask_stablediffusion(input_image, foreground_mask, prompt, steps)
     return output_image
 
-
-if __name__ == "__main__":
-    
-    image = Image.open(f"test_dataset/jessi.png")
-    image = image.convert("RGB")
-    prompt = "dog sitting on the middle of a busy city street in tokyo, sunny day, blue sky"
-    output_image = background_replace_portrait_stablediffusion(image, prompt, 50)
-    output_image.save("outputs/eval/jessi_background_replacement_sdxl.png")
-
 def background_replace_sdxl_gradio(input_image, prompt, steps):
     steps = int(steps)
     input_image = input_image.convert("RGB")
@@ -62,6 +53,14 @@ def background_replace_sdxl_gradio(input_image, prompt, steps):
     print("Output image saved to: ", outdir + "/" + filename)
 
     return output_image
+
+if __name__ == "__main__":
+    
+    image = Image.open(f"inputs/inpainting/jessi.png")
+    image = image.convert("RGB")
+    prompt = "dog sitting on the middle of a busy city street in tokyo, sunny day, blue sky"
+    output_image = background_replace_portrait_stablediffusion(image, prompt, 50)
+    output_image.save("outputs/eval/jessi_background_replacement_sdxl.png")
 
 
     

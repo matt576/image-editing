@@ -53,7 +53,7 @@ def background_replace_sd_gradio(input_image, prompt, steps):
 
 if __name__ == "__main__":
     
-    image = Image.open(f"test_dataset/jessi.png")
+    image = Image.open(f"inputs/inpainting/jessi.png")
     image = image.convert("RGB")
     prompt = "dog sitting on the beach, sunny day, blue sky"
     output_image = background_replace_portrait_stablediffusion(image, prompt, 50)

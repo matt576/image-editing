@@ -72,16 +72,6 @@ if __name__ == "__main__":
     closest_height = int(round(original_height / 128)) * 128 ###
     low_res_img = low_res_img.resize((closest_width, closest_height))###
     new_size = (closest_width, closest_height) ###
-
-    # if original_width > original_height:
-    #     low_res_img = low_res_img.resize((768, 512))
-    #     new_size = (768, 512)
-    # elif original_width < original_height:
-    #     low_res_img = low_res_img.resize((512, 768))
-    #     new_size = (512, 768)
-    # else:
-    #     low_res_img = low_res_img.resize((512, 512))
-    #     new_size = (512, 512)
     
     patch_size = 128
     patches = divide_image(low_res_img, patch_size)

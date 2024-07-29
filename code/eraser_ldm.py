@@ -57,81 +57,6 @@ def make_batch(image, mask, device):
         batch[k] = batch[k]*2.0-1.0
     return batch
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--indir",
-        type=str,
-        nargs="?",
-        help="dir containing image-mask pairs (`example.png` and `example_mask.png`)",
-    )
-    parser.add_argument(
-        "--outdir",
-        type=str,
-        nargs="?",
-        help="dir to write results to",
-    )
-    parser.add_argument(
-        "--steps",
-        type=int,
-        default=50,
-        help="number of ddim sampling steps",
-    )
-    opt = parser.parse_args()
-
-    masks = sorted(glob.glob(os.path.join(opt.indir, "*_mask.png")))
-    images = [x.replace("_mask.png", ".png") for x in masks]
-    print(f"Found {len(masks)} inputs.")
-
-    config = OmegaConf.load("models/ldm_inpainting/config.yaml")
-    model = instantiate_from_config(config.model)
-    model.load_state_dict(torch.load("models/ldm_inpainting/last.ckpt")["state_dict"],
-                          strict=False)
-
-    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    model = model.to(device)
-    sampler = DDIMSampler(model)
-
-    os.makedirs(opt.outdir, exist_ok=True)
-    with torch.no_grad():
-        with model.ema_scope():
-            for image, mask in tqdm(zip(images, masks)):
-
-                outpath = os.path.join(opt.outdir, os.path.split(image)[1])
-                image_open = Image.open(image)
-                original_width, original_height = image_open.size
-                batch = make_batch(image, mask, device=device)
-
-                # encode masked image and concat downsampled mask
-                c = model.cond_stage_model.encode(batch["masked_image"])
-                cc = torch.nn.functional.interpolate(batch["mask"],
-                                                     size=c.shape[-2:])
-                c = torch.cat((c, cc), dim=1)
-
-                shape = (c.shape[1]-1,)+c.shape[2:]
-                samples_ddim, _ = sampler.sample(S=opt.steps,
-                                                 conditioning=c,
-                                                 batch_size=c.shape[0],
-                                                 shape=shape,
-                                                 verbose=False)
-                x_samples_ddim = model.decode_first_stage(samples_ddim)
-
-                image = torch.clamp((batch["image"]+1.0)/2.0,
-                                    min=0.0, max=1.0)
-                mask = torch.clamp((batch["mask"]+1.0)/2.0,
-                                   min=0.0, max=1.0)
-                predicted_image = torch.clamp((x_samples_ddim+1.0)/2.0,
-                                              min=0.0, max=1.0)
-
-                inpainted = (1-mask)*image+mask*predicted_image
-                inpainted = inpainted.cpu().numpy().transpose(0,2,3,1)[0]*255
-
-                inpainted_image = Image.fromarray(inpainted.astype(np.uint8))
-                inpainted_image = inpainted_image.resize((original_width, original_height))
-                inpainted_image.save(outpath)
-
-
 def make_batch_gradio(image, mask, device):
     image = np.array(image.convert("RGB"))
     image = image.astype(np.float32)/255.0
@@ -225,3 +150,76 @@ def ldm_removal_gradio(input_image, mask_image, ddim_steps):
             filename = "ldm_removal.png"
             inpainted.save(f"{output_dir}/{filename}")
             return inpainted
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--indir",
+        type=str,
+        nargs="?",
+        help="dir containing image-mask pairs (`example.png` and `example_mask.png`)",
+    )
+    parser.add_argument(
+        "--outdir",
+        type=str,
+        nargs="?",
+        help="dir to write results to",
+    )
+    parser.add_argument(
+        "--steps",
+        type=int,
+        default=50,
+        help="number of ddim sampling steps",
+    )
+    opt = parser.parse_args()
+
+    masks = sorted(glob.glob(os.path.join(opt.indir, "*_mask.png")))
+    images = [x.replace("_mask.png", ".png") for x in masks]
+    print(f"Found {len(masks)} inputs.")
+
+    config = OmegaConf.load("models/ldm_inpainting/config.yaml")
+    model = instantiate_from_config(config.model)
+    model.load_state_dict(torch.load("models/ldm_inpainting/last.ckpt")["state_dict"],
+                          strict=False)
+
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    model = model.to(device)
+    sampler = DDIMSampler(model)
+
+    os.makedirs(opt.outdir, exist_ok=True)
+    with torch.no_grad():
+        with model.ema_scope():
+            for image, mask in tqdm(zip(images, masks)):
+
+                outpath = os.path.join(opt.outdir, os.path.split(image)[1])
+                image_open = Image.open(image)
+                original_width, original_height = image_open.size
+                batch = make_batch(image, mask, device=device)
+
+                # encode masked image and concat downsampled mask
+                c = model.cond_stage_model.encode(batch["masked_image"])
+                cc = torch.nn.functional.interpolate(batch["mask"],
+                                                     size=c.shape[-2:])
+                c = torch.cat((c, cc), dim=1)
+
+                shape = (c.shape[1]-1,)+c.shape[2:]
+                samples_ddim, _ = sampler.sample(S=opt.steps,
+                                                 conditioning=c,
+                                                 batch_size=c.shape[0],
+                                                 shape=shape,
+                                                 verbose=False)
+                x_samples_ddim = model.decode_first_stage(samples_ddim)
+
+                image = torch.clamp((batch["image"]+1.0)/2.0,
+                                    min=0.0, max=1.0)
+                mask = torch.clamp((batch["mask"]+1.0)/2.0,
+                                   min=0.0, max=1.0)
+                predicted_image = torch.clamp((x_samples_ddim+1.0)/2.0,
+                                              min=0.0, max=1.0)
+
+                inpainted = (1-mask)*image+mask*predicted_image
+                inpainted = inpainted.cpu().numpy().transpose(0,2,3,1)[0]*255
+
+                inpainted_image = Image.fromarray(inpainted.astype(np.uint8))
+                inpainted_image = inpainted_image.resize((original_width, original_height))
+                inpainted_image.save(outpath)

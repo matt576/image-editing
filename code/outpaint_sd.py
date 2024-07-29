@@ -26,13 +26,11 @@ def outpaint_stablediffusion(input_image: Image, prompt: str, coordinates: list,
     # extended_image = extended_image.filter(ImageFilter.BoxBlur(10))
 
     extended_image.paste(input_image, (coordinates[0], coordinates[2]))
-    extended_image.save("outputs/outpainting/extended_image.png")
 
     # new mask image
     extended_mask = Image.new('L', (new_width, new_height), color='white')
     extended_mask.paste(Image.new('L', input_image.size, color='black'), (coordinates[0], coordinates[2]))
     extended_mask = expand_white_areas_outpainting(extended_mask, 5)
-    extended_mask.save("outputs/outpainting/extended_mask.png")
 
     # extended_image = extended_image.resize((512, 512))
     # extended_mask = extended_mask.resize((512, 512))

@@ -51,7 +51,7 @@ cd ..
 
 ```bash
 pip install omegaconf==2.1.1
-pip install pytorch-lightning==1.6.1  # possibly newer version
+pip install pytorch-lightning==1.6.1
 pip install einops==0.3.0
 pip install -e git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers
 
@@ -78,7 +78,7 @@ echo $CUDA_HOME #check if variable was automatically set to /storage/software/cu
 ```bash
 export AM_I_DOCKER=False
 export BUILD_WITH_CUDA=True
-export CUDA_HOME=/storage/software/cuda/cuda-12.1.0 # Path on atcremers60@in.tum.de
+export CUDA_HOME=/storage/software/cuda/cuda-12.1.0
 ```
 Otherwise, the program will run on CPU-only mode. The following error will occur if you don't follow the previous steps: "NameError: name '_C' is not defined". <br />
 If that happens, simply delete groundingDino from your environemnt and start over from setting the environemnt variable manually.

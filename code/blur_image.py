@@ -106,20 +106,6 @@ def blur_image(input_image: Image, bBlur: int, sharpen: int = 0, set_focal_point
     blurred_img.paste(foreground_img, foreground_img)
     return blurred_img
 
-
-
-if __name__ == "__main__":
-
-    directory_path = "test_dataset"
-
-    for filename in os.listdir(directory_path):
-        print(filename)
-        name = filename.split('.')[0]
-        input_image = Image.open(f"{directory_path}/{filename}").convert("RGB")
-        blurred_image = blur_image(input_image, 15, 0)
-        blurred_image.save(f"outputs/blur/{name}.png")
-
-
 def portrait_gradio(input_image, blur, sharpen):
     input_image = input_image.convert("RGB")
     blur = int(blur)
@@ -135,3 +121,14 @@ def portrait_gradio(input_image, blur, sharpen):
     blurred_image.save(f"{outdir}/{filename}")
 
     return blurred_image
+
+if __name__ == "__main__":
+
+    directory_path = "test_dataset"
+
+    for filename in os.listdir(directory_path):
+        print(filename)
+        name = filename.split('.')[0]
+        input_image = Image.open(f"{directory_path}/{filename}").convert("RGB")
+        blurred_image = blur_image(input_image, 15, 0)
+        blurred_image.save(f"outputs/blur/{name}.png")

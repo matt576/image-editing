@@ -2,7 +2,7 @@
 
 The AFM Image-Editing tool allows for AI-supported modification of images using a variety of technologies. <br />
 Our repository includes implementation of the methods, examplary results and evaluation. <br />
-Additionally, we created jupyter notebooks to better understand the possibilities of our Image-Editing tool and an app for running the methods on a webserver using Gradio. <br />
+Additionally, we created jupyter notebooks to better understand the possibilities of our Image-Editing tool and an app for running the methods on a webserver using the Python Gradio library. <br />
 
 The tool supports the following functions:
 - Mask generation
@@ -65,14 +65,14 @@ pip install controlnet_aux
 
 You should set the environment variable manually as described below, if you want to build a local GPU environment for Grounded-SAM:
 
-First, to check which cuda versions are available and the required path:
+First, to check which CUDA versions are available and the required path:
 ```bash
 module avail
 ```
 Then:
 ```bash
 source /etc/profile.d/lmod.sh  
-module load cuda/12.1.0 # Should match cuda version from pytorch
+module load cuda/12.1.0 # Should match CUDA version from pytorch
 echo $CUDA_HOME #check if variable was automatically set to /storage/software/cuda/cuda-12.1.0, otherwise set manually with EXPORT...
 ```
 ```bash
@@ -226,7 +226,7 @@ Additionally this helps us evaluate the results and compare them to the state-of
 ## 4. Object Removal
 - Latent Diffusion pipeline: ldm_inpainting/last
 
-- Lama pipeline: big-lama/best
+- LaMa pipeline: big-lama/best
 
 ## 5. Inpainting
 - Stable-diffusion-v-1.5 pipeline: runwayml/stable-diffusion-inpainting

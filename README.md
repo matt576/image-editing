@@ -200,7 +200,7 @@ After that, a public- and a local links for the accessing the UI will be generat
 2. Confirm your input image or open the accordion 'Txt2Img' if you'd like to generate your own input, and follow the instructions in the app.
 3. Select your image editing task by clicking on a tab.
 4. Within a tab, select the model on the dropdown menu and give the required inpit prompts by folllowing the instructions in the app.
-5. Click 'Generate' and enjoy the app!
+5. Click 'Generate!' and enjoy the app!
 
 (Optional): For inpainting / object removal, you have the option of directly inputting the image coordinates (clicking on image or writing coordinates) into the task (pipeline tabs), or if you prefer, first generate a mask preview and load the output mask as input for the optional mask input tasks on the left hand side.
 
@@ -218,14 +218,13 @@ Additionally this helps us evaluate the results and compare them to the state-of
     - Depth estimation: LiheYoung/depth_anything_vitl14
     - Foreground extraction: briaai/RMBG-1.4
 
-
 ## 3. Background Replacement
-- Stable-diffusion pipelines: 
+- Stable diffusion pipelines: 
     - stabilityai/stable-diffusion-2-inpainting
     - diffusers/stable-diffusion-xl-1.0-inpainting-0.1 
 
 ## 4. Object Removal
-- Latent Diffusion pipelime: ldm_inpainting/last
+- Latent Diffusion pipeline: ldm_inpainting/last
 
 - Lama pipeline: big-lama/best
 
@@ -258,7 +257,7 @@ Additionally this helps us evaluate the results and compare them to the state-of
 # 7. Evaluation
 ## The evualuation results are stored in
 ```bash
-image-editing/code/outputs/
+image-editing/code/outputs/eval
 ```
 and contain generated images for the introduced models.
 The qualitative evaluation is based on objective and subjective comaparison of the models to state-of-the-art tools or end products distributed by companies like Google, and also between the published models themselves.

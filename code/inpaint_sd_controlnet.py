@@ -83,7 +83,7 @@ if __name__ == "__main__":
     filename = "jessi_inpainted_controlnet.png"
     text_prompt = "batman the dark knight from christopher nolan movie, facing towards viewer, photorealistic, detailed, high quality"
 
-    init_image = Image.open("test_dataset/jessi.png")
+    init_image = Image.open("inputs/inpainting/jessi.png")
     init_image = init_image.convert("RGB")
     original_width, original_height = init_image.size
     # if original_width > original_height:

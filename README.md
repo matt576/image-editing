@@ -5,6 +5,7 @@ Our repository includes implementation of the methods, examplary results and eva
 Additionally, we created jupyter notebooks to better understand the possibilities of our Image-Editing tool and an app for running the methods on a webserver using the Python Gradio library. <br />
 
 The tool supports the following functions:
+
 - Mask generation
 - Background blurring
 - Background replacement
@@ -16,6 +17,7 @@ The tool supports the following functions:
 - Txt2Img Generation
 
 # 1. Set up the environment:
+
 1. Clone the repo and initialize the submodules:
 
 ```bash
@@ -25,28 +27,29 @@ git submodule update --init --recursive
 ```
 
 2. To set up the working environment, conda is recommended.
-Create and activate the new environment:
+   Create and activate the new environment:
 
 ```bash
-conda create -n pytorch_env python=3.8.10 \
+conda create -n image-editing-env python=3.8.10 \
   -c nvidia/label/cuda12.1.0 \
   -c conda-forge
 
 conda activate image-editing-env
 ```
+
 3. After creating and activating the environment, install the respective CUDA-supported Pytorch version:
 
 ```bash
 conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
 ```
+
 4. Install requirements for running diffusers and transformers:
 
 ```bash
 pip install diffusers["torch"] transformers
-cd diffusers
 pip install -e "./diffusers[torch]"
-cd ..
 ```
+
 5. Additional requirements:
 
 ```bash
@@ -66,37 +69,44 @@ pip install controlnet_aux
 You should set the environment variable manually as described below, if you want to build a local GPU environment for Grounded-SAM:
 
 First, to check which CUDA versions are available and the required path:
+
 ```bash
 module avail
 ```
+
 Then:
+
 ```bash
-source /etc/profile.d/lmod.sh  
+source /etc/profile.d/lmod.sh
 module load cuda/12.1.0 # Should match CUDA version from pytorch
 echo $CUDA_HOME #check if variable was automatically set to /storage/software/cuda/cuda-12.1.0, otherwise set manually with EXPORT...
 ```
+
 ```bash
 export AM_I_DOCKER=False
 export BUILD_WITH_CUDA=True
 export CUDA_HOME=/storage/software/cuda/cuda-12.1.0
 ```
-Otherwise, the program will run on CPU-only mode. The following error will occur if you don't follow the previous steps: "NameError: name '_C' is not defined". <br />
+
+Otherwise, the program will run on CPU-only mode. The following error will occur if you don't follow the previous steps: "NameError: name '\_C' is not defined". <br />
 If that happens, simply delete groundingDino from your environemnt and start over from setting the environemnt variable manually.
 
 Install Segment Anything:
 
 ```bash
-python -m pip install -e ../Grounded-Segment-Anything/segment_anything
+python -m pip install -e Grounded-Segment-Anything/segment_anything
 ```
 
 Install Grounding DINO:
 
 ```bash
-pip install --no-build-isolation -e ../Grounded-Segment-Anything/GroundingDINO # Follow previous CUDA_HOME steps carefully
+pip install --no-build-isolation -e Grounded-Segment-Anything/GroundingDINO # Follow previous CUDA_HOME steps carefully
 ```
+
 In case you encounter path issues when running GroundedSAM-related functions, copy the GroundingDINO folder (found inside GroundedSAM submodule) into the code folder as an immediate temporary solution.
 
 7. LaMa setup:
+
 ```bash
 pip install easydict
 pip install scikit-learn
@@ -114,50 +124,64 @@ pip install gradio
 ```
 
 9. Jupyter notebooks:
+
 ```bash
 pip install ipykernel
 ```
 
-
 # 2. Download the necessary model checkpoints for functions unavailable on huggingface diffusers/tranformers
+
 Latent diffusion:
+
 ```bash
+cd code
 wget -O models/ldm_inpainting/last.ckpt https://heibox.uni-heidelberg.de/f/4d9ac7ea40c64582b7c9/?dl=1
 ```
+
 LaMa:
+
 ```bash
 curl -LJO https://huggingface.co/smartywu/big-lama/resolve/main/big-lama.zip
 unzip big-lama.zip -d ~/image-editing/code/models/
 rm big-lama.zip
 ```
+
 GroundedSAM (SAM + GroundingDINO):
+
 ```bash
 wget -O models/sam_vit_h_4b8939.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
 wget -O models/groundingdino_swint_ogc.pth https://github.com/IDEA-Research/GroundingDINO/releases/download/v0.1.0-alpha/groundingdino_swint_ogc.pth
 ```
 
-# 3. Modifications for compatibility purposes 
+# 3. Modifications for compatibility purposes
+
 Latent Diffusion:
 
 In the file: **image-editing\src\taming-transformers\taming\data\utils.py**
 change line 11:
+
 ```bash
 from torch._six import string_classes
 ```
+
 to
+
 ```bash
 string_classes = str
 ```
 
 # 4. Functions demonstration:
+
 In order to visualise the examples, we prepared a jupyter notebooks for each of the functions, located in the folder:
 
 ```bash
 image-editing/code/notebooks/
 ```
+
 These serve as tutorials to help getting familiar with the variety of possibilities provided by the Image-Editing tool and generate outputs for examplary images.
 
 List of the available notebooks:
+
 ```bash
 /1-Mask-Generation.ipynb
 /2-Background-Blurring.ipynb
@@ -183,18 +207,22 @@ Our program supports usage of more than just one model for a each function. The 
 ![alt text](code/inputs/image.png)
 
 0. (Optional) Before launching the app, open the file
+
 ```bash
 code/afm_gradio.py
 ```
+
 and navigate to the main function to specify the input image- and mask paths you'd like to be opened when lauching the app. <br />
 For that, simply edit the variables 'original_image_path' and 'input_mask_path' with your desired inputs. <br />
 This is an optional step, since you can also upload an input image (e.g. via drag-and-drop) directly in the UI.
 
 1. Launch the app:
+
 ```bash
 cd code
 python afm_gradio.py
 ```
+
 After that, a public- and a local links for the accessing the UI will be generated. If you're using GPUs via remote access (SSH/Tunnel), we recommend using the public link.
 
 2. Confirm your input image or open the accordion 'Txt2Img' if you'd like to generate your own input, and follow the instructions in the app.
@@ -205,60 +233,72 @@ After that, a public- and a local links for the accessing the UI will be generat
 (Optional): For inpainting / object removal, you have the option of directly inputting the image coordinates (clicking on image or writing coordinates) into the task (pipeline tabs), or if you prefer, first generate a mask preview and load the output mask as input for the optional mask input tasks on the left hand side.
 
 # 6. Functions and used models
+
 To allow users more flexibility, we included several models for each functionality. <br />
 This section describes the implemented pipelines and exact model checkpoints used in the tool. <br />
 Additionally this helps us evaluate the results and compare them to the state-of-the-art methods. <br />
 
 ## 1. Mask Generation
+
 - SAM: facebook/sam-vit-huge
 - Grounded-SAM: facebook/sam-vit-huge + GroundingDINO
 
 ## 2. Background Blurring
+
 - Depth-Anything pipeline
-    - Depth estimation: LiheYoung/depth_anything_vitl14
-    - Foreground extraction: briaai/RMBG-1.4
+  - Depth estimation: LiheYoung/depth_anything_vitl14
+  - Foreground extraction: briaai/RMBG-1.4
 
 ## 3. Background Replacement
-- Stable diffusion pipelines: 
-    - stabilityai/stable-diffusion-2-inpainting
-    - diffusers/stable-diffusion-xl-1.0-inpainting-0.1 
+
+- Stable diffusion pipelines:
+  - stabilityai/stable-diffusion-2-inpainting
+  - diffusers/stable-diffusion-xl-1.0-inpainting-0.1
 
 ## 4. Object Removal
+
 - Latent Diffusion pipeline: ldm_inpainting/last
 
 - LaMa pipeline: big-lama/best
 
 ## 5. Inpainting
+
 - Stable-diffusion-v-1.5 pipeline: runwayml/stable-diffusion-inpainting
 - Kandinsky-2.2 pipeline: kandinsky-community/kandinsky-2-2-decoder-inpaint
 - Stable diffusion XL pipeline: diffusers/stable-diffusion-xl-1.0-inpainting-0.1
 - Stable diffusion with controlnet pipeline:
-    - Controlnet: lllyasviel/control_v11p_sd15_inpaint
-    - Stable diffusion: runwayml/stable-diffusion-v1-5
+  - Controlnet: lllyasviel/control_v11p_sd15_inpaint
+  - Stable diffusion: runwayml/stable-diffusion-v1-5
 
 ## 6. Outpainting
+
 - Stable diffusion pipeline: stabilityai/stable-diffusion-2-inpainting
 - Stable diffusion XL pipeline: diffusers/stable-diffusion-xl-1.0-inpainting-0.1
 
 ## 7. Restyling:
+
 - Stable diffusion pipeline: runwayml/stable-diffusion-v1-5
 - Kandinsky pipeline: kandinsky-community/kandinsky-2-2-decoder
 - Stable diffusion XL pipeline: stabilityai/stable-diffusion-xl-refiner-1.0
 
 ## 8. Superresolution:
+
 - Latent diffusion pipeline: CompVis/ldm-super-resolution-4x-openimages
 - Upscaler pipeline: stabilityai/stable-diffusion-x4-upscaler
 
 ## 9. Txt2Img Generation
+
 - Stable-diffusion-v-1.5: runwayml/stable-diffusion-v1-5
 - Kandinsky-2.2: kandinsky-community/kandinsky-2-2-decoder
 - Stable diffusion XL: stabilityai/stable-diffusion-xl-base-1.0
 
 # 7. Evaluation
+
 ## The evualuation results are stored in
+
 ```bash
 image-editing/code/outputs/eval
 ```
+
 and contain generated images for the introduced models.
 The qualitative evaluation is based on objective and subjective comaparison of the models to state-of-the-art tools or end products distributed by companies like Google, and also between the published models themselves.
-

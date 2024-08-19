@@ -196,6 +196,8 @@ List of the available notebooks:
 
 # 5. Gradio App - GUI
 
+Preview: https://huggingface.co/spaces/AFM-Image-Editing/image-editing
+
 In this section, we introduce the guide and steps of how to use the gradio app.
 
 In order to use all the capabilities of our tool in an user-friendly way, we developed an app in a form of webserver GUI using the Gradio library. <br />
